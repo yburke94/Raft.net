@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38AA7867-734C-4B09-ABD4-8DB3F74ACE6C}</ProjectGuid>
+    <ProjectGuid>{06386123-E4BF-4C81-825A-3B7472214BB7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Core</RootNamespace>
-    <AssemblyName>Raft.Core</AssemblyName>
+    <RootNamespace>Raft.Tests.Unit</RootNamespace>
+    <AssemblyName>Raft.Tests.Unit</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,6 +33,9 @@
     <Reference Include="Automatonymous">
       <HintPath>..\..\packages\Automatonymous.1.2.7\lib\net40\Automatonymous.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,16 +48,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Strategies\IApplyCommandStrategy.cs" />
-    <Compile Include="Node.cs" />
-    <Compile Include="NodeStateMachine.cs" />
-    <Compile Include="CommandLogging\PersistLogCommandToDisk.cs" />
+    <Compile Include="Core\NodeStateMachineTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Raft.Core\Raft.Core.csproj">
+      <Project>{38aa7867-734c-4b09-abd4-8db3f74ace6c}</Project>
+      <Name>Raft.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

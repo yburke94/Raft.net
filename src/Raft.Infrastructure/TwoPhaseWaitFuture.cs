@@ -75,7 +75,7 @@ namespace Raft.Infrastructure
                 {
                     if (_callBackTask == null)
                     {
-                        _callBackTask = Task.Factory.StartNew(() => Result());
+                        _callBackTask = new Task<TResult>(Result);
                     }
                 }
             }
@@ -96,6 +96,8 @@ namespace Raft.Infrastructure
                 _result = result;
                 _futureState = 1;
                 _kernelEvent.Set();
+
+                _callBackTask.Start(TaskScheduler.Default);
             }
         }
     }

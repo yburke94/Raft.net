@@ -3,7 +3,6 @@ using Raft.Infrastructure;
 
 namespace Raft.Server
 {
-    // TODO: Change name
     internal class RaftServer : IRaftServer
     {
         private readonly EventPublisher<CommandScheduledEvent> _stateMachineCommandPublisher;
