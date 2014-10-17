@@ -12,9 +12,9 @@ namespace Raft.Server
             _stateMachineCommandPublisher = new EventPublisher<CommandScheduledEvent>(commandBuffer);
         }
 
-        public IFuture<ILogResult> Execute<T>(T command) where T : IRaftCommand
+        public IFuture<LogResult> Execute<T>(T command) where T : IRaftCommand, new()
         {
-            var future = new TwoPhaseWaitFuture<ILogResult>();
+            var future = new TwoPhaseWaitFuture<LogResult>();
 
             _stateMachineCommandPublisher.PublishEvent((@event, l) =>
                 @event.Copy(new CommandScheduledEvent {

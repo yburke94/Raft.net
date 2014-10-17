@@ -10,7 +10,7 @@ namespace Raft.Server
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
-            serviceRegistry.Register<IEventHandler<CommandScheduledEvent>, ServerStateValidator>(new PerContainerLifetime());
+            serviceRegistry.Register<IEventHandler<CommandScheduledEvent>, NodeStateManager>(new PerContainerLifetime());
             serviceRegistry.Register(factory => CreateRingBuffer<CommandScheduledEvent>(factory, 1024), new PerContainerLifetime());
         }
 

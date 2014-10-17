@@ -4,6 +4,6 @@ namespace Raft.Server
 {
     public interface IRaftServer
     {
-        IFuture<ILogResult> Execute<T>(T command) where T : IRaftCommand;
+        IFuture<LogResult> Execute<T>(T command) where T : IRaftCommand, new();
     }
 }

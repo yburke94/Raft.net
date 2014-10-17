@@ -6,7 +6,7 @@ namespace Raft.Server
     {
         public IRaftCommand Command { get; set; }
 
-        public Action<ILogResult> SetResult { get; set; }
+        public Action<LogResult> SetResult { get; set; }
 
         public CommandScheduledEvent Copy(CommandScheduledEvent @event)
         {

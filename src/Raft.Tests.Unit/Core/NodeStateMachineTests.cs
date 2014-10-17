@@ -11,7 +11,7 @@ namespace Raft.Tests.Unit.Core
         public void CanTransitionToLeaderWhenJoinClusterIsCalled()
         {
             // Arrange
-            var node = new Node();
+            var node = new NodeState();
             var nodeStateMachine = new NodeStateMachine();
 
             // Act

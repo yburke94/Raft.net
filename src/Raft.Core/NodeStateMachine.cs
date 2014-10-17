@@ -4,7 +4,7 @@ using Raft.Core.CommandLogging;
 
 namespace Raft.Core
 {
-    public class NodeStateMachine : AutomatonymousStateMachine<Node>
+    public class NodeStateMachine : AutomatonymousStateMachine<NodeState>, INodeEvents
     {
         public NodeStateMachine()
         {

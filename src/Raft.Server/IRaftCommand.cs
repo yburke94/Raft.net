@@ -4,6 +4,6 @@
     {
         string CommandName { get; }
 
-        void Execute();
+        void Execute(RaftServerContext context);
     }
 }
