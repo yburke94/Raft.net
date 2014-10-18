@@ -1,5 +1,4 @@
 using System;
-using Automatonymous;
 using Raft.Core;
 
 namespace Raft.Server
@@ -12,8 +11,8 @@ namespace Raft.Server
             // TODO
         }
 
-        public Func<INodeEvents, Event> GetStateMachineEvent {
-            get { return x => x.JoinCluster; }
+        public Action<IRaftNode> NodeAction {
+            get { return x => x.JoinCluster(); }
         }
     }
 }

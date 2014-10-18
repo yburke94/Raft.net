@@ -1,5 +1,4 @@
 using System;
-using Automatonymous;
 using Disruptor;
 using Raft.Core;
 
@@ -15,25 +14,25 @@ namespace Raft.Server
     /// </summary>
     internal class NodeStateManager : IEventHandler<CommandScheduledEvent>
     {
-        private readonly InstanceLift<NodeStateMachine> _stateMachineLift;
-        private readonly INodeEvents _nodeEvents;
+        private readonly IRaftNode _raftNode;
 
-        public NodeStateManager(InstanceLift<NodeStateMachine> stateMachineLift, INodeEvents nodeEvents)
+        public NodeStateManager(IRaftNode raftNode)
         {
-            _stateMachineLift = stateMachineLift;
-            _nodeEvents = nodeEvents;
+            _raftNode = raftNode;
         }
 
         public void OnNext(CommandScheduledEvent data, long sequence, bool endOfBatch)
         {
+            if (!data.IsValidForProcessing()) return;
+
             var internalCommand = data.Command as IRaftInternalCommand;
 
             try
             {
                 if (internalCommand != null)
-                    _stateMachineLift.Raise(internalCommand.GetStateMachineEvent(_nodeEvents));
+                    internalCommand.NodeAction(_raftNode);
                 else
-                    _stateMachineLift.Raise(_nodeEvents.ApplyCommand);
+                    _raftNode.LogEntry();
             }
             catch (Exception ex)
             {

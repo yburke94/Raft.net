@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Automatonymous">
-      <HintPath>..\..\packages\Automatonymous.1.2.7\lib\net40\Automatonymous.dll</HintPath>
+    <Reference Include="Stateless">
+      <HintPath>..\..\packages\Stateless.2.4.0\lib\Stateless.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -40,23 +40,22 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Taskell">
-      <HintPath>..\..\packages\Taskell.0.1.2\lib\net40\Taskell.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="INodeEvents.cs" />
-    <Compile Include="InternalCommands\Class1.cs" />
-    <Compile Include="Strategies\IApplyCommandStrategy.cs" />
+    <Compile Include="IRaftNode.cs" />
+    <Compile Include="NodeEvent.cs" />
     <Compile Include="NodeState.cs" />
-    <Compile Include="NodeStateMachine.cs" />
+    <Compile Include="RaftNode.cs" />
+    <Compile Include="Strategies\IApplyCommandStrategy.cs" />
     <Compile Include="Strategies\CommandLogging\PersistLogCommandToDisk.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="InternalCommands\" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

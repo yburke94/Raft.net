@@ -1,14 +1,11 @@
-﻿using Automatonymous;
-using Raft.Core.Strategies;
-
-namespace Raft.Core
+﻿namespace Raft.Core
 {
-    public class NodeState
+    internal enum NodeState
     {
-        public State CurrentState { get; set; }
-
-        public IApplyCommandStrategy ApplyCommandStrategy { get; set; }
-
-        // State transitions will get and set different strategies on the NodeState object!
+        Initial,
+        Leader,
+        Candidate,
+        Follower,
+        Final
     }
 }

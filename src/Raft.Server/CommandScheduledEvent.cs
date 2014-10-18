@@ -4,9 +4,22 @@ namespace Raft.Server
 {
     internal class CommandScheduledEvent
     {
+        private bool _isFaulted;
+        private Action<LogResult> _setResult;
+
         public IRaftCommand Command { get; set; }
 
-        public Action<LogResult> SetResult { get; set; }
+        public Action<LogResult> SetResult {
+            get { return _setResult; }
+            set {
+                _setResult = result => {
+                    if (!result.Successful)
+                        _isFaulted = true;
+
+                    value(result);
+                };
+            }
+        }
 
         public CommandScheduledEvent Copy(CommandScheduledEvent @event)
         {
@@ -19,6 +32,11 @@ namespace Raft.Server
             Command = @event.Command;
             SetResult = @event.SetResult;
             return this;
+        }
+
+        public bool IsValidForProcessing()
+        {
+            return _isFaulted;
         }
     }
 }

@@ -33,9 +33,6 @@
     <Reference Include="Atomic">
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Atomic.dll</HintPath>
     </Reference>
-    <Reference Include="Automatonymous">
-      <HintPath>..\..\packages\Automatonymous.1.2.7\lib\net40\Automatonymous.dll</HintPath>
-    </Reference>
     <Reference Include="Disruptor">
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Disruptor.dll</HintPath>
     </Reference>
@@ -49,9 +46,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Taskell">
-      <HintPath>..\..\packages\Taskell.0.1.2\lib\net40\Taskell.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Handlers\LogPersistanceManager.cs" />
