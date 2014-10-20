@@ -39,6 +39,9 @@
     <Reference Include="Disruptor.Scheduler">
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Disruptor.Scheduler.dll</HintPath>
     </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,9 +51,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\IRaftConfiguration.cs" />
+    <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Handlers\LogPersistanceManager.cs" />
     <Compile Include="Handlers\LogReplicationManager.cs" />
     <Compile Include="Handlers\LogVerificationManager.cs" />
+    <Compile Include="Configuration\IConfigureRaft.cs" />
+    <Compile Include="LogEntry.cs" />
     <Compile Include="LogResult.cs" />
     <Compile Include="IRaftCommand.cs" />
     <Compile Include="IRaftInternalCommand.cs" />

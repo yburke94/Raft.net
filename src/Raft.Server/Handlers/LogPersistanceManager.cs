@@ -15,7 +15,11 @@ namespace Raft.Server.Handlers
     {
         public void OnNext(CommandScheduledEvent data, long sequence, bool endOfBatch)
         {
-            if (!data.IsValidForProcessing()) return;
+            if (!data.IsValidForProcessing()) return; // TODO: DRY
+
+            if (data.Command is IRaftInternalCommand) return;
+
+
         }
     }
 }
