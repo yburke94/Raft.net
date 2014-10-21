@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FluentAssertions;
 using NUnit.Framework;
 using ProtoBuf;
 using Raft.Server;
@@ -36,7 +34,27 @@ namespace Raft.Tests.Unit
             }
 
             // Assert
-            File.Exists(filePath);
+            File.ReadAllBytes(filePath).Length.Should().BeGreaterThan(0, "because it should contain encoded data.");
+        }
+
+        [Test]
+        public void CanDecodeLogMessage()
+        {
+            // Arrange
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "TestFiles\\EncodedData\\EncodedLogEntry.bin");
+
+            using (var file = File.OpenRead(filePath))
+            {
+                // Act
+                var logEntry = Serializer.Deserialize<LogEntry>(file);
+
+                // Assert
+                logEntry.Should().NotBeNull();
+                logEntry.Index.ShouldBeEquivalentTo(1);
+                logEntry.Term.ShouldBeEquivalentTo(1);
+                logEntry.Command.Should().BeOfType<DoSomething>();
+            }
         }
     }
 

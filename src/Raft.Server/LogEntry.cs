@@ -15,7 +15,7 @@ namespace Raft.Server
         [ProtoMember(3, IsRequired = true)]
         public string CommandType { get; set; }
 
-        [ProtoMember(4)]
-        public object Command { get; set; }
+        [ProtoMember(4, DynamicType = true)]
+        public IRaftCommand Command { get; set; }
     }
 }
