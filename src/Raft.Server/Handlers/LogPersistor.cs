@@ -7,7 +7,7 @@ namespace Raft.Server.Handlers
     /// 4 of 4 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     NodeStateValidator
-    ///     CommandEncoder
+    ///     LogEncoder
     ///     LogReplicator
     ///     LogPersistor*
     /// </summary>

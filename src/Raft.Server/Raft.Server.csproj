@@ -56,7 +56,7 @@
     <Compile Include="Handlers\CommandScheduledEventHandler.cs" />
     <Compile Include="Handlers\LogPersistor.cs" />
     <Compile Include="Handlers\LogReplicator.cs" />
-    <Compile Include="Handlers\CommandEncoder.cs" />
+    <Compile Include="Handlers\LogEncoder.cs" />
     <Compile Include="Configuration\IConfigureRaft.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="LogResult.cs" />

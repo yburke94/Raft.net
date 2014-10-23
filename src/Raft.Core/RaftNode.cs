@@ -19,6 +19,9 @@ namespace Raft.Core
             get { return _stateMachine.State; }
         }
 
+        public long CurrentLogTerm { get; private set; }
+        public long LastLogIndex { get; private set; }
+
         public void JoinCluster()
         {
             _stateMachine.Fire(NodeEvent.NodeJoinedCluster);

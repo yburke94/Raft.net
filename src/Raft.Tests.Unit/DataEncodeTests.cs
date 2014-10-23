@@ -13,19 +13,6 @@ namespace Raft.Tests.Unit
     public class LogEncodeTests
     {
         [Test]
-        public void CanEncodeTestCommand()
-        {
-            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "TestCmd-" + DateTime.Now.ToFileTimeUtc() + ".bin");
-
-            using (var file = File.Create(filePath))
-            {
-                // Act
-                Serializer.Serialize(file, new TestCommand());
-            }
-        }
-
-        [Test]
         public void CanEncodeLogMessage()
         {
             // Arrange
@@ -33,9 +20,7 @@ namespace Raft.Tests.Unit
                 Index = 1,
                 Term = 1,
                 CommandType = typeof (TestCommand).AssemblyQualifiedName,
-                Command = new TestCommand {
-                    Count = 54
-                }
+                Command = new TestCommand ()
             };
 
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,

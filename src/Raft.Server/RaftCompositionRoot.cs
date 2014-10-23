@@ -13,7 +13,7 @@ namespace Raft.Server
         public void Compose(IServiceRegistry serviceRegistry)
         {
             serviceRegistry.Register<NodeStateValidator>();
-            serviceRegistry.Register<CommandEncoder>();
+            serviceRegistry.Register<LogEncoder>();
             serviceRegistry.Register<LogReplicator>();
             serviceRegistry.Register<LogPersistor>();
 
@@ -29,7 +29,7 @@ namespace Raft.Server
 
             disruptor
                 .HandleEventsWith(factory.GetInstance<NodeStateValidator>())
-                .Then(factory.GetInstance<CommandEncoder>())
+                .Then(factory.GetInstance<LogEncoder>())
                 .Then(factory.GetInstance<LogReplicator>())
                 .Then(factory.GetInstance<LogPersistor>());
 
