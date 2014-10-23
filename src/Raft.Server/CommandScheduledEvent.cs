@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Raft.Server
 {
     internal class CommandScheduledEvent
     {
         private bool _isFaulted;
-        private Action<LogResult> _setResult;
+        private Action<LogResult> _whenLogged;
+
+        public IDictionary<string, object> Metadata { get; set; }
 
         public IRaftCommand Command { get; set; }
 
-        public Action<LogResult> SetResult {
-            get { return _setResult; }
+        public Action<LogResult> WhenLogged {
+            get { return _whenLogged; }
             set {
-                _setResult = result => {
+                _whenLogged = result => {
                     if (!result.Successful)
                         _isFaulted = true;
 
@@ -26,17 +29,18 @@ namespace Raft.Server
             if (@event.Command == null)
                 throw new ArgumentNullException("Command");
 
-            if (@event.SetResult == null)
+            if (@event.WhenLogged == null && !(@event.Command is IRaftInternalCommand))
                 throw new ArgumentNullException("SetResult");
 
             Command = @event.Command;
-            SetResult = @event.SetResult;
+            WhenLogged = @event.WhenLogged;
+            Metadata = new Dictionary<string, object>();
             return this;
         }
 
         public bool IsValidForProcessing()
         {
-            return _isFaulted;
+            return !_isFaulted;
         }
     }
 }

@@ -53,9 +53,10 @@
   <ItemGroup>
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
-    <Compile Include="Handlers\LogPersistanceManager.cs" />
-    <Compile Include="Handlers\LogReplicationManager.cs" />
-    <Compile Include="Handlers\LogVerificationManager.cs" />
+    <Compile Include="Handlers\CommandScheduledEventHandler.cs" />
+    <Compile Include="Handlers\LogPersistor.cs" />
+    <Compile Include="Handlers\LogReplicator.cs" />
+    <Compile Include="Handlers\CommandEncoder.cs" />
     <Compile Include="Configuration\IConfigureRaft.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="LogResult.cs" />
@@ -69,7 +70,7 @@
     <Compile Include="RaftCompositionRoot.cs" />
     <Compile Include="CommandScheduledEvent.cs" />
     <Compile Include="RaftServerContext.cs" />
-    <Compile Include="Handlers\NodeStateManager.cs" />
+    <Compile Include="Handlers\NodeStateValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -5,12 +5,26 @@ using FluentAssertions;
 using NUnit.Framework;
 using ProtoBuf;
 using Raft.Server;
+using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit
 {
-    [TestFixture]
+    [TestFixture(Ignore = true, IgnoreReason = "Use to generate TestData Encoded Data files.")]
     public class LogEncodeTests
     {
+        [Test]
+        public void CanEncodeTestCommand()
+        {
+            var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "TestCmd-" + DateTime.Now.ToFileTimeUtc() + ".bin");
+
+            using (var file = File.Create(filePath))
+            {
+                // Act
+                Serializer.Serialize(file, new TestCommand());
+            }
+        }
+
         [Test]
         public void CanEncodeLogMessage()
         {
@@ -18,8 +32,8 @@ namespace Raft.Tests.Unit
             var log = new LogEntry {
                 Index = 1,
                 Term = 1,
-                CommandType = typeof (DoSomething).AssemblyQualifiedName,
-                Command = new DoSomething {
+                CommandType = typeof (TestCommand).AssemblyQualifiedName,
+                Command = new TestCommand {
                     Count = 54
                 }
             };
@@ -42,7 +56,7 @@ namespace Raft.Tests.Unit
         {
             // Arrange
             var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "TestFiles\\EncodedData\\EncodedLogEntry.bin");
+                "TestData\\EncodedData\\EncodedLogEntry.bin");
 
             using (var file = File.OpenRead(filePath))
             {
@@ -53,21 +67,8 @@ namespace Raft.Tests.Unit
                 logEntry.Should().NotBeNull();
                 logEntry.Index.ShouldBeEquivalentTo(1);
                 logEntry.Term.ShouldBeEquivalentTo(1);
-                logEntry.Command.Should().BeOfType<DoSomething>();
+                logEntry.Command.Should().BeOfType<TestCommand>();
             }
-        }
-    }
-
-    [ProtoContract]
-    public class DoSomething : IRaftCommand
-    {
-        [ProtoMember(1)]
-        public int Count { get; set; }
-
-
-        public void Execute(RaftServerContext context)
-        {
-            
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Raft.Core.Strategies;
-
-namespace Raft.Core.CommandLogging
+﻿namespace Raft.Core.Strategies.CommandLogging
 {
     public class PersistLogCommandToDisk : IApplyCommandStrategy
     {

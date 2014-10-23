@@ -19,7 +19,7 @@ namespace Raft.Server
             _stateMachineCommandPublisher.PublishEvent((@event, l) =>
                 @event.Copy(new CommandScheduledEvent {
                     Command = command,
-                    SetResult = future.SetResult
+                    WhenLogged = future.SetResult
                 }));
 
             return future; // Ask again later...

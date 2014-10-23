@@ -1,4 +1,4 @@
-﻿namespace Raft.Server
+﻿namespace Raft.Server.Configuration
 {
     public class RaftConfigurationBuilder {}
 }
