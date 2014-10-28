@@ -11,7 +11,7 @@ namespace Raft.Server.Handlers
     ///     NodeStateValidator
     ///     LogEncoder*
     ///     LogReplicator
-    ///     LogPersistor
+    ///     LogWriter
     /// </summary>
     internal class LogEncoder : CommandScheduledEventHandler
     {
@@ -23,6 +23,7 @@ namespace Raft.Server.Handlers
             _raftNode = raftNode;
         }
 
+        // TODO: Should prepend checksum... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
         public override void Handle(CommandScheduledEvent data)
         {
             var logEntry = new LogEntry {

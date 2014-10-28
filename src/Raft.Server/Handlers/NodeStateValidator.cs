@@ -8,7 +8,7 @@ namespace Raft.Server.Handlers
     ///     NodeStateValidator*
     ///     LogEncoder
     ///     LogReplicator
-    ///     LogPersistor
+    ///     LogWriter
     /// </summary>
     internal class NodeStateValidator : CommandScheduledEventHandler
     {

@@ -54,7 +54,7 @@
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Handlers\CommandScheduledEventHandler.cs" />
-    <Compile Include="Handlers\LogPersistor.cs" />
+    <Compile Include="Handlers\LogWriter.cs" />
     <Compile Include="Handlers\LogReplicator.cs" />
     <Compile Include="Handlers\LogEncoder.cs" />
     <Compile Include="Configuration\IConfigureRaft.cs" />

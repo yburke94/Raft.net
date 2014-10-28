@@ -15,7 +15,7 @@ namespace Raft.Server
             serviceRegistry.Register<NodeStateValidator>();
             serviceRegistry.Register<LogEncoder>();
             serviceRegistry.Register<LogReplicator>();
-            serviceRegistry.Register<LogPersistor>();
+            serviceRegistry.Register<LogWriter>();
 
             serviceRegistry.Register(factory => CreateCommandBuffer(factory, 1024), new PerContainerLifetime());
         }
@@ -31,7 +31,7 @@ namespace Raft.Server
                 .HandleEventsWith(factory.GetInstance<NodeStateValidator>())
                 .Then(factory.GetInstance<LogEncoder>())
                 .Then(factory.GetInstance<LogReplicator>())
-                .Then(factory.GetInstance<LogPersistor>());
+                .Then(factory.GetInstance<LogWriter>());
 
             return disruptor.Start();
         }
