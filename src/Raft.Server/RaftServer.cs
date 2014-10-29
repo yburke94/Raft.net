@@ -1,5 +1,5 @@
-﻿using Disruptor;
-using Raft.Infrastructure;
+﻿using System.Threading.Tasks;
+using Disruptor;
 
 namespace Raft.Server
 {
@@ -12,17 +12,14 @@ namespace Raft.Server
             _stateMachineCommandPublisher = new EventPublisher<CommandScheduledEvent>(commandBuffer);
         }
 
-        public IFuture<LogResult> Execute<T>(T command) where T : IRaftCommand, new()
+        public Task<LogResult> Execute<T>(T command) where T : IRaftCommand, new()
         {
-            var future = new TwoPhaseWaitFuture<LogResult>();
+            var taskCompetionSource = new TaskCompletionSource<LogResult>();
 
             _stateMachineCommandPublisher.PublishEvent((@event, l) =>
-                @event.Copy(new CommandScheduledEvent {
-                    Command = command,
-                    WhenLogged = future.SetResult
-                }));
+                @event.ResetEvent(command, taskCompetionSource));
 
-            return future; // Ask again later...
+            return taskCompetionSource.Task;
         }
     }
 }

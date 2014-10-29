@@ -1,9 +1,9 @@
-﻿using Raft.Infrastructure;
+﻿using System.Threading.Tasks;
 
 namespace Raft.Server
 {
     public interface IRaftServer
     {
-        IFuture<LogResult> Execute<T>(T command) where T : IRaftCommand, new();
+        Task<LogResult> Execute<T>(T command) where T : IRaftCommand, new();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
@@ -16,10 +17,8 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var raftNode = Substitute.For<IRaftNode>();
-            var @event = new CommandScheduledEvent {
-                Command = new TestInternalCommand(),
-                WhenLogged = _ => { }
-            };
+            var @event = new CommandScheduledEvent()
+                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
 
             var handler = new NodeStateValidator(raftNode);
 
@@ -34,10 +33,9 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var raftNode = Substitute.For<IRaftNode>();
-            var @event = new CommandScheduledEvent {
-                Command = new TestCommand(),
-                WhenLogged = _ => { }
-            };
+            var @event = new CommandScheduledEvent()
+                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
+
             var handler = new NodeStateValidator(raftNode);
 
             // Act

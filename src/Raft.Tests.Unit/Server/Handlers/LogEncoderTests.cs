@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -29,10 +30,7 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var @event = new CommandScheduledEvent()
-                .Copy(new CommandScheduledEvent {
-                    Command = new TestInternalCommand(),
-                    WhenLogged = _ => { }
-                });
+                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
 
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentLogTerm.Returns(1);
@@ -53,11 +51,8 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var @event = new CommandScheduledEvent()
-                .Copy(new CommandScheduledEvent
-                {
-                    Command = new TestCommand(),
-                    WhenLogged = _ => { }
-                });
+                .ResetEvent(new TestCommand(), new TaskCompletionSource<LogResult>());
+
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentLogTerm.Returns(1);
             raftNode.LastLogIndex.Returns(0);
@@ -81,11 +76,8 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var @event = new CommandScheduledEvent()
-                .Copy(new CommandScheduledEvent
-                {
-                    Command = new TestCommand(),
-                    WhenLogged = _ => { }
-                });
+                .ResetEvent(new TestCommand(), new TaskCompletionSource<LogResult>());
+
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentLogTerm.Returns(1);
             raftNode.LastLogIndex.Returns(0);

@@ -1,46 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Raft.Server
 {
     internal class CommandScheduledEvent
     {
-        private bool _isFaulted;
-        private Action<LogResult> _whenLogged;
+        public TaskCompletionSource<LogResult> TaskCompletionSource { get; set; }
 
         public IDictionary<string, object> Metadata { get; set; }
 
         public IRaftCommand Command { get; set; }
 
-        public Action<LogResult> WhenLogged {
-            get { return _whenLogged; }
-            set {
-                _whenLogged = result => {
-                    if (!result.Successful)
-                        _isFaulted = true;
-
-                    value(result);
-                };
-            }
-        }
-
-        public CommandScheduledEvent Copy(CommandScheduledEvent @event)
+        public CommandScheduledEvent ResetEvent(IRaftCommand command, TaskCompletionSource<LogResult> taskCompletionSource)
         {
-            if (@event.Command == null)
-                throw new ArgumentNullException("Command");
+            if (TaskCompletionSource != null && IsValidForProcessing())
+                throw new InvalidOperationException("The event has not finished processing.");
 
-            if (@event.WhenLogged == null && !(@event.Command is IRaftInternalCommand))
-                throw new ArgumentNullException("SetResult");
+            if (command == null)
+                throw new ArgumentNullException("command");
 
-            Command = @event.Command;
-            WhenLogged = @event.WhenLogged;
+            if (taskCompletionSource == null)
+                throw new ArgumentNullException("taskCompletionSource");
+
+            Command = command;
+            TaskCompletionSource = taskCompletionSource;
+
             Metadata = new Dictionary<string, object>();
             return this;
         }
 
         public bool IsValidForProcessing()
         {
-            return !_isFaulted;
+            return !TaskCompletionSource.Task.IsCompleted;
         }
     }
 }
