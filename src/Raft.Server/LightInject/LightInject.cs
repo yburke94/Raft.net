@@ -44,7 +44,6 @@ namespace Raft.Server.LightInject
     using System.Reflection;
     using System.Reflection.Emit;
     using System.Runtime.CompilerServices;
-    using System.Runtime.Remoting.Messaging;
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading;
@@ -1235,6 +1234,11 @@ namespace Raft.Server.LightInject
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class TypeHelper
     {
+        public static Delegate CreateDelegate(this MethodInfo methodInfo, Type delegateType, object target)
+        {
+            return Delegate.CreateDelegate(delegateType, target, methodInfo);
+        }
+
         public static Type[] GetGenericTypeArguments(this Type type)
         {
             return type.GetGenericArguments();
@@ -1313,16 +1317,6 @@ namespace Raft.Server.LightInject
         public static bool IsCollectionOfT(this Type serviceType)
         {
             return serviceType.IsGenericType() && serviceType.GetGenericTypeDefinition() == typeof(ICollection<>);
-        }
-        
-        public static bool IsReadOnlyCollectionOfT(this Type serviceType)
-        {
-            return serviceType.IsGenericType() && serviceType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>);
-        }
-
-        public static bool IsReadOnlyListOfT(this Type serviceType)
-        {
-            return serviceType.IsGenericType() && serviceType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>);
         }
         
         public static bool IsLazy(this Type serviceType)
@@ -3214,10 +3208,6 @@ namespace Raft.Server.LightInject
             {
                 emitter = CreateEmitMethodForArrayServiceRequest(serviceType);
             }
-            else if (serviceType.IsReadOnlyCollectionOfT() || serviceType.IsReadOnlyListOfT())
-            {
-                emitter = CreateEmitMethodForReadOnlyCollectionServiceRequest(serviceType);
-            }            
             else if (serviceType.IsListOfT())
             {
                 emitter = CreateEmitMethodForListServiceRequest(serviceType);
@@ -3295,21 +3285,6 @@ namespace Raft.Server.LightInject
             {
                 enumerableEmitter(ms);
                 ms.Emit(OpCodes.Call, closedGenericToListMethod);
-            };
-        }
-        
-        private Action<IEmitter> CreateEmitMethodForReadOnlyCollectionServiceRequest(Type serviceType)
-        {
-            Type elementType = TypeHelper.GetElementType(serviceType);
-            Type closedGenericReadOnlyCollectionType = typeof(ReadOnlyCollection<>).MakeGenericType(elementType);
-            ConstructorInfo constructorInfo = closedGenericReadOnlyCollectionType.GetConstructors()[0];
-
-            Action<IEmitter> listEmitMethod = CreateEmitMethodForListServiceRequest(serviceType);
-            
-            return emitter =>
-            {
-                listEmitMethod(emitter);
-                emitter.New(constructorInfo);                
             };
         }
         
@@ -3680,26 +3655,6 @@ namespace Raft.Server.LightInject
         public ScopeManager GetScopeManager()
         {
             return scopeManagers.Value;
-        }
-    }
-
-    /// <summary>
-    /// A <see cref="IScopeManagerProvider"/> that provides a <see cref="ScopeManager"/> per
-    /// <see cref="CallContext"/>.
-    /// </summary>
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    internal class PerLogicalCallContextScopeManagerProvider : IScopeManagerProvider
-    {
-        private readonly LogicalThreadStorage<ScopeManager> scopeManagers =
-            new LogicalThreadStorage<ScopeManager>(() => new ScopeManager());
-                
-        /// <summary>
-        /// Returns the <see cref="ScopeManager"/> that is responsible for managing scopes.
-        /// </summary>
-        /// <returns>The <see cref="ScopeManager"/> that is responsible for managing scopes.</returns>
-        public ScopeManager GetScopeManager()
-        {
-            return scopeManagers.Value;                        
         }
     }
 
@@ -4871,8 +4826,6 @@ namespace Raft.Server.LightInject
             InternalTypes.Add(typeof(Emitter));
             InternalTypes.Add(typeof(Instruction));
             InternalTypes.Add(typeof(Instruction<>));
-            InternalTypes.Add(typeof(PerLogicalCallContextScopeManagerProvider));
-            InternalTypes.Add(typeof(LogicalThreadStorage<>));
         }
 
         /// <summary>
@@ -5843,80 +5796,6 @@ namespace Raft.Server.LightInject
             var localBuilder = generator.DeclareLocal(type);
             variables.Add(localBuilder);
             return localBuilder;
-        }
-    }
-    
-    /// <summary>
-    /// Provides storage per logical thread of execution.
-    /// </summary>
-    /// <typeparam name="T">The type of the value contained in this <see cref="LogicalThreadStorage{T}"/>.</typeparam>
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    internal class LogicalThreadStorage<T>
-    {      
-        private readonly Func<T> valueFactory;
-
-        private readonly string key;
-
-        private readonly object lockObject = new object();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LogicalThreadStorage{T}"/> class.
-        /// </summary>
-        /// <param name="valueFactory">The value factory used to create an instance of <typeparamref name="T"/>.</param>
-        public LogicalThreadStorage(Func<T> valueFactory)
-        {
-            this.valueFactory = valueFactory;
-            key = Guid.NewGuid().ToString();
-        }
-
-        /// <summary>
-        /// Gets the value for the current logical thread of execution.
-        /// </summary>
-        /// <value>
-        /// The value for the current logical thread of execution.
-        /// </value>
-        public T Value
-        {
-            get
-            {
-                var holder = (LogicalThreadValue)CallContext.LogicalGetData(key);
-                if (holder != null)
-                {
-                    return holder.Value;
-                }
-
-                lock (lockObject)
-                {
-                    holder = (LogicalThreadValue)CallContext.LogicalGetData(key);
-                    if (holder == null)
-                    {
-                        holder = new LogicalThreadValue { Value = valueFactory() };
-                        CallContext.LogicalSetData(key, holder);
-                    }
-                }
-
-                return holder.Value;
-            }
-        }
-
-        [Serializable]
-        private class LogicalThreadValue : MarshalByRefObject
-        {
-            [NonSerialized]
-            private T value;
-
-            public T Value
-            {
-                get
-                {
-                    return value;
-                }
-
-                set
-                {
-                    this.value = value;
-                }
-            }
         }
     }
 }
