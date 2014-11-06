@@ -1,4 +1,5 @@
-﻿using Stateless;
+﻿using System;
+using Stateless;
 
 namespace Raft.Core
 {
@@ -9,6 +10,7 @@ namespace Raft.Core
         {
             _stateMachine = new StateMachine<NodeState, NodeEvent>(NodeState.Initial);
             _stateMachine.Configure(NodeState.Initial)
+                .OnEntry(() => NodeId = Guid.NewGuid())
                 .Permit(NodeEvent.NodeJoinedCluster, NodeState.Leader);
 
             _stateMachine.Configure(NodeState.Leader)
@@ -19,6 +21,7 @@ namespace Raft.Core
             get { return _stateMachine.State; }
         }
 
+        public Guid NodeId { get; set; }
         public long CurrentLogTerm { get; private set; }
         public long LastLogIndex { get; private set; }
 

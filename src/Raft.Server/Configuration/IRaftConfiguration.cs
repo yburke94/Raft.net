@@ -1,4 +1,6 @@
-﻿namespace Raft.Server.Configuration
+﻿using System;
+
+namespace Raft.Server.Configuration
 {
     public interface IRaftConfiguration {
         string LogPath { get; set; }
