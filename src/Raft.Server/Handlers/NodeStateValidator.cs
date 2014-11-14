@@ -25,9 +25,9 @@ namespace Raft.Server.Handlers
             get { return false; }
         }
 
-        public override void Handle(CommandScheduledEvent data)
+        public override void Handle(CommandScheduledEvent @event)
         {
-            var internalCommand = data.Command as IRaftInternalCommand;
+            var internalCommand = @event.Command as IRaftInternalCommand;
 
             if (internalCommand != null)
                 internalCommand.NodeAction(_raftNode);

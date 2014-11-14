@@ -25,5 +25,10 @@ namespace Raft.Server
         {
             return _logs[eventId];
         }
+
+        public void EvictEntry(Guid eventId)
+        {
+            _logs.Remove(eventId);
+        }
     }
 }

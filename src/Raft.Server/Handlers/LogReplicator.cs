@@ -29,9 +29,9 @@ namespace Raft.Server.Handlers
             get { return true; }
         }
 
-        public override void Handle(CommandScheduledEvent data)
+        public override void Handle(CommandScheduledEvent @event)
         {
-            var bytes = _logRegister.GetEncodedLog(data.Id);
+            var bytes = _logRegister.GetEncodedLog(@event.Id);
 
             var request = new AppendEntriesRequest {
                 Entries = new[] {

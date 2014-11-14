@@ -36,9 +36,9 @@ namespace Raft.Server.Handlers
             get { return true; }
         }
 
-        public override void Handle(CommandScheduledEvent data)
+        public override void Handle(CommandScheduledEvent @event)
         {
-            var bytes = _logRegister.GetEncodedLog(data.Id);
+            var bytes = _logRegister.GetEncodedLog(@event.Id);
 
             using (var file = new FileStream(_raftConfiguration.LogPath, FileMode.OpenOrCreate,
                 FileAccess.ReadWrite, FileShare.None, 2 << 10, FileOptions.SequentialScan))

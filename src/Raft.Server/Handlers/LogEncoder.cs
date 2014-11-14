@@ -30,19 +30,19 @@ namespace Raft.Server.Handlers
             get { return true; }
         }
 
-        public override void Handle(CommandScheduledEvent data)
+        public override void Handle(CommandScheduledEvent @event)
         {
             var logEntry = new LogEntry {
                 Term = _raftNode.CurrentLogTerm,
                 Index = _raftNode.LastLogIndex + 1,
-                CommandType = data.Command.GetType().AssemblyQualifiedName,
-                Command = data.Command
+                CommandType = @event.Command.GetType().AssemblyQualifiedName,
+                Command = @event.Command
             };
 
             using (var ms = new MemoryStream())
             {
                 Serializer.Serialize(ms, logEntry);
-                _logRegister.AddEncodedLog(data.Id, ms.ToArray());
+                _logRegister.AddEncodedLog(@event.Id, ms.ToArray());
             }
         }
     }

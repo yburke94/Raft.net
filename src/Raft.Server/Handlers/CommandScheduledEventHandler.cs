@@ -26,6 +26,6 @@ namespace Raft.Server.Handlers
             }
         }
 
-        public abstract void Handle(CommandScheduledEvent data);
+        public abstract void Handle(CommandScheduledEvent @event);
     }
 }
