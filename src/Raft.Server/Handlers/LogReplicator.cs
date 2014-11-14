@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
-using Raft.Server.Configuration;
 using Raft.Server.Messages.AppendEntries;
 
 namespace Raft.Server.Handlers
@@ -21,56 +15,35 @@ namespace Raft.Server.Handlers
     /// </summary>
     internal class LogReplicator : CommandScheduledEventHandler
     {
-        private readonly IRaftCluster _cluster;
+        private readonly IList<PeerNode> _peers;
+        private readonly LogRegister _logRegister;
 
-        public LogReplicator(IRaftCluster cluster)
+        public LogReplicator(IList<PeerNode> peers, LogRegister logRegister)
         {
-            _cluster = cluster;
+            _peers = peers;
+            _logRegister = logRegister;
+        }
+
+        public override bool SkipInternalCommands
+        {
+            get { return true; }
         }
 
         public override void Handle(CommandScheduledEvent data)
         {
-            var successfullyReplicated = 0;
-            var nodesCount = _cluster.Nodes.Count;
-            var nodeResponses = PostToAllNodes(_cluster.Nodes).ToList();
+            var bytes = _logRegister.GetEncodedLog(data.Id);
 
-            while (nodeResponses.Any() && successfullyReplicated <= nodesCount/2)
-            {
-                var taskIdx = Task.WaitAny(nodeResponses.Cast<Task>().ToArray());
-                var task = nodeResponses[taskIdx];
-
-                // if (task.Result.Content...Was Successfull) successfullyReplicated++;
-                // else retry(task.Headers.Node)?
-
-                nodeResponses.RemoveAt(taskIdx);
-            }
-
-            // Handle visibily on what happens with remaining tasks e.g. ...ContinueWith(x => x.Log());
-        }
-
-        public static IEnumerable<Task<HttpResponseMessage>> PostToAllNodes(IList<ClusterNode> nodes)
-        {
-            foreach (var clusterNode in nodes)
-            {
-                using (var client = new HttpClient())
-                {
-                    client.BaseAddress = clusterNode.BaseAddress;
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                    yield return client.PostAsJsonAsync(@"api/AppendEntries", new AppendEntries());
+            var request = new AppendEntriesRequest {
+                Entries = new[] {
+                    bytes
                 }
+            };
+
+            foreach (var peerNode in _peers)
+            {
+                peerNode.Channel.AppendEntries(request);
             }
         }
-    }
 
-    internal interface IRaftCluster
-    {
-        IList<ClusterNode> Nodes { get; set; }
-    }
-
-    internal class ClusterNode
-    {
-        public Uri BaseAddress { get; set; }
     }
 }

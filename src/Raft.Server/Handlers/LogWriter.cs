@@ -23,16 +23,22 @@ namespace Raft.Server.Handlers
         static extern bool FlushFileBuffers(SafeFileHandle hFile);
 
         private readonly IRaftConfiguration _raftConfiguration;
+        private readonly LogRegister _logRegister;
 
-        public LogWriter(IRaftConfiguration raftConfiguration)
+        public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister)
         {
             _raftConfiguration = raftConfiguration;
+            _logRegister = logRegister;
+        }
+
+        public override bool SkipInternalCommands
+        {
+            get { return true; }
         }
 
         public override void Handle(CommandScheduledEvent data)
         {
-            var bytes = data.Metadata["EncodedLog"] as byte[];
-            if (bytes == null) throw new InvalidCastException();
+            var bytes = _logRegister.GetEncodedLog(data.Id);
 
             using (var file = new FileStream(_raftConfiguration.LogPath, FileMode.OpenOrCreate,
                 FileAccess.ReadWrite, FileShare.None, 2 << 10, FileOptions.SequentialScan))

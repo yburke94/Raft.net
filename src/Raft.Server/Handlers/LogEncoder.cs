@@ -16,14 +16,20 @@ namespace Raft.Server.Handlers
     internal class LogEncoder : CommandScheduledEventHandler
     {
         private readonly IRaftNode _raftNode;
+        private readonly LogRegister _logRegister;
 
-        public LogEncoder(IRaftNode raftNode)
-            : base(skipInternalCommands:true)
+        public LogEncoder(IRaftNode raftNode, LogRegister logRegister)
         {
             _raftNode = raftNode;
+            _logRegister = logRegister;
         }
 
         // TODO: Should prepend checksum... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
+        public override bool SkipInternalCommands
+        {
+            get { return true; }
+        }
+
         public override void Handle(CommandScheduledEvent data)
         {
             var logEntry = new LogEntry {
@@ -36,7 +42,7 @@ namespace Raft.Server.Handlers
             using (var ms = new MemoryStream())
             {
                 Serializer.Serialize(ms, logEntry);
-                data.Metadata["EncodedLog"] = ms.ToArray();
+                _logRegister.AddEncodedLog(data.Id, ms.ToArray());
             }
         }
     }

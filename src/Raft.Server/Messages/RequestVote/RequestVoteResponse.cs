@@ -1,6 +1,6 @@
 ﻿namespace Raft.Server.Messages.RequestVote
 {
-    public class RequestVoteResult
+    public class RequestVoteResponse
     {
         /// <summary>
         /// CurrentTerm, for candidate to update itself.

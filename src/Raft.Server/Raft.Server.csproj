@@ -61,6 +61,7 @@
     <Reference Include="System.Net.Http.WebRequest, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -70,8 +71,10 @@
   <ItemGroup>
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
-    <Compile Include="Messages\AppendEntries\AppendEntries.cs" />
-    <Compile Include="Messages\AppendEntries\AppendEntriesResult.cs" />
+    <Compile Include="IRaftService.cs" />
+    <Compile Include="LogRegister.cs" />
+    <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
+    <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
     <Compile Include="Handlers\CommandScheduledEventHandler.cs" />
     <Compile Include="Handlers\LogWriter.cs" />
     <Compile Include="Handlers\LogReplicator.cs" />
@@ -84,8 +87,9 @@
     <Compile Include="IRaftInternalCommand.cs" />
     <Compile Include="IRaftServer.cs" />
     <Compile Include="JoinCluster.cs" />
-    <Compile Include="Messages\RequestVote\RequestVote.cs" />
-    <Compile Include="Messages\RequestVote\RequestVoteResult.cs" />
+    <Compile Include="Messages\RequestVote\RequestVoteRequest.cs" />
+    <Compile Include="Messages\RequestVote\RequestVoteResponse.cs" />
+    <Compile Include="PeerNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaftServer.cs" />
     <Compile Include="RaftCompositionRoot.cs" />

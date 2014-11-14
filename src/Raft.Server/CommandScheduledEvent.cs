@@ -8,9 +8,9 @@ namespace Raft.Server
     {
         public TaskCompletionSource<LogResult> TaskCompletionSource { get; set; }
 
-        public IDictionary<string, object> Metadata { get; set; }
-
         public IRaftCommand Command { get; set; }
+
+        public Guid Id { get; set; }
 
         public CommandScheduledEvent ResetEvent(IRaftCommand command, TaskCompletionSource<LogResult> taskCompletionSource)
         {
@@ -26,7 +26,8 @@ namespace Raft.Server
             Command = command;
             TaskCompletionSource = taskCompletionSource;
 
-            Metadata = new Dictionary<string, object>();
+            Id = Guid.NewGuid();
+
             return this;
         }
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -26,70 +25,51 @@ namespace Raft.Tests.Unit.Server.Handlers
         }
 
         [Test]
-        public void DoesNotAddEncodedLogToEventMetadataWhenHandlingInternalCommand()
+        public void LogEncoderSkipsInternalCommands()
         {
-            // Arrange
-            var @event = new CommandScheduledEvent()
-                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
-
-            var raftNode = Substitute.For<IRaftNode>();
-            raftNode.CurrentLogTerm.Returns(1);
-            raftNode.LastLogIndex.Returns(0);
-
-            var handler = new LogEncoder(raftNode);
-
-            // Act
-            handler.OnNext(@event, 1, false);
-
-            // Assert
-            @event.Metadata.ContainsKey("EncodedLog")
-                .Should().BeFalse("because the handler should not encode internal commands.");
+            // Act, Assert
+            new LogEncoder(null, null).SkipInternalCommands.Should().BeTrue();
         }
 
         [Test]
-        public void DoesAddEncodedLogToEventMetadata()
+        public void LogEncoderDoesAddEncodedLogToLogRegister()
         {
             // Arrange
-            var @event = new CommandScheduledEvent()
-                .ResetEvent(new TestCommand(), new TaskCompletionSource<LogResult>());
+            var @event = TestEventFactory.GetCommandEvent();
 
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentLogTerm.Returns(1);
             raftNode.LastLogIndex.Returns(0);
 
+            var logRegister = new LogRegister();
 
-            var handler = new LogEncoder(raftNode);
+            var handler = new LogEncoder(raftNode, logRegister);
 
             // Act
             handler.OnNext(@event, 1, false);
 
             // Assert
-            @event.Metadata.ContainsKey("EncodedLog")
-                .Should().BeTrue("because this is where the handler should have placed the encoded log.");
-
-            @event.Metadata["EncodedLog"].Should().NotBeNull();
-            @event.Metadata["EncodedLog"].Should().BeOfType<byte[]>();
+            logRegister.HasLogEntry(@event.Id).Should()
+                .BeTrue("because this is where the handler should have placed the encoded log.");
         }
 
         [Test]
         public void TheEncodedLogDoesMatchTheEncodedLogInTestData()
         {
             // Arrange
-            var @event = new CommandScheduledEvent()
-                .ResetEvent(new TestCommand(), new TaskCompletionSource<LogResult>());
+            var @event = TestEventFactory.GetCommandEvent();
 
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentLogTerm.Returns(1);
             raftNode.LastLogIndex.Returns(0);
-
-            var handler = new LogEncoder(raftNode);
+            var logRegister = new LogRegister();
+            var handler = new LogEncoder(raftNode, logRegister);
 
             // Act
             handler.OnNext(@event, 1, false);
 
             // Assert
-            @event.Metadata["EncodedLog"]
-                .As<byte[]>()
+            logRegister.GetEncodedLog(@event.Id)
                 .SequenceEqual(_testCommandLogEntryEncoded)
                 .Should().BeTrue();
         }

@@ -1,6 +1,6 @@
 namespace Raft.Server.Messages.AppendEntries
 {
-    internal class AppendEntriesResult
+    public class AppendEntriesResponse
     {
         /// <summary>
         /// currentTerm, for leader to update itself.

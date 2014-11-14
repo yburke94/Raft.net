@@ -17,8 +17,7 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var raftNode = Substitute.For<IRaftNode>();
-            var @event = new CommandScheduledEvent()
-                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
+            var @event = TestEventFactory.GetInternalCommandEvent();
 
             var handler = new NodeStateValidator(raftNode);
 
@@ -33,8 +32,7 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             var raftNode = Substitute.For<IRaftNode>();
-            var @event = new CommandScheduledEvent()
-                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
+            var @event = TestEventFactory.GetCommandEvent();
 
             var handler = new NodeStateValidator(raftNode);
 

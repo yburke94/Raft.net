@@ -1,3 +1,4 @@
+using System.Runtime.Serialization.Formatters;
 using Raft.Core;
 
 namespace Raft.Server.Handlers
@@ -17,6 +18,11 @@ namespace Raft.Server.Handlers
         public NodeStateValidator(IRaftNode raftNode)
         {
             _raftNode = raftNode;
+        }
+
+        public override bool SkipInternalCommands
+        {
+            get { return false; }
         }
 
         public override void Handle(CommandScheduledEvent data)

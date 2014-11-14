@@ -12,7 +12,7 @@ namespace Raft.Server.Messages.AppendEntries
     /// 4. Append any new entries not already in the log.
     /// 5. If leaderCommit &gt; commitIndex, set commitIndex = min(leaderCommit, index of last new entry).
     /// </remarks>
-    public class AppendEntries
+    public class AppendEntriesRequest
     {
         /// <summary>
         /// Leader’s term.

@@ -10,7 +10,7 @@ namespace Raft.Server.Messages.RequestVote
     /// 1. Reply false if term &lt; currentTerm.
     /// 2. If votedFor is null or candidateId, and candidate’s log is at least as up-to-date as receiver’s log, grant vote.
     /// </remarks>
-    public class RequestVote
+    public class RequestVoteRequest
     {
         /// <summary>
         /// Candidate’s term.
