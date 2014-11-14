@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using Raft.Infrastructure;
+using Raft.Infrastructure.IO;
 using Raft.Server.Configuration;
 
 namespace Raft.Server.Handlers
@@ -18,17 +20,16 @@ namespace Raft.Server.Handlers
     /// </summary>
     internal class LogWriter : CommandScheduledEventHandler
     {
-        [return: MarshalAs(UnmanagedType.Bool)]
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool FlushFileBuffers(SafeFileHandle hFile);
-
         private readonly IRaftConfiguration _raftConfiguration;
         private readonly LogRegister _logRegister;
+        private readonly IDiskWriteStrategy _diskWriteStrategy;
 
-        public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister)
+        public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister,
+            IDiskWriteStrategy diskWriteStrategy)
         {
             _raftConfiguration = raftConfiguration;
             _logRegister = logRegister;
+            _diskWriteStrategy = diskWriteStrategy;
         }
 
         public override bool SkipInternalCommands
@@ -38,22 +39,10 @@ namespace Raft.Server.Handlers
 
         public override void Handle(CommandScheduledEvent @event)
         {
+            var logPath = _raftConfiguration.LogPath;
             var bytes = _logRegister.GetEncodedLog(@event.Id);
 
-            using (var file = new FileStream(_raftConfiguration.LogPath, FileMode.OpenOrCreate,
-                FileAccess.ReadWrite, FileShare.None, 2 << 10, FileOptions.SequentialScan))
-            {
-                file.SetLength(bytes.Length); // Need to pre-allocate.
-                file.Write(bytes, 0, bytes.Length);
-
-                file.Flush();
-
-                if (!FlushFileBuffers(file.SafeFileHandle))
-                {
-                    var error = Marshal.GetLastWin32Error();
-                    throw new Win32Exception(error, "An error occured whilst calling FlushFileBuffers");
-                }
-            }
+            _diskWriteStrategy.Write(logPath, bytes);
         }
     }
 }
