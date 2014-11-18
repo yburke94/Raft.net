@@ -74,7 +74,7 @@
   <ItemGroup>
     <Compile Include="Core\RaftNodeTests.cs" />
     <Compile Include="DataEncodeTests.cs" />
-    <Compile Include="Infrastructure\IO\BufferedSequentialDiskWriterTests.cs" />
+    <Compile Include="Infrastructure\IO\BufferedSequentialFileWriterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\Handlers\CommandFinalizerTests.cs" />
     <Compile Include="Server\Handlers\LogEncoderTests.cs" />

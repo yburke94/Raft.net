@@ -22,14 +22,16 @@ namespace Raft.Server.Handlers
     {
         private readonly IRaftConfiguration _raftConfiguration;
         private readonly LogRegister _logRegister;
-        private readonly IDiskWriteStrategy _diskWriteStrategy;
+        private readonly FileOffsets _fileOffsets;
+        private readonly IWriteToFile _writeToFile;
 
         public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister,
-            IDiskWriteStrategy diskWriteStrategy)
+            FileOffsets fileOffsets, IWriteToFile writeToFile)
         {
             _raftConfiguration = raftConfiguration;
             _logRegister = logRegister;
-            _diskWriteStrategy = diskWriteStrategy;
+            _fileOffsets = fileOffsets;
+            _writeToFile = writeToFile;
         }
 
         public override bool SkipInternalCommands
@@ -41,8 +43,9 @@ namespace Raft.Server.Handlers
         {
             var logPath = _raftConfiguration.LogPath;
             var bytes = _logRegister.GetEncodedLog(@event.Id);
+            var nextOffset = _fileOffsets.GetNextOffset();
 
-            _diskWriteStrategy.Write(logPath, bytes);
+            _writeToFile.Write(logPath, nextOffset, bytes);
         }
     }
 }
