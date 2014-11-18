@@ -2,18 +2,13 @@
 
 namespace Raft.Server.Handlers
 {
-    internal class CommandFinalizer : CommandScheduledEventHandler
+    internal class CommandFinalizer : RaftEventHandler
     {
         private readonly LogRegister _logRegister;
 
         public CommandFinalizer(LogRegister logRegister)
         {
             _logRegister = logRegister;
-        }
-
-        public override bool SkipInternalCommands
-        {
-            get { return false; }
         }
 
         public override void Handle(CommandScheduledEvent @event)

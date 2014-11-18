@@ -13,7 +13,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator*
     ///     LogWriter
     /// </summary>
-    internal class LogReplicator : CommandScheduledEventHandler
+    internal class LogReplicator : RaftEventHandler, ISkipInternalCommands
     {
         private readonly IList<PeerNode> _peers;
         private readonly LogRegister _logRegister;
@@ -22,11 +22,6 @@ namespace Raft.Server.Handlers
         {
             _peers = peers;
             _logRegister = logRegister;
-        }
-
-        public override bool SkipInternalCommands
-        {
-            get { return true; }
         }
 
         public override void Handle(CommandScheduledEvent @event)

@@ -11,18 +11,13 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     LogWriter
     /// </summary>
-    internal class NodeStateValidator : CommandScheduledEventHandler
+    internal class NodeStateValidator : RaftEventHandler
     {
         private readonly IRaftNode _raftNode;
 
         public NodeStateValidator(IRaftNode raftNode)
         {
             _raftNode = raftNode;
-        }
-
-        public override bool SkipInternalCommands
-        {
-            get { return false; }
         }
 
         public override void Handle(CommandScheduledEvent @event)

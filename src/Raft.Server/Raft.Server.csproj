@@ -71,13 +71,15 @@
   <ItemGroup>
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
+    <Compile Include="Handlers\CommandExecutor.cs" />
     <Compile Include="Handlers\CommandFinalizer.cs" />
     <Compile Include="FileOffsets.cs" />
+    <Compile Include="Handlers\ISkipInternalCommands.cs" />
     <Compile Include="IRaftService.cs" />
     <Compile Include="LogRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
-    <Compile Include="Handlers\CommandScheduledEventHandler.cs" />
+    <Compile Include="Handlers\RaftEventHandler.cs" />
     <Compile Include="Handlers\LogWriter.cs" />
     <Compile Include="Handlers\LogReplicator.cs" />
     <Compile Include="Handlers\LogEncoder.cs" />

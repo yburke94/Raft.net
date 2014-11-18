@@ -28,7 +28,8 @@ namespace Raft.Tests.Unit.Server.Handlers
         public void LogEncoderSkipsInternalCommands()
         {
             // Act, Assert
-            new LogEncoder(null, null).SkipInternalCommands.Should().BeTrue();
+            typeof (LogEncoder).IsAssignableFrom(typeof (ISkipInternalCommands))
+                .Should().BeTrue();
         }
 
         [Test]

@@ -18,7 +18,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     LogWriter*
     /// </summary>
-    internal class LogWriter : CommandScheduledEventHandler
+    internal class LogWriter : RaftEventHandler, ISkipInternalCommands
     {
         private readonly IRaftConfiguration _raftConfiguration;
         private readonly LogRegister _logRegister;
@@ -32,11 +32,6 @@ namespace Raft.Server.Handlers
             _logRegister = logRegister;
             _fileOffsets = fileOffsets;
             _writeToFile = writeToFile;
-        }
-
-        public override bool SkipInternalCommands
-        {
-            get { return true; }
         }
 
         public override void Handle(CommandScheduledEvent @event)

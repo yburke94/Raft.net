@@ -13,7 +13,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     LogWriter
     /// </summary>
-    internal class LogEncoder : CommandScheduledEventHandler
+    internal class LogEncoder : RaftEventHandler, ISkipInternalCommands
     {
         private readonly IRaftNode _raftNode;
         private readonly LogRegister _logRegister;
@@ -25,11 +25,6 @@ namespace Raft.Server.Handlers
         }
 
         // TODO: Should prepend checksum... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
-        public override bool SkipInternalCommands
-        {
-            get { return true; }
-        }
-
         public override void Handle(CommandScheduledEvent @event)
         {
             var logEntry = new LogEntry {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using Raft.Infrastructure.IO;
@@ -9,56 +10,105 @@ namespace Raft.Tests.Unit.Infrastructure.IO
     [TestFixture]
     public class BufferedSequentialFileWriterTests
     {
+        private readonly string _testDumpsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+            "TestDumps\\Infrastructure\\IO");
+
         [TestFixtureSetUp]
-        public void SetupFixture()
+        public void Setup()
         {
-            
+            if (!Directory.Exists(_testDumpsDir))
+                Directory.CreateDirectory(_testDumpsDir);
         }
 
         [Test]
-        public void BufferedSequentialDiskWriterCreatesFileIfDoesNotExistAndOffsetIsZero()
+        public void ThrowsWhenCallingCreateAndWriteAndFileExists()
         {
             // Arrange
-            const int offset = 0;
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "FileAlreadyExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
 
-            var filePath = Path.Combine(Path.GetTempPath(),
-                string.Format("RAFTnet\\TestDumps\\BufferedDoesNotExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
+            File.Create(filePath);
 
             var bytes = BitConverter.GetBytes(100);
 
-            var fileWriter = new BufferedSequentialFileWriter(bytes.Length);
+            var fileWriter = new BufferedSequentialFileWriter();
 
-            // Act
-            fileWriter.Write(filePath, offset, bytes);
+            Action actAction = () => fileWriter.CreateAndWrite(filePath, bytes, bytes.Length);
 
-            // Assert
-            File.Exists(filePath).Should().BeTrue();
+            // Act, Assert
+            actAction.ShouldThrow<InvalidOperationException>("becasue the file already exists");
         }
 
         [Test]
-        public void BufferedSequentialDiskWriterCreatesFileWithCorrectLengthIfDoesNotExistAndOffsetIsZero()
+        public void CreatesFileWhenCallingCreateAndWrite()
         {
             // Arrange
-            const int fileLength = 2 << 11;
-            const int offset = 0;
-
-            var filePath = Path.Combine(Path.GetTempPath(),
-                string.Format("RAFTnet\\TestDumps\\BufferedDoesNotExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "FileDoesNotExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
 
             var bytes = BitConverter.GetBytes(100);
 
-            var fileWriter = new BufferedSequentialFileWriter(fileLength);
+            var fileWriter = new BufferedSequentialFileWriter();
 
             // Act
-            fileWriter.Write(filePath, offset, bytes);
+            fileWriter.CreateAndWrite(filePath, bytes, bytes.Length);
 
             // Assert
-            File.Exists(filePath).Should().BeTrue();
-            new FileInfo(filePath).Length.Should().Be(fileLength);
+            File.Exists(filePath).Should().BeTrue("because calling CreateAndWrite() creates the file.");
         }
 
         [Test]
-        public void BufferedSequentialDiskWriterThrowsIfFileDoesNotExistAndOffsetGreaterThanZero()
+        public void CreatesFileAndSetsLengthWhenCallingCreateAndWrite()
+        {
+            // Arrange
+            const int fileLength = 2 << 13;
+
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "FileDoesNotExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
+
+            var bytes = BitConverter.GetBytes(100);
+
+            var fileWriter = new BufferedSequentialFileWriter();
+
+            // Act
+            fileWriter.CreateAndWrite(filePath, bytes, fileLength);
+
+            // Assert
+            File.Exists(filePath)
+                .Should().BeTrue("because calling CreateAndWrite() creates the file.");
+
+            new FileInfo(filePath).Length
+                .Should().Be(fileLength, "because the method should preset the length of the file.");
+        }
+
+        [Test]
+        public void CreatesFileAndWritesDataWhenCallingCreateAndWrite()
+        {
+            // Arrange
+            const int fileLength = 2 << 13;
+
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "FileDoesNotExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
+
+            var bytes = BitConverter.GetBytes(100);
+
+            var fileWriter = new BufferedSequentialFileWriter();
+
+            // Act
+            fileWriter.CreateAndWrite(filePath, bytes, fileLength);
+
+            // Assert
+            File.Exists(filePath)
+                .Should().BeTrue("because calling CreateAndWrite() creates the file.");
+
+            File.ReadAllBytes(filePath)
+                .Take(bytes.Length)
+                .SequenceEqual(bytes)
+                .Should().BeTrue("because the bytes should have been written to the beggining of the file.");
+        }
+
+        [Test]
+        public void ThrowsIfFileDoesNotExistWhenWriteIsCalled()
         {
             // Arrange
             
@@ -68,7 +118,7 @@ namespace Raft.Tests.Unit.Infrastructure.IO
         }
 
         [Test]
-        public void BufferedSequentialDiskWriterThrowsIfLengthIsNotSet()
+        public void ThrowsIfOffsetPlusBytesToWriteExceedesFileLengthWhenWriteIsCalled()
         {
             // Arrange
 

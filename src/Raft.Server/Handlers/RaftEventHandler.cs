@@ -4,16 +4,14 @@ using Disruptor;
 
 namespace Raft.Server.Handlers
 {
-    internal abstract class CommandScheduledEventHandler : IEventHandler<CommandScheduledEvent>
+    internal abstract class RaftEventHandler : IEventHandler<CommandScheduledEvent>
     {
-        public abstract bool SkipInternalCommands { get; }
-
         public void OnNext(CommandScheduledEvent data, long sequence, bool endOfBatch)
         {
             if (!data.IsValidForProcessing())
                 return;
 
-            if (SkipInternalCommands && (data.Command is IRaftInternalCommand))
+            if (this is ISkipInternalCommands && (data.Command is IRaftInternalCommand))
                 return;
 
             try

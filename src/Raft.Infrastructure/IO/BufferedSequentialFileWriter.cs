@@ -1,28 +1,30 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Raft.Infrastructure.IO
 {
     public class BufferedSequentialFileWriter : IWriteToFile
     {
-        private readonly int _fileSize;
-
-        public BufferedSequentialFileWriter(int fileSize)
+        public void CreateAndWrite(string filePath, byte[] data, int fileLength)
         {
-            _fileSize = fileSize;
+            if (File.Exists(filePath))
+                throw new InvalidOperationException(string.Format(
+                    "File already exists at path: {0}. " +
+                    "This method should only be called for creatong new files. " +
+                    "To modify existing files, call BufferedSequentialFileWriter.Write().", filePath));
+
+            using (var fs = new FileStream(filePath, FileMode.CreateNew,
+                FileAccess.Write, FileShare.None, 2<<11, FileOptions.SequentialScan))
+            {
+                fs.SetLength(fileLength);
+                fs.Write(data, 0, data.Length);
+                fs.FlushProperly();
+            }
         }
 
         public void Write(string filePath, int offset, byte[] data)
         {
-            var directory = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
-            using (var fs = new FileStream(filePath, FileMode.OpenOrCreate,
-                FileAccess.Write, FileShare.None, 2 << 10, FileOptions.SequentialScan))
-            {
-                fs.SetLength(_fileSize);
-                fs.FlushProperly();
-            }
+            
         }
     }
 
