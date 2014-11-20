@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace Raft.Infrastructure.IO
+namespace Raft.Infrastructure
 {
-    internal static class FileStreamExtensions
+    internal static class StreamExtensions
     {
         [return: MarshalAs(UnmanagedType.Bool)]
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -21,5 +21,7 @@ namespace Raft.Infrastructure.IO
             var error = Marshal.GetLastWin32Error();
             throw new Win32Exception(error, "An error occured whilst calling FlushFileBuffers");
         }
+
+
     }
 }
