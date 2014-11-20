@@ -17,7 +17,7 @@ namespace Raft.Tests.Unit.Server.Handlers
         public void LogWriterDoesNotHandleInternalCommands()
         {
             // Act, Assert
-            typeof(LogWriter).IsAssignableFrom(typeof(ISkipInternalCommands))
+            typeof(ISkipInternalCommands).IsAssignableFrom(typeof(LogWriter))
                 .Should().BeTrue();
         }
 

@@ -18,7 +18,7 @@ namespace Raft.Tests.Unit.Server.Handlers
         public void LogReplicatorSkipsInternalCommands()
         {
             // Act, Assert
-            typeof(LogReplicator).IsAssignableFrom(typeof(ISkipInternalCommands))
+            typeof(ISkipInternalCommands).IsAssignableFrom(typeof(LogReplicator))
                 .Should().BeTrue();
         }
 

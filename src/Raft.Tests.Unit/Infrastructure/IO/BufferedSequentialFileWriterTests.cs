@@ -111,40 +111,60 @@ namespace Raft.Tests.Unit.Infrastructure.IO
         public void ThrowsIfFileDoesNotExistWhenWriteIsCalled()
         {
             // Arrange
-            
-            // Act
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "FileDoesNotExist-{0}.log", DateTime.Now.ToFileTimeUtc()));
 
-            // Assert
+            var bytes = BitConverter.GetBytes(100);
+
+            var fileWriter = new BufferedSequentialFileWriter();
+
+            Action actAction = () => fileWriter.Write(filePath, 0, bytes);
+
+            // Act, Assert
+            actAction.ShouldThrow<FileNotFoundException>("because the file needs to exist");
         }
 
         [Test]
         public void ThrowsIfOffsetPlusBytesToWriteExceedesFileLengthWhenWriteIsCalled()
         {
             // Arrange
+            var bytes = BitConverter.GetBytes(100);
+            var fileLength = bytes.Length + (bytes.Length/2);
+            var offset = bytes.Length;
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "UpdateFile-{0}.log", DateTime.Now.ToFileTimeUtc()));
 
-            // Act
+            var fileWriter = new BufferedSequentialFileWriter();
+            fileWriter.CreateAndWrite(filePath, bytes, fileLength);
 
-            // Assert
+            Action actAction = () => fileWriter.Write(filePath, offset, bytes);
+
+            // Act, Assert
+            actAction.ShouldThrow<InvalidOperationException>(
+                "because the file length would be exceeded with the write.");
         }
 
         [Test]
-        public void BufferedSequentialDiskWriterThrowsIfOffsetPlusBytesToWriteIsGreaterThanLength()
+        public void WritesBytesAtGivenOffsetWhenWriteIsCalled()
         {
             // Arrange
+            var bytes = BitConverter.GetBytes(100);
+            var fileLength = bytes.Length * 2;
+            var offset = bytes.Length;
+            var filePath = Path.Combine(_testDumpsDir, string.Format(
+                "UpdateFile-{0}.log", DateTime.Now.ToFileTimeUtc()));
+
+            var fileWriter = new BufferedSequentialFileWriter();
+            fileWriter.CreateAndWrite(filePath, bytes, fileLength);
 
             // Act
+            fileWriter.Write(filePath, offset, bytes);
 
             // Assert
-        }
-
-        [Test]
-        public void BufferedSequentialDiskWriterWritesBytes()
-        {
-            // Arrange
-
-            // Act
-
-            // Assert
+            File.ReadAllBytes(filePath)
+                .Skip(offset)
+                .SequenceEqual(bytes)
+                .Should().BeTrue("because it should have written the specified bytes at that position.");
         }
     }
 }
