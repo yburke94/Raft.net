@@ -5,7 +5,7 @@ namespace Raft.Infrastructure.IO
 {
     public class BufferedSequentialFileWriter : IWriteToFile
     {
-        public void CreateAndWrite(string filePath, byte[] data, int fileLength)
+        public void CreateAndWrite(string filePath, byte[] data, long fileLength)
         {
             if (File.Exists(filePath))
                 throw new InvalidOperationException(string.Format(

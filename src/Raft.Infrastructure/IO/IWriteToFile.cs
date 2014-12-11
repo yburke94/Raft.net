@@ -8,7 +8,7 @@ namespace Raft.Infrastructure.IO
         /// <summary>
         /// Creates a file with the given length and writes the specified bytes.
         /// </summary>
-        void CreateAndWrite(string filePath, byte[] data, int fileLength);
+        void CreateAndWrite(string filePath, byte[] data, long fileLength);
 
         /// <summary>
         /// Writes the specified bytes to file at the given offset.

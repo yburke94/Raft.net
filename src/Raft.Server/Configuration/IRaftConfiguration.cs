@@ -1,8 +1,8 @@
-﻿using System;
-
-namespace Raft.Server.Configuration
+﻿namespace Raft.Server.Configuration
 {
     public interface IRaftConfiguration {
-        string LogPath { get; set; }
+        string LogDirectory { get; set; }
+        string JournalFileName { get; set; }
+        long JournalFileLength { get; set; }
     }
 }
