@@ -15,6 +15,6 @@ namespace Raft.Infrastructure.IO
         /// </summary>
         /// <exception cref="FileNotFoundException">File does not exist</exception>
         /// <exception cref="InvalidOperationException">Writing bytes would exceed file length.</exception>
-        void Write(string filePath, int offset, byte[] data);
+        void Write(string filePath, long offset, byte[] data);
     }
 }

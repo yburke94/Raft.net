@@ -108,7 +108,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             raftConfiguration.JournalFileName.Returns("Journal");
             raftConfiguration.JournalFileLength.Returns(fileLength);
 
-            logMetadata.CurrentJournalIndex.Returns(1);
+            logMetadata.CurrentJournalIndex.Returns(2);
             logMetadata.CurrentJournalOffset.Returns(fileLength - (data.Length/2));
 
             logRegister.AddEncodedLog(@event.Id, data);
@@ -121,6 +121,74 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Assert
             diskWriteStrategy.Received()
                 .CreateAndWrite(filePath, data, fileLength);
+        }
+
+        [Test]
+        public void AppendToExistingJournalFileIfDataLengthDoesNotExceedFileLength()
+        {
+            // Arrange
+            var filePath = Path.Combine(_logDir, "Journal.1");
+            var data = BitConverter.GetBytes(1);
+            const long fileLength = 4 * 1024 * 1024;
+            var offset = fileLength - data.Length;
+
+            var @event = TestEventFactory.GetCommandEvent();
+
+            var logRegister = new LogRegister();
+            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var raftConfiguration = Substitute.For<IRaftConfiguration>();
+            var logMetadata = Substitute.For<ILogMetadata>();
+
+            raftConfiguration.LogDirectory.Returns(_logDir);
+            raftConfiguration.JournalFileName.Returns("Journal");
+            raftConfiguration.JournalFileLength.Returns(fileLength);
+
+            logMetadata.CurrentJournalIndex.Returns(1);
+            logMetadata.CurrentJournalOffset.Returns(offset);
+
+            logRegister.AddEncodedLog(@event.Id, data);
+
+            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+
+            // Act
+            handler.Handle(@event);
+
+            // Assert
+            diskWriteStrategy.Received()
+                .Write(filePath, offset, data);
+        }
+
+        [Test]
+        public void ChangesFileOffsetInMetadataWhenCreatingNewFile()
+        {
+            // Arrange
+            var filePath = Path.Combine(_logDir, "Journal.1");
+            var data = BitConverter.GetBytes(1);
+            const long fileLength = 4 * 1024 * 1024;
+
+            var @event = TestEventFactory.GetCommandEvent();
+
+            var logRegister = new LogRegister();
+            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var raftConfiguration = Substitute.For<IRaftConfiguration>();
+            var logMetadata = Substitute.For<ILogMetadata>();
+
+            raftConfiguration.LogDirectory.Returns(_logDir);
+            raftConfiguration.JournalFileName.Returns("Journal");
+            raftConfiguration.JournalFileLength.Returns(fileLength);
+
+            logMetadata.CurrentJournalIndex.Returns(1);
+            logMetadata.CurrentJournalOffset.Returns(0);
+
+            logRegister.AddEncodedLog(@event.Id, data);
+
+            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+
+            // Act
+            handler.Handle(@event);
+
+            // Assert
+            logMetadata.Received().SetJournalOffset(data.Length);
         }
     }
 }

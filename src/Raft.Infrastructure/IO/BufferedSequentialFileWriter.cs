@@ -22,7 +22,7 @@ namespace Raft.Infrastructure.IO
             }
         }
 
-        public void Write(string filePath, int offset, byte[] data)
+        public void Write(string filePath, long offset, byte[] data)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(string.Format(

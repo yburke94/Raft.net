@@ -37,26 +37,25 @@ namespace Raft.Server.Handlers
 
         public override void Handle(CommandScheduledEvent @event)
         {
+            var data = _logRegister.GetEncodedLog(@event.Id);
+
             var createFile = false;
-            var currentJournalIdx = _logMetadata.CurrentJournalIndex;
-            if (currentJournalIdx == 0)
+            if (_logMetadata.CurrentJournalIndex == 0 ||
+                _logMetadata.CurrentJournalOffset + data.Length > _raftConfiguration.JournalFileLength)
             {
                 createFile = true;
-                currentJournalIdx++;
+                _logMetadata.IncrementJournalIndex();
             }
 
             var filePath = Path.Combine(_raftConfiguration.LogDirectory,
-                string.Format("{0}.{1}", _raftConfiguration.JournalFileName, currentJournalIdx));
-
-            var data = _logRegister.GetEncodedLog(@event.Id);
+                string.Format("{0}.{1}", _raftConfiguration.JournalFileName, _logMetadata.CurrentJournalIndex));
 
             if (createFile)
-            {
-                _logMetadata.IncrementJournalIndex();
                 _writeToFile.CreateAndWrite(filePath, data, _raftConfiguration.JournalFileLength);
-            }
-                
+            else
+                _writeToFile.Write(filePath, _logMetadata.CurrentJournalOffset, data);
 
+            _logMetadata.SetJournalOffset(_logMetadata.CurrentJournalOffset + data.Length);
         }
     }
 }
