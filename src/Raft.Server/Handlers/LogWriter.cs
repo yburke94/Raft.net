@@ -25,14 +25,16 @@ namespace Raft.Server.Handlers
         private readonly LogRegister _logRegister;
         private readonly ILogMetadata _logMetadata;
         private readonly IWriteToFile _writeToFile;
+        private readonly IMetadataFlushStrategy _metadataFlushStrategy;
 
         public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister,
-            ILogMetadata logMetadata, IWriteToFile writeToFile)
+            ILogMetadata logMetadata, IWriteToFile writeToFile, IMetadataFlushStrategy metadataFlushStrategy)
         {
             _raftConfiguration = raftConfiguration;
             _logRegister = logRegister;
             _logMetadata = logMetadata;
             _writeToFile = writeToFile;
+            _metadataFlushStrategy = metadataFlushStrategy;
         }
 
         public override void Handle(CommandScheduledEvent @event)
@@ -56,6 +58,7 @@ namespace Raft.Server.Handlers
                 _writeToFile.Write(filePath, _logMetadata.CurrentJournalOffset, data);
 
             _logMetadata.SetJournalOffset(_logMetadata.CurrentJournalOffset + data.Length);
+            _metadataFlushStrategy.FlushLogMetadata();   
         }
     }
 }

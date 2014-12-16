@@ -73,6 +73,7 @@
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Handlers\CommandExecutor.cs" />
     <Compile Include="Handlers\CommandFinalizer.cs" />
+    <Compile Include="Handlers\IMetadataFlushStrategy.cs" />
     <Compile Include="ILogMetadata.cs" />
     <Compile Include="Handlers\ISkipInternalCommands.cs" />
     <Compile Include="IRaftService.cs" />

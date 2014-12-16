@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -37,9 +36,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent();
 
             var logRegister = new LogRegister();
-            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var fileWriter = Substitute.For<IWriteToFile>();
             var raftConfiguration = Substitute.For<IRaftConfiguration>();
             var logMetadata = Substitute.For<ILogMetadata>();
+            var metadataFlushStrategy = Substitute.For<IMetadataFlushStrategy>();
 
             raftConfiguration.LogDirectory.Returns(_logDir);
             raftConfiguration.JournalFileName.Returns("Journal");
@@ -50,13 +50,14 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             logRegister.AddEncodedLog(@event.Id, data);
 
-            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+            var handler = new LogWriter(raftConfiguration, logRegister,
+                logMetadata, fileWriter, metadataFlushStrategy);
 
             // Act
             handler.Handle(@event);
 
             // Assert
-            diskWriteStrategy.Received()
+            fileWriter.Received()
                 .CreateAndWrite(filePath, data, fileLength);
         }
 
@@ -67,9 +68,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent();
 
             var logRegister = new LogRegister();
-            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var fileWriter = Substitute.For<IWriteToFile>();
             var raftConfiguration = Substitute.For<IRaftConfiguration>();
             var logMetadata = Substitute.For<ILogMetadata>();
+            var metadataFlushStrategy = Substitute.For<IMetadataFlushStrategy>();
 
             raftConfiguration.LogDirectory.Returns(_logDir);
             raftConfiguration.JournalFileName.Returns("Journal");
@@ -80,7 +82,8 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             logRegister.AddEncodedLog(@event.Id, BitConverter.GetBytes(34));
 
-            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+            var handler = new LogWriter(raftConfiguration, logRegister,
+                logMetadata, fileWriter, metadataFlushStrategy);
 
             // Act
             handler.Handle(@event);
@@ -100,9 +103,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent();
 
             var logRegister = new LogRegister();
-            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var fileWriter = Substitute.For<IWriteToFile>();
             var raftConfiguration = Substitute.For<IRaftConfiguration>();
             var logMetadata = Substitute.For<ILogMetadata>();
+            var metadataFlushStrategy = Substitute.For<IMetadataFlushStrategy>();
 
             raftConfiguration.LogDirectory.Returns(_logDir);
             raftConfiguration.JournalFileName.Returns("Journal");
@@ -113,13 +117,14 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             logRegister.AddEncodedLog(@event.Id, data);
 
-            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+            var handler = new LogWriter(raftConfiguration, logRegister,
+                logMetadata, fileWriter, metadataFlushStrategy);
 
             // Act
             handler.Handle(@event);
 
             // Assert
-            diskWriteStrategy.Received()
+            fileWriter.Received()
                 .CreateAndWrite(filePath, data, fileLength);
         }
 
@@ -135,9 +140,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent();
 
             var logRegister = new LogRegister();
-            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var fileWriter = Substitute.For<IWriteToFile>();
             var raftConfiguration = Substitute.For<IRaftConfiguration>();
             var logMetadata = Substitute.For<ILogMetadata>();
+            var metadataFlushStrategy = Substitute.For<IMetadataFlushStrategy>();
 
             raftConfiguration.LogDirectory.Returns(_logDir);
             raftConfiguration.JournalFileName.Returns("Journal");
@@ -148,30 +154,31 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             logRegister.AddEncodedLog(@event.Id, data);
 
-            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+            var handler = new LogWriter(raftConfiguration, logRegister,
+                logMetadata, fileWriter, metadataFlushStrategy);
 
             // Act
             handler.Handle(@event);
 
             // Assert
-            diskWriteStrategy.Received()
+            fileWriter.Received()
                 .Write(filePath, offset, data);
         }
 
         [Test]
-        public void ChangesFileOffsetInMetadataWhenCreatingNewFile()
+        public void ChangesFileOffsetInMetadataWhenWritingToFile()
         {
             // Arrange
-            var filePath = Path.Combine(_logDir, "Journal.1");
             var data = BitConverter.GetBytes(1);
             const long fileLength = 4 * 1024 * 1024;
 
             var @event = TestEventFactory.GetCommandEvent();
 
             var logRegister = new LogRegister();
-            var diskWriteStrategy = Substitute.For<IWriteToFile>();
+            var fileWriter = Substitute.For<IWriteToFile>();
             var raftConfiguration = Substitute.For<IRaftConfiguration>();
             var logMetadata = Substitute.For<ILogMetadata>();
+            var metadataFlushStrategy = Substitute.For<IMetadataFlushStrategy>();
 
             raftConfiguration.LogDirectory.Returns(_logDir);
             raftConfiguration.JournalFileName.Returns("Journal");
@@ -182,13 +189,47 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             logRegister.AddEncodedLog(@event.Id, data);
 
-            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, diskWriteStrategy);
+            var handler = new LogWriter(raftConfiguration, logRegister,
+                logMetadata, fileWriter, metadataFlushStrategy);
 
             // Act
             handler.Handle(@event);
 
             // Assert
             logMetadata.Received().SetJournalOffset(data.Length);
+        }
+
+        [Test]
+        public void CallsLogMetadataFlushStrategyAfterEachWrite()
+        {
+            // Arrange
+            var data = BitConverter.GetBytes(1);
+            const long fileLength = 4 * 1024 * 1024;
+
+            var @event = TestEventFactory.GetCommandEvent();
+
+            var logRegister = new LogRegister();
+            var fileWriter = Substitute.For<IWriteToFile>();
+            var raftConfiguration = Substitute.For<IRaftConfiguration>();
+            var logMetadata = Substitute.For<ILogMetadata>();
+            var metadataFlushStrategy = Substitute.For<IMetadataFlushStrategy>();
+
+            raftConfiguration.LogDirectory.Returns(_logDir);
+            raftConfiguration.JournalFileName.Returns("Journal");
+            raftConfiguration.JournalFileLength.Returns(fileLength);
+
+            logMetadata.CurrentJournalIndex.Returns(1);
+            logMetadata.CurrentJournalOffset.Returns(0);
+
+            logRegister.AddEncodedLog(@event.Id, data);
+
+            var handler = new LogWriter(raftConfiguration, logRegister, logMetadata, fileWriter, metadataFlushStrategy);
+
+            // Act
+            handler.Handle(@event);
+
+            // Assert
+            metadataFlushStrategy.Received().FlushLogMetadata();
         }
     }
 }
