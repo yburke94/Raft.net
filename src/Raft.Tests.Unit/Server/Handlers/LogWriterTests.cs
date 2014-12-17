@@ -176,12 +176,13 @@ namespace Raft.Tests.Unit.Server.Handlers
         }
 
         [Test]
-        public void AddsLogEntryIndexAndOffsetToMetadataWhenWritingToFile()
+        public void AddsLogEntryIndexAndDataLengthToMetadataWhenWritingToFile()
         {
             // Arrange
             var data = BitConverter.GetBytes(1);
             const long fileLength = 4 * 1024 * 1024;
             const long logIdx = 30;
+            const long nextOffset = 30;
 
             var @event = TestEventFactory.GetCommandEvent();
 

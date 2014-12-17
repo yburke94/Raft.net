@@ -60,7 +60,7 @@ namespace Raft.Server.Handlers
             else
                 _writeToFile.Write(filePath, _logMetadata.NextJournalEntryOffset, data);
 
-            _logMetadata.AddLogEntryToIndex(_raftNode.LastLogIndex + 1, _logMetadata.NextJournalEntryOffset + data.Length);
+            _logMetadata.AddLogEntryToIndex(_raftNode.LastLogIndex + 1, data.Length);
             _metadataFlushStrategy.FlushLogMetadata();   
         }
     }
