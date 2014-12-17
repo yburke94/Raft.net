@@ -73,10 +73,11 @@
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Handlers\CommandExecutor.cs" />
     <Compile Include="Handlers\CommandFinalizer.cs" />
-    <Compile Include="Handlers\IMetadataFlushStrategy.cs" />
+    <Compile Include="IMetadataFlushStrategy.cs" />
     <Compile Include="ILogMetadata.cs" />
-    <Compile Include="Handlers\ISkipInternalCommands.cs" />
+    <Compile Include="ISkipInternalCommands.cs" />
     <Compile Include="IRaftService.cs" />
+    <Compile Include="LogMetadata.cs" />
     <Compile Include="LogRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="CommandScheduledEvent.cs" />
     <Compile Include="RaftServerContext.cs" />
     <Compile Include="Handlers\NodeStateValidator.cs" />
+    <Compile Include="Services\MemoryMappedFileService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Raft.Core\Raft.Core.csproj">
@@ -115,6 +117,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

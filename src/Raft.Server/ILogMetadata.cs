@@ -2,12 +2,12 @@
 {
     internal interface ILogMetadata
     {
-        int CurrentJournalIndex { get; }
+        long CurrentJournalIndex { get; }
 
-        long CurrentJournalOffset { get; }
+        long NextJournalEntryOffset { get; }
 
         void IncrementJournalIndex();
 
-        void SetJournalOffset(long offset);
+        void AddLogEntryToIndex(long logEntryIdx, long offset);
     }
 }

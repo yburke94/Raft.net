@@ -1,4 +1,4 @@
-﻿namespace Raft.Server.Handlers
+﻿namespace Raft.Server
 {
     internal interface IMetadataFlushStrategy
     {

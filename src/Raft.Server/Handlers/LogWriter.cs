@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.ServiceModel.Configuration;
 using Microsoft.Win32.SafeHandles;
+using Raft.Core;
 using Raft.Infrastructure;
 using Raft.Infrastructure.IO;
 using Raft.Server.Configuration;
@@ -26,15 +27,17 @@ namespace Raft.Server.Handlers
         private readonly ILogMetadata _logMetadata;
         private readonly IWriteToFile _writeToFile;
         private readonly IMetadataFlushStrategy _metadataFlushStrategy;
+        private readonly IRaftNode _raftNode;
 
-        public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister,
-            ILogMetadata logMetadata, IWriteToFile writeToFile, IMetadataFlushStrategy metadataFlushStrategy)
+        public LogWriter(IRaftConfiguration raftConfiguration, LogRegister logRegister, ILogMetadata logMetadata,
+            IWriteToFile writeToFile, IMetadataFlushStrategy metadataFlushStrategy, IRaftNode raftNode)
         {
             _raftConfiguration = raftConfiguration;
             _logRegister = logRegister;
             _logMetadata = logMetadata;
             _writeToFile = writeToFile;
             _metadataFlushStrategy = metadataFlushStrategy;
+            _raftNode = raftNode;
         }
 
         public override void Handle(CommandScheduledEvent @event)
@@ -43,7 +46,7 @@ namespace Raft.Server.Handlers
 
             var createFile = false;
             if (_logMetadata.CurrentJournalIndex == 0 ||
-                _logMetadata.CurrentJournalOffset + data.Length > _raftConfiguration.JournalFileLength)
+                _logMetadata.NextJournalEntryOffset + data.Length > _raftConfiguration.JournalFileLength)
             {
                 createFile = true;
                 _logMetadata.IncrementJournalIndex();
@@ -55,9 +58,9 @@ namespace Raft.Server.Handlers
             if (createFile)
                 _writeToFile.CreateAndWrite(filePath, data, _raftConfiguration.JournalFileLength);
             else
-                _writeToFile.Write(filePath, _logMetadata.CurrentJournalOffset, data);
+                _writeToFile.Write(filePath, _logMetadata.NextJournalEntryOffset, data);
 
-            _logMetadata.SetJournalOffset(_logMetadata.CurrentJournalOffset + data.Length);
+            _logMetadata.AddLogEntryToIndex(_raftNode.LastLogIndex + 1, _logMetadata.NextJournalEntryOffset + data.Length);
             _metadataFlushStrategy.FlushLogMetadata();   
         }
     }

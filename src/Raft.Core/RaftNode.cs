@@ -15,6 +15,7 @@ namespace Raft.Core
 
             _stateMachine.Configure(NodeState.Leader)
                 .PermitReentry(NodeEvent.ClientLoggedCommand);
+
         }
 
         public NodeState CurrentState {
@@ -33,6 +34,11 @@ namespace Raft.Core
         public void LogEntry()
         {
             _stateMachine.Fire(NodeEvent.ClientLoggedCommand);
+        }
+
+        public void EntryLogged()
+        {
+            LastLogIndex++;
         }
     }
 }
