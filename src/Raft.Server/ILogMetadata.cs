@@ -8,6 +8,6 @@
 
         void IncrementJournalIndex();
 
-        void AddLogEntryToIndex(long logEntryIdx, long offset);
+        void AddLogEntryToIndex(long logEntryIdx, long dataLength);
     }
 }
