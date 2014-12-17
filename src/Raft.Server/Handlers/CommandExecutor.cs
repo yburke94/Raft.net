@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Raft.Server.Handlers
+﻿namespace Raft.Server.Handlers
 {
     internal class CommandExecutor : RaftEventHandler, ISkipInternalCommands
     {

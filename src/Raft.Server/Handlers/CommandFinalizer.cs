@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Raft.Core;
+﻿using Raft.Core;
 
 namespace Raft.Server.Handlers
 {

@@ -15,7 +15,6 @@ namespace Raft.Core
 
             _stateMachine.Configure(NodeState.Leader)
                 .PermitReentry(NodeEvent.ClientLoggedCommand);
-
         }
 
         public NodeState CurrentState {

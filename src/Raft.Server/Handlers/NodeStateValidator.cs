@@ -1,4 +1,3 @@
-using System.Runtime.Serialization.Formatters;
 using Raft.Core;
 
 namespace Raft.Server.Handlers

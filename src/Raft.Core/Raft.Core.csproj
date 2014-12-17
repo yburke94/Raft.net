@@ -48,8 +48,6 @@
     <Compile Include="NodeEvent.cs" />
     <Compile Include="NodeState.cs" />
     <Compile Include="RaftNode.cs" />
-    <Compile Include="Strategies\IApplyCommandStrategy.cs" />
-    <Compile Include="Strategies\CommandLogging\PersistLogCommandToDisk.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

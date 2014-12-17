@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Raft.Server.Configuration
+﻿namespace Raft.Server.Configuration
 {
     public interface IConfigureRaft
     {

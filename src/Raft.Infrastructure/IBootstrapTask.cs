@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Raft.Infrastructure
+﻿namespace Raft.Infrastructure
 {
     public interface IBootstrapTask
     {

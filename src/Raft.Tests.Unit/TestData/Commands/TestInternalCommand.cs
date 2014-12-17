@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using ProtoBuf;
 using Raft.Core;
 using Raft.Server;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Raft.Server.Messages.AppendEntries;
 
 namespace Raft.Server.Handlers

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using NSubstitute;
+﻿using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
 using Raft.Server.Handlers;

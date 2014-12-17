@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using ProtoBuf;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Messages.RequestVote;

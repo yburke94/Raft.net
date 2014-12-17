@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ProtoBuf;
+﻿using ProtoBuf;
 
 namespace Raft.Server
 {

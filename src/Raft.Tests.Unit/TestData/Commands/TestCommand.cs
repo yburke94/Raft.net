@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ProtoBuf;
+﻿using ProtoBuf;
 using Raft.Server;
 
 namespace Raft.Tests.Unit.TestData.Commands
