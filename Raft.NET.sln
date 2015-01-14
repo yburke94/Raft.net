@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Server", "src\Raft.Server\Raft.Server.csproj", "{00155642-7E16-4083-BD36-B6136AEDA80B}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tests", "0 - Tests", "{1E8A51EB-FF1E-46A1-BEC1-EF2274979158}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Tests.Unit", "src\Raft.Tests.Unit\Raft.Tests.Unit.csproj", "{06386123-E4BF-4C81-825A-3B7472214BB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Infrastructure.Journaler", "src\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj", "{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{06386123-E4BF-4C81-825A-3B7472214BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06386123-E4BF-4C81-825A-3B7472214BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06386123-E4BF-4C81-825A-3B7472214BB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,5 +56,6 @@ Global
 		{38AA7867-734C-4B09-ABD4-8DB3F74ACE6C} = {ED7AB55D-8863-4A88-927C-5CAFC242F482}
 		{435A85AF-E1CB-442B-A7A4-BB04A92847A7} = {80B8664E-EB58-45DF-99EC-9055C84AF482}
 		{06386123-E4BF-4C81-825A-3B7472214BB7} = {1E8A51EB-FF1E-46A1-BEC1-EF2274979158}
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3} = {80B8664E-EB58-45DF-99EC-9055C84AF482}
 	EndGlobalSection
 EndGlobal

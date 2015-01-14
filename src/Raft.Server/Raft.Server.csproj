@@ -75,7 +75,6 @@
     <Compile Include="Handlers\CommandFinalizer.cs" />
     <Compile Include="IMetadataFlushStrategy.cs" />
     <Compile Include="ILogMetadata.cs" />
-    <Compile Include="IMmioService.cs" />
     <Compile Include="ISkipInternalCommands.cs" />
     <Compile Include="IRaftService.cs" />
     <Compile Include="LogMetadata.cs" />

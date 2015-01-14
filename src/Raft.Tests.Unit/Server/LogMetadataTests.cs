@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using FluentAssertions;
-using NSubstitute;
 using NUnit.Framework;
 using Raft.Server;
 
@@ -51,46 +49,6 @@ namespace Raft.Tests.Unit.Server
             // Assert
             logMetadata.CurrentJournalIndex.Should().Be(1);
             logMetadata.NextJournalEntryOffset.Should().Be(0);
-        }
-
-        [Test]
-        public void ThrowsWhenPassedInViewAccessorSizeIsLessThanSizeofMetadataEntryStruct()
-        {
-            // Arrange
-            var mmioViewAccessorSize = Marshal.SizeOf(typeof(LogMetadataEntry)) / 2;
-            var mmioService = Substitute.For<IMmioService>();
-            Action actAction = () => new LogMetadata(mmioService, mmioViewAccessorSize);
-
-            // Act, Assert
-            actAction.ShouldThrow<ArgumentException>(
-                "because the viewAccessorSize must be greater than the size of the metadata entry type.");
-        }
-
-        [Test]
-        public void ThrowsWhenPassedInViewAccessorSizeIsNotMultipleOfSizeofMetadataEntryStruct()
-        {
-            // Arrange
-            var metadataEntrySize = Marshal.SizeOf(typeof(LogMetadataEntry));
-            var mmioViewAccessorSize = (metadataEntrySize*13) - (metadataEntrySize/2);
-
-            var mmioService = Substitute.For<IMmioService>();
-            Action actAction = () => new LogMetadata(mmioService, mmioViewAccessorSize);
-
-            // Act, Assert
-            actAction.ShouldThrow<ArgumentException>(
-                "because the viewAccessorSize must be a multiple of the size of the metadata entry type.");
-        }
-
-        [Test]
-        public void InitialMetadataIsLoadedFromMemoryMappedFile()
-        {
-            // Arrange
-            var mmioService = Substitute.For<IMmioService>();
-
-
-            // Act
-
-            // Assert
         }
     }
 }

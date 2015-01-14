@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{435A85AF-E1CB-442B-A7A4-BB04A92847A7}</ProjectGuid>
+    <ProjectGuid>{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Infrastructure</RootNamespace>
-    <AssemblyName>Raft.Infrastructure</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>Raft.Infrastructure.Journaler</RootNamespace>
+    <AssemblyName>Raft.Infrastructure.Journaler</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,16 +39,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IBootstrapTask.cs" />
-    <Compile Include="IO\BufferedSequentialFileWriter.cs" />
-    <Compile Include="StreamExtensions.cs" />
-    <Compile Include="IO\IWriteToFile.cs" />
+    <Compile Include="IJournalFileWriter.cs" />
+    <Compile Include="IJournalEntryPadder.cs" />
+    <Compile Include="IJournaler.cs" />
+    <Compile Include="IJournalMetadata.cs" />
+    <Compile Include="JournalConfiguration.cs" />
+    <Compile Include="Journaler.cs" />
+    <Compile Include="NoOpEntryPadder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SectorSize.cs" />
+    <Compile Include="SectorSizeEntryPadder.cs" />
+    <Compile Include="StreamExtensions.cs" />
+    <Compile Include="UnbufferedSequentialFileWriter.cs" />
+    <Compile Include="UnbufferedStream.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
