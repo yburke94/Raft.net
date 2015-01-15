@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BufferedJournalFileWriter.cs" />
     <Compile Include="IJournalFileWriter.cs" />
     <Compile Include="IJournalEntryPadder.cs" />
     <Compile Include="IJournaler.cs" />
@@ -50,7 +51,8 @@
     <Compile Include="SectorSize.cs" />
     <Compile Include="SectorSizeEntryPadder.cs" />
     <Compile Include="StreamExtensions.cs" />
-    <Compile Include="UnbufferedSequentialFileWriter.cs" />
+    <Compile Include="JournalFileWriter.cs" />
+    <Compile Include="UnbufferedJournalFileWriter.cs" />
     <Compile Include="UnbufferedStream.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

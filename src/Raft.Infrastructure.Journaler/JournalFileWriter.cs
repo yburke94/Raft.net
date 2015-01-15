@@ -3,21 +3,22 @@ using System.IO;
 
 namespace Raft.Infrastructure.Journaler
 {
-    internal class UnbufferedSequentialFileWriter : IJournalFileWriter, IDisposable
+    internal abstract class JournalFileWriter : IJournalFileWriter, IDisposable
     {
         private readonly JournalConfiguration _journalConfiguration;
-        private FileStream _currentFile;
+        protected FileStream CurrentStream;
 
-        public UnbufferedSequentialFileWriter(JournalConfiguration journalConfiguration)
+        protected JournalFileWriter(JournalConfiguration journalConfiguration)
         {
             _journalConfiguration = journalConfiguration;
         }
+
+        protected abstract void SetFileStream(string path, bool newFile, long fileSizeInBytes, long startingPosition);
 
         public void SetJournal(int journalIdx, long startingPosition)
         {
             CloseCurrentStream();
 
-            var bufferSize = SectorSize.Get(_journalConfiguration.JournalDirectory);
             var journalFileName = _journalConfiguration.JournalFileName + "." + journalIdx;
             var journalPath = Path.Combine(_journalConfiguration.JournalDirectory, journalFileName);
 
@@ -25,36 +26,26 @@ namespace Raft.Infrastructure.Journaler
             if (newJournal && startingPosition != 0)
                 throw new InvalidOperationException("Starting position should be set to 0 when creating a new journal file.");
 
-            _currentFile = UnbufferedStream.Get(journalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, (int) bufferSize);
-            _currentFile.Seek(startingPosition, SeekOrigin.Current);
-
-            if (!newJournal) return;
-
-            _currentFile.SetLength(_journalConfiguration.LengthInBytes);
-            Flush();
+            
         }
 
         public void WriteBytes(byte[] bytes)
         {
-            AssertFileIsSet();
+            AssertStreamIsSet();
 
-            _currentFile.Write(bytes, 0, bytes.Length);
+            CurrentStream.Write(bytes, 0, bytes.Length);
         }
 
         public void Flush()
         {
-            AssertFileIsSet();
+            AssertStreamIsSet();
 
-            // NoOp if position is not 0
-            if (_currentFile.Position != 0) return;
-
-            // Flush NTFS Metadata
-            _currentFile.FlushProperly();
+            CurrentStream.FlushProperly();
         }
 
-        private void AssertFileIsSet()
+        private void AssertStreamIsSet()
         {
-            if (_currentFile == null)
+            if (CurrentStream == null)
                 throw new InvalidOperationException(
                     "Cannot perform this operation as the current file is not set. " +
                     "Please ensure you have made a call to SetJournal prior to writing or flushing the journal file.");
@@ -62,10 +53,10 @@ namespace Raft.Infrastructure.Journaler
 
         private void CloseCurrentStream()
         {
-            if (_currentFile == null) return;
+            if (CurrentStream == null) return;
 
-            _currentFile.Dispose();
-            _currentFile = null;
+            CurrentStream.Dispose();
+            CurrentStream = null;
         }
 
         public void Dispose()

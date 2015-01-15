@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Raft.Infrastructure.Journaler
+﻿namespace Raft.Infrastructure.Journaler
 {
     class Journaler : IJournaler
     {

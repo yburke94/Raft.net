@@ -1,5 +1,4 @@
-﻿using System.IO;
-
+﻿
 namespace Raft.Infrastructure.Journaler
 {
     internal class SectorSizeEntryPadder : IJournalEntryPadder
@@ -13,7 +12,7 @@ namespace Raft.Infrastructure.Journaler
 
         public byte[] AddPaddingToEntry(byte[] entry)
         {
-            var sectorSize = SectorSize.Get(Path.GetPathRoot(_journalConfiguration.JournalDirectory));
+            var sectorSize = SectorSize.Get(_journalConfiguration.JournalDirectory);
             var amountToPad = sectorSize - (entry.Length % sectorSize);
 
             if (amountToPad == sectorSize)
