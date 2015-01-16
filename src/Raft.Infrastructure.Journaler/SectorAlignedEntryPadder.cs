@@ -1,11 +1,11 @@
 ﻿
 namespace Raft.Infrastructure.Journaler
 {
-    internal class SectorSizeEntryPadder : IJournalEntryPadder
+    internal class SectorAlignedEntryPadder : IJournalEntryPadder
     {
         private readonly JournalConfiguration _journalConfiguration;
 
-        public SectorSizeEntryPadder(JournalConfiguration journalConfiguration)
+        public SectorAlignedEntryPadder(JournalConfiguration journalConfiguration)
         {
             _journalConfiguration = journalConfiguration;
         }

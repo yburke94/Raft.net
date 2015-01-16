@@ -4,7 +4,7 @@
     {
         void SetJournal(int journalIdx, long startingPosition = 0L);
 
-        void WriteBytes(byte[] bytes);
+        void WriteJournalEntry(byte[] bytes);
 
         void Flush();
     }

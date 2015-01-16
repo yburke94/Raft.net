@@ -4,24 +4,23 @@
     {
         private readonly JournalConfiguration _journalConfiguration;
         private readonly IJournalFileWriter _journalFileWriter;
-        private readonly IJournalMetadata _journalMetadata;
+        private readonly IJournalOffsetManager _journalOffsetManager;
         private readonly IJournalEntryPadder _entryPadder;
 
-        public Journaler(JournalConfiguration journalConfiguration, IJournalFileWriter journalFileWriter, IJournalMetadata journalMetadata, IJournalEntryPadder entryPadder)
+        public Journaler(JournalConfiguration journalConfiguration, IJournalFileWriter journalFileWriter, IJournalOffsetManager journalOffsetManager, IJournalEntryPadder entryPadder)
         {
             _journalConfiguration = journalConfiguration;
             _journalFileWriter = journalFileWriter;
-            _journalMetadata = journalMetadata;
+            _journalOffsetManager = journalOffsetManager;
             _entryPadder = entryPadder;
 
-            _journalFileWriter.SetJournal(_journalMetadata.CurrentJournalIndex, _journalMetadata.NextJournalEntryOffset);
+            _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex, _journalOffsetManager.NextJournalEntryOffset);
         }
 
         public void WriteBlock(byte[] block)
         {
             WriteBlockWithoutFlush(block);
 
-            _journalMetadata.Flush();
             _journalFileWriter.Flush();
         }
 
@@ -32,7 +31,6 @@
                 WriteBlockWithoutFlush(block);
             }
 
-            _journalMetadata.Flush();
             _journalFileWriter.Flush();
         }
 
@@ -40,14 +38,14 @@
         {
             var paddedEntry = _entryPadder.AddPaddingToEntry(blockToWrite);
 
-            if ((_journalMetadata.NextJournalEntryOffset + paddedEntry.Length) > _journalConfiguration.LengthInBytes)
+            if ((_journalOffsetManager.NextJournalEntryOffset + paddedEntry.Length) > _journalConfiguration.LengthInBytes)
             {
-                _journalMetadata.IncrementJournalIndex();
-                _journalFileWriter.SetJournal(_journalMetadata.CurrentJournalIndex);
+                _journalOffsetManager.IncrementJournalIndex();
+                _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex);
             }
 
-            _journalMetadata.RegisterLogEntry(blockToWrite.Length, paddedEntry.Length - blockToWrite.Length);
-            _journalFileWriter.WriteBytes(paddedEntry);
+            _journalOffsetManager.UpdateJournalOffset(paddedEntry.Length);
+            _journalFileWriter.WriteJournalEntry(paddedEntry);
         }
     }
 }

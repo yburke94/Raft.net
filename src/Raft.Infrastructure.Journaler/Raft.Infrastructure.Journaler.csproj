@@ -43,13 +43,15 @@
     <Compile Include="IJournalFileWriter.cs" />
     <Compile Include="IJournalEntryPadder.cs" />
     <Compile Include="IJournaler.cs" />
-    <Compile Include="IJournalMetadata.cs" />
+    <Compile Include="IJournalOffsetManager.cs" />
     <Compile Include="JournalConfiguration.cs" />
     <Compile Include="Journaler.cs" />
+    <Compile Include="JournalOffsetManager.cs" />
+    <Compile Include="JournalMetadataEntry.cs" />
     <Compile Include="NoOpEntryPadder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SectorSize.cs" />
-    <Compile Include="SectorSizeEntryPadder.cs" />
+    <Compile Include="SectorAlignedEntryPadder.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="JournalFileWriter.cs" />
     <Compile Include="UnbufferedJournalFileWriter.cs" />

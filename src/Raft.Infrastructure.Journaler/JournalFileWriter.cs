@@ -25,14 +25,11 @@ namespace Raft.Infrastructure.Journaler
             var newJournal = !File.Exists(journalPath);
             if (newJournal && startingPosition != 0)
                 throw new InvalidOperationException("Starting position should be set to 0 when creating a new journal file.");
-
-            
         }
 
-        public void WriteBytes(byte[] bytes)
+        public void WriteJournalEntry(byte[] bytes)
         {
             AssertStreamIsSet();
-
             CurrentStream.Write(bytes, 0, bytes.Length);
         }
 
