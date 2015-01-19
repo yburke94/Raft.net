@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Raft.Infrastructure.Journaler
 {
-    internal abstract class JournalFileWriter : IJournalFileWriter, IDisposable
+    internal abstract class JournalFileWriter : IJournalFileWriter
     {
         private readonly JournalConfiguration _journalConfiguration;
         protected FileStream CurrentStream;

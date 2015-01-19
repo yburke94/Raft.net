@@ -1,51 +1,61 @@
-﻿namespace Raft.Infrastructure.Journaler
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Raft.Infrastructure.Journaler
 {
-    class Journaler : IJournaler
+    internal class Journaler : IJournaler, IDisposable
     {
         private readonly JournalConfiguration _journalConfiguration;
         private readonly IJournalFileWriter _journalFileWriter;
-        private readonly IJournalOffsetManager _journalOffsetManager;
-        private readonly IJournalEntryPadder _entryPadder;
-
-        public Journaler(JournalConfiguration journalConfiguration, IJournalFileWriter journalFileWriter, IJournalOffsetManager journalOffsetManager, IJournalEntryPadder entryPadder)
+        private readonly JournalOffsetManager _journalOffsetManager;
+        private readonly IList<ITransformJournalEntry> _entryTransformers;
+        
+        public Journaler(JournalConfiguration journalConfiguration, IJournalFileWriter journalFileWriter, JournalOffsetManager journalOffsetManager, IList<ITransformJournalEntry> entryTransformers)
         {
             _journalConfiguration = journalConfiguration;
             _journalFileWriter = journalFileWriter;
             _journalOffsetManager = journalOffsetManager;
-            _entryPadder = entryPadder;
+            _entryTransformers = entryTransformers;
 
             _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex, _journalOffsetManager.NextJournalEntryOffset);
         }
 
         public void WriteBlock(byte[] block)
         {
-            WriteBlockWithoutFlush(block);
-
-            _journalFileWriter.Flush();
+            WriteBlock(block, true);
         }
 
         public void WriteBlocks(byte[][] blocks)
         {
-            foreach (var block in blocks)
+            for (var i = 0; i < blocks.Length; i++)
             {
-                WriteBlockWithoutFlush(block);
+                WriteBlock(blocks[i], i == blocks.Length - 1);
             }
-
-            _journalFileWriter.Flush();
         }
 
-        private void WriteBlockWithoutFlush(byte[] blockToWrite)
+        private void WriteBlock(byte[] block, bool flush)
         {
-            var paddedEntry = _entryPadder.AddPaddingToEntry(blockToWrite);
+            _entryTransformers.ToList()
+                .ForEach(x => block = x.Transform(block));
 
-            if ((_journalOffsetManager.NextJournalEntryOffset + paddedEntry.Length) > _journalConfiguration.LengthInBytes)
+            if ((_journalOffsetManager.NextJournalEntryOffset + block.Length) > _journalConfiguration.LengthInBytes)
             {
                 _journalOffsetManager.IncrementJournalIndex();
                 _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex);
             }
 
-            _journalOffsetManager.UpdateJournalOffset(paddedEntry.Length);
-            _journalFileWriter.WriteJournalEntry(paddedEntry);
+            _journalOffsetManager.UpdateJournalOffset(block.Length);
+            _journalFileWriter.WriteJournalEntry(block);
+
+            if (flush)
+                _journalFileWriter.Flush();
+        }
+
+        public void Dispose()
+        {
+            _journalFileWriter.Dispose();
+
         }
     }
 }

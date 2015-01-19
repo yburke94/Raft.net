@@ -5,7 +5,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Raft.Infrastructure.Journaler
 {
-    public class UnbufferedStream
+    internal class UnbufferedStream
     {
         // ReSharper disable InconsistentNaming
         const int FILE_FLAG_NO_BUFFERING = unchecked(0x20000000);

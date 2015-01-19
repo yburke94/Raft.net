@@ -1,25 +1,37 @@
-﻿namespace Raft.Infrastructure.Journaler
+﻿using System;
+
+namespace Raft.Infrastructure.Journaler
 {
-    internal class JournalOffsetManager : IJournalOffsetManager
+    internal class JournalOffsetManager
     {
-        public int CurrentJournalIndex
+        private readonly long _journalLengthInBytes;
+
+        public JournalOffsetManager(JournalConfiguration journalConfiguration)
         {
-            get { return 0; }
+            _journalLengthInBytes = journalConfiguration.LengthInBytes;
+
+            CurrentJournalIndex = 0;
+            NextJournalEntryOffset = 0;
         }
 
-        public long NextJournalEntryOffset
-        {
-            get { return 0; }
-        }
+        public int CurrentJournalIndex { get; private set; }
+
+        public long NextJournalEntryOffset { get; private set; }
 
         public void IncrementJournalIndex()
         {
-
+            CurrentJournalIndex++;
+            NextJournalEntryOffset = 0;
         }
 
-        public void UpdateJournalOffset(int entrySize)
+        public void UpdateJournalOffset(int entryLength)
         {
-            throw new System.NotImplementedException();
+            if ((NextJournalEntryOffset + entryLength) > _journalLengthInBytes)
+                throw new InvalidOperationException(
+                    "This operation would exceed the length of the journal file. " +
+                    "You must increment the journal index in order to write this journal entry.");
+
+            NextJournalEntryOffset += entryLength;
         }
     }
 }

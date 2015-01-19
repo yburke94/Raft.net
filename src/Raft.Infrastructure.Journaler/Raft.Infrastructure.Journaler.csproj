@@ -40,22 +40,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferedJournalFileWriter.cs" />
-    <Compile Include="EntryMetadata.cs" />
-    <Compile Include="IGetJournalEntryMetadata.cs" />
+    <Compile Include="ByteArrayExtensions.cs" />
     <Compile Include="IJournalFileWriter.cs" />
-    <Compile Include="IJournalEntryPadder.cs" />
     <Compile Include="IJournaler.cs" />
-    <Compile Include="IJournalOffsetManager.cs" />
-    <Compile Include="ISetJournalEntryMetadata.cs" />
+    <Compile Include="IoType.cs" />
+    <Compile Include="ITransformJournalEntry.cs" />
     <Compile Include="JournalConfiguration.cs" />
     <Compile Include="Journaler.cs" />
-    <Compile Include="JournalMetadataService.cs" />
+    <Compile Include="AddJournalMetadata.cs" />
+    <Compile Include="JournalerFactory.cs" />
     <Compile Include="JournalOffsetManager.cs" />
-    <Compile Include="JournalMetadataEntry.cs" />
-    <Compile Include="NoOpEntryPadder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SectorSize.cs" />
-    <Compile Include="SectorAlignedEntryPadder.cs" />
+    <Compile Include="PadToAlignToSector.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="JournalFileWriter.cs" />
     <Compile Include="UnbufferedJournalFileWriter.cs" />

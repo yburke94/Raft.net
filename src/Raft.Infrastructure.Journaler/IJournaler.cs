@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Raft.Infrastructure.Journaler
+﻿namespace Raft.Infrastructure.Journaler
 {
-    interface IJournaler
+    public interface IJournaler
     {
         void WriteBlock(byte[] block);
 

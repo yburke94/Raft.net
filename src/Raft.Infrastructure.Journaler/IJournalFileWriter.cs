@@ -1,6 +1,8 @@
-﻿namespace Raft.Infrastructure.Journaler
+﻿using System;
+
+namespace Raft.Infrastructure.Journaler
 {
-    internal interface IJournalFileWriter
+    internal interface IJournalFileWriter : IDisposable
     {
         void SetJournal(int journalIdx, long startingPosition = 0L);
 
