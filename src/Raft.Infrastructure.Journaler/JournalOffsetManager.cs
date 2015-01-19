@@ -1,4 +1,5 @@
 ﻿using System;
+using Raft.Infrastructure.Journaler.Reader;
 
 namespace Raft.Infrastructure.Journaler
 {
