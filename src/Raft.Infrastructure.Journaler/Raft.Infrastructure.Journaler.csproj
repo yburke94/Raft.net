@@ -40,12 +40,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferedJournalFileWriter.cs" />
+    <Compile Include="EntryMetadata.cs" />
+    <Compile Include="IGetJournalEntryMetadata.cs" />
     <Compile Include="IJournalFileWriter.cs" />
     <Compile Include="IJournalEntryPadder.cs" />
     <Compile Include="IJournaler.cs" />
     <Compile Include="IJournalOffsetManager.cs" />
+    <Compile Include="ISetJournalEntryMetadata.cs" />
     <Compile Include="JournalConfiguration.cs" />
     <Compile Include="Journaler.cs" />
+    <Compile Include="JournalMetadataService.cs" />
     <Compile Include="JournalOffsetManager.cs" />
     <Compile Include="JournalMetadataEntry.cs" />
     <Compile Include="NoOpEntryPadder.cs" />

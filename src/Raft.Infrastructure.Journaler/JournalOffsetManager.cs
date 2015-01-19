@@ -2,11 +2,6 @@
 {
     internal class JournalOffsetManager : IJournalOffsetManager
     {
-        public JournalOffsetManager()
-        {
-            
-        }
-
         public int CurrentJournalIndex
         {
             get { return 0; }
@@ -22,12 +17,9 @@
 
         }
 
-        public void AddJournalEntry(long entrySize, long? padding)
+        public void UpdateJournalOffset(int entrySize)
         {
-        }
-
-        public void Flush()
-        {
+            throw new System.NotImplementedException();
         }
     }
 }
