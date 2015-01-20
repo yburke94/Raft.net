@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
 
 namespace Raft.Server.Handlers

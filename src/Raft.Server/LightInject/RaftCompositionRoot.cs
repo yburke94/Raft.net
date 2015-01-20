@@ -4,9 +4,9 @@ using Disruptor.Dsl;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.Configuration;
 using Raft.Server.Handlers;
-using Raft.Server.LightInject;
+using Raft.Server.Log;
 
-namespace Raft.Server
+namespace Raft.Server.LightInject
 {
     class RaftCompositionRoot : ICompositionRoot
     {
@@ -24,7 +24,7 @@ namespace Raft.Server
                 .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
 
             // TODO: Create binding for IRaftConfiguration...
-
+            // TODO: Make Buffer size configurable...
             serviceRegistry.Register(factory => CreateCommandBuffer(factory, 1024),
                 new PerContainerLifetime());
         }
@@ -45,5 +45,23 @@ namespace Raft.Server
 
             return disruptor.Start();
         }
+
+        private static RingBuffer<AppendEntriesEvent> CreateRpcBuffer(IServiceFactory factory, int bufferSize)
+        {
+            var disruptor = new Disruptor<AppendEntriesEvent>(
+                () => new AppendEntriesEvent(),
+                new MultiThreadedClaimStrategy(bufferSize),
+                new YieldingWaitStrategy(), TaskScheduler.Default);
+
+            disruptor
+                .HandleEventsWith(factory.GetInstance<NodeStateValidator>())
+                .Then(factory.GetInstance<LogWriter>());
+
+            return disruptor.Start();
+        }
+    }
+
+    internal class AppendEntriesEvent
+    {
     }
 }

@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace Raft.Infrastructure.Journaler.KernelHelpers
+namespace Raft.Infrastructure.Journaler.Kernel
 {
     internal class UnbufferedStream
     {

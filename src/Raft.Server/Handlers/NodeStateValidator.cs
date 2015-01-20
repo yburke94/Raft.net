@@ -1,4 +1,5 @@
 using Raft.Core;
+using Raft.Server.Commands;
 
 namespace Raft.Server.Handlers
 {

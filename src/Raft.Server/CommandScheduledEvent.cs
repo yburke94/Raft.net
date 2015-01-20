@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Raft.Server.Commands;
 
 namespace Raft.Server
 {
     internal class CommandScheduledEvent
     {
-        public TaskCompletionSource<LogResult> TaskCompletionSource { get; set; }
+        public TaskCompletionSource<CommandExecutionResult> TaskCompletionSource { get; set; }
 
         public IRaftCommand Command { get; set; }
 
         public Guid Id { get; set; }
 
-        public CommandScheduledEvent ResetEvent(IRaftCommand command, TaskCompletionSource<LogResult> taskCompletionSource)
+        public CommandScheduledEvent ResetEvent(IRaftCommand command, TaskCompletionSource<CommandExecutionResult> taskCompletionSource)
         {
             if (TaskCompletionSource != null && IsValidForProcessing())
                 throw new InvalidOperationException("The event has not finished processing.");

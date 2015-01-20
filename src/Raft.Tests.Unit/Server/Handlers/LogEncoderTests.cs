@@ -5,8 +5,8 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
-using Raft.Server;
 using Raft.Server.Handlers;
+using Raft.Server.Log;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Server.Handlers

@@ -25,6 +25,21 @@
     http://www.lightinject.net/
     http://twitter.com/bernhardrichter
 ******************************************************************************/
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1126:PrefixCallsCorrectly", Justification = "Reviewed")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1101:PrefixLocalCallsWithThis", Justification = "No inheritance")]
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Single source file deployment.")]
@@ -34,20 +49,6 @@
 
 namespace Raft.Server.LightInject
 {
-    using System;    
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Reflection.Emit;
-    using System.Runtime.CompilerServices;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Threading;
-
     /// <summary>
     /// Defines a set of methods used to register services into the service container.
     /// </summary>
@@ -1024,7 +1025,7 @@ namespace Raft.Server.LightInject
         /// <returns>If found, the <typeparamref name="TValue"/> with the given <paramref name="key"/>, otherwise the default <typeparamref name="TValue"/>.</returns>
         public static TValue Search<TKey, TValue>(this ImmutableHashTree<TKey, TValue> tree, TKey key)
         {
-            int hashCode = key.GetHashCode();
+            var hashCode = key.GetHashCode();
 
             while (tree.Height != 0 && tree.HashCode != hashCode)
             {
@@ -1066,7 +1067,7 @@ namespace Raft.Server.LightInject
                 return new ImmutableHashTree<TKey, TValue>(key, value, tree, tree);
             }
 
-            int hashCode = key.GetHashCode();
+            var hashCode = key.GetHashCode();
 
             if (hashCode > tree.HashCode)
             {
@@ -1158,8 +1159,8 @@ namespace Raft.Server.LightInject
        
         public static Delegate CreateGetInstanceDelegate(Type serviceType, IServiceFactory serviceFactory)
         {
-            Type delegateType = GetFuncType(serviceType);
-            MethodInfo getInstanceMethod = GetGetInstanceMethod(serviceType);
+            var delegateType = GetFuncType(serviceType);
+            var getInstanceMethod = GetGetInstanceMethod(serviceType);
             return getInstanceMethod.CreateDelegate(delegateType, serviceFactory);
         }
        
@@ -1195,12 +1196,12 @@ namespace Raft.Server.LightInject
 
         private static MethodInfo CreateGetInstanceWithParametersMethod(Type serviceType)
         {
-            Type[] genericTypeArguments = serviceType.GetGenericTypeArguments();
-            MethodInfo openGenericMethod =
+            var genericTypeArguments = serviceType.GetGenericTypeArguments();
+            var openGenericMethod =
                 typeof(IServiceFactory).GetMethods().Single(m => m.Name == "GetInstance"
                     && m.GetGenericArguments().Length == genericTypeArguments.Length && m.GetParameters().All(p => p.Name != "serviceName"));
 
-            MethodInfo closedGenericMethod = openGenericMethod.MakeGenericMethod(genericTypeArguments);
+            var closedGenericMethod = openGenericMethod.MakeGenericMethod(genericTypeArguments);
 
             return closedGenericMethod;
         }
@@ -1336,7 +1337,7 @@ namespace Raft.Server.LightInject
                 return false;
             }
 
-            Type genericTypeDefinition = serviceType.GetGenericTypeDefinition();
+            var genericTypeDefinition = serviceType.GetGenericTypeDefinition();
 
             return genericTypeDefinition == typeof(Func<,>) || genericTypeDefinition == typeof(Func<,,>)
                 || genericTypeDefinition == typeof(Func<,,,>) || genericTypeDefinition == typeof(Func<,,,,>);
@@ -1438,7 +1439,7 @@ namespace Raft.Server.LightInject
             emitter.Emit(OpCodes.Castclass, typeof(object[]));
             emitter.Emit(OpCodes.Stloc, argumentArray);
 
-            for (int i = 0; i < parameters.Length; i++)
+            for (var i = 0; i < parameters.Length; i++)
             {
                 emitter.Emit(OpCodes.Ldloc, argumentArray);
                 emitter.Emit(OpCodes.Ldc_I4, i);
@@ -1476,7 +1477,7 @@ namespace Raft.Server.LightInject
         /// <param name="localBuilder">The <see cref="LocalBuilder"/> to be pushed onto the stack.</param>
         public static void Push(this IEmitter emitter, LocalBuilder localBuilder)
         {
-            int index = localBuilder.LocalIndex;
+            var index = localBuilder.LocalIndex;
             switch (index)
             {
                 case 0:
@@ -1543,7 +1544,7 @@ namespace Raft.Server.LightInject
         /// <param name="localBuilder">The <see cref="LocalBuilder"/> for which the value is to be stored.</param>
         public static void Store(this IEmitter emitter, LocalBuilder localBuilder)
         {
-            int index = localBuilder.LocalIndex;
+            var index = localBuilder.LocalIndex;
             switch (index)
             {
                 case 0:
@@ -1771,7 +1772,7 @@ namespace Raft.Server.LightInject
         /// </summary>
         public void EndCurrentScope()
         {
-            Scope currentScope = ScopeManagerProvider.GetScopeManager().CurrentScope;
+            var currentScope = ScopeManagerProvider.GetScopeManager().CurrentScope;
             currentScope.Dispose();
         }
 
@@ -1914,7 +1915,7 @@ namespace Raft.Server.LightInject
         /// <param name="searchPattern">The search pattern used to filter the assembly files.</param>
         public void RegisterAssembly(string searchPattern)
         {
-            foreach (Assembly assembly in AssemblyLoader.Load(searchPattern))
+            foreach (var assembly in AssemblyLoader.Load(searchPattern))
             {
                 RegisterAssembly(assembly);
             }
@@ -1970,7 +1971,7 @@ namespace Raft.Server.LightInject
         /// <param name="decoratorRegistration">The <see cref="DecoratorRegistration"/> instance that contains the decorator metadata.</param>
         public void Decorate(DecoratorRegistration decoratorRegistration)
         {
-            int index = decorators.Add(decoratorRegistration);
+            var index = decorators.Add(decoratorRegistration);
             decoratorRegistration.Index = index;            
         }
 
@@ -2336,7 +2337,7 @@ namespace Raft.Server.LightInject
                 instanceDelegate = CreateDefaultDelegate(serviceType, throwError: true);
             }
 
-            object[] constantsWithArguments = constants.Items.Concat(new object[] { arguments }).ToArray();
+            var constantsWithArguments = constants.Items.Concat(new object[] { arguments }).ToArray();
 
             return instanceDelegate(constantsWithArguments);                         
         }
@@ -2357,7 +2358,7 @@ namespace Raft.Server.LightInject
                 instanceDelegate = CreateNamedDelegate(key, throwError: true);
             }
             
-            object[] constantsWithArguments = constants.Items.Concat(new object[] { arguments }).ToArray();
+            var constantsWithArguments = constants.Items.Concat(new object[] { arguments }).ToArray();
 
             return instanceDelegate(constantsWithArguments);                                    
         }
@@ -2630,12 +2631,12 @@ namespace Raft.Server.LightInject
 
         private static void EmitNewArray(IList<Action<IEmitter>> emitMethods, Type elementType, IEmitter emitter)
         {
-            LocalBuilder array = emitter.DeclareLocal(elementType.MakeArrayType());
+            var array = emitter.DeclareLocal(elementType.MakeArrayType());
             emitter.Push(emitMethods.Count);            
             emitter.PushNewArray(elementType);
             emitter.Store(array);            
 
-            for (int index = 0; index < emitMethods.Count; index++)
+            for (var index = 0; index < emitMethods.Count; index++)
             {                
                 emitter.Push(array);
                 emitter.Push(index);
@@ -2667,9 +2668,9 @@ namespace Raft.Server.LightInject
         private static DecoratorRegistration CreateClosedGenericDecoratorRegistration(
             ServiceRegistration serviceRegistration, DecoratorRegistration openGenericDecorator)
         {
-            Type implementingType = openGenericDecorator.ImplementingType;
+            var implementingType = openGenericDecorator.ImplementingType;
             Type[] genericTypeArguments = serviceRegistration.ServiceType.GetGenericTypeArguments();
-            Type closedGenericDecoratorType = implementingType.MakeGenericType(genericTypeArguments);
+            var closedGenericDecoratorType = implementingType.MakeGenericType(genericTypeArguments);
                                
             var decoratorInfo = new DecoratorRegistration
             {
@@ -2702,8 +2703,8 @@ namespace Raft.Server.LightInject
         {
             lock (lockObject)
             {
-                IMethodSkeleton methodSkeleton = methodSkeletonFactory(typeof(object), new[] { typeof(object[]), typeof(object) });
-                ConstructionInfo constructionInfo = GetContructionInfoForConcreteType(concreteType);
+                var methodSkeleton = methodSkeletonFactory(typeof(object), new[] { typeof(object[]), typeof(object) });
+                var constructionInfo = GetContructionInfoForConcreteType(concreteType);
                 var emitter = methodSkeleton.GetEmitter();
                 emitter.PushArgument(1);
                 emitter.Cast(concreteType);                
@@ -2766,14 +2767,14 @@ namespace Raft.Server.LightInject
         private Func<object[], object> CreateDynamicMethodDelegate(Action<IEmitter> serviceEmitter)
         {
             var methodSkeleton = methodSkeletonFactory(typeof(object), new[] { typeof(object[]) });
-            IEmitter emitter = methodSkeleton.GetEmitter();
+            var emitter = methodSkeleton.GetEmitter();
             serviceEmitter(emitter);
             if (emitter.StackType.IsValueType())
             {
                 emitter.Emit(OpCodes.Box, emitter.StackType);
             }
 
-            Instruction lastInstruction = emitter.Instructions.Last();
+            var lastInstruction = emitter.Instructions.Last();
 
             if (lastInstruction.Code == OpCodes.Castclass)
             {
@@ -2794,7 +2795,7 @@ namespace Raft.Server.LightInject
        
         private Action<IEmitter> GetEmitMethod(Type serviceType, string serviceName)
         {           
-            Action<IEmitter> emitMethod = GetRegisteredEmitMethod(serviceType, serviceName);
+            var emitMethod = GetRegisteredEmitMethod(serviceType, serviceName);
 
             if (emitMethod == null)
             {
@@ -2888,7 +2889,7 @@ namespace Raft.Server.LightInject
             }
 
             Invalidate();
-            Action<IEmitter> emitMethod = ResolveEmitMethod(newRegistration);            
+            var emitMethod = ResolveEmitMethod(newRegistration);            
             
             var serviceEmitters = GetEmitMethods(newRegistration.ServiceType);
             serviceEmitters[newRegistration.ServiceName] = emitMethod;                                               
@@ -2965,7 +2966,7 @@ namespace Raft.Server.LightInject
 
         private void EmitNewDecoratorInstance(DecoratorRegistration decoratorRegistration, IEmitter emitter, Action<IEmitter> pushInstance)
         {
-            ConstructionInfo constructionInfo = GetConstructionInfo(decoratorRegistration);
+            var constructionInfo = GetConstructionInfo(decoratorRegistration);
             var constructorDependency = GetConstructorDependencyThatRepresentsDecoratorTarget(
                 decoratorRegistration, constructionInfo);
                 
@@ -2988,11 +2989,11 @@ namespace Raft.Server.LightInject
         {
             var factoryDelegateIndex = constants.Add(factoryDelegate);
             var serviceFactoryIndex = constants.Add(this);
-            Type funcType = factoryDelegate.GetType();
+            var funcType = factoryDelegate.GetType();
             emitter.PushConstant(factoryDelegateIndex, funcType);
             emitter.PushConstant(serviceFactoryIndex, typeof(IServiceFactory));            
             pushInstance(emitter);            
-            MethodInfo invokeMethod = funcType.GetMethod("Invoke");
+            var invokeMethod = funcType.GetMethod("Invoke");
             emitter.Emit(OpCodes.Callvirt, invokeMethod);
         }
 
@@ -3000,8 +3001,8 @@ namespace Raft.Server.LightInject
         {
             if (serviceRegistration.Value != null)
             {
-                int index = constants.Add(serviceRegistration.Value);
-                Type serviceType = serviceRegistration.ServiceType;
+                var index = constants.Add(serviceRegistration.Value);
+                var serviceType = serviceRegistration.ServiceType;
                 emitter.PushConstant(index, serviceType);                
             }
             else
@@ -3021,15 +3022,15 @@ namespace Raft.Server.LightInject
 
         private void EmitDecorators(ServiceRegistration serviceRegistration, IEnumerable<DecoratorRegistration> serviceDecorators, IEmitter emitter, Action<IEmitter> decoratorTargetEmitMethod)
         {
-            foreach (DecoratorRegistration decorator in serviceDecorators)
+            foreach (var decorator in serviceDecorators)
             {
                 if (!decorator.CanDecorate(serviceRegistration))
                 {
                     continue;
                 }
                 
-                Action<IEmitter> currentDecoratorTargetEmitter = decoratorTargetEmitMethod;
-                DecoratorRegistration currentDecorator = decorator;                
+                var currentDecoratorTargetEmitter = decoratorTargetEmitMethod;
+                var currentDecorator = decorator;                
                 decoratorTargetEmitMethod = e => EmitNewDecoratorInstance(currentDecorator, e, currentDecoratorTargetEmitter);
             }
 
@@ -3047,7 +3048,7 @@ namespace Raft.Server.LightInject
         {                        
             var factoryDelegateIndex = constants.Add(factoryDelegate);
             var serviceFactoryIndex = constants.Add(this);
-            Type funcType = factoryDelegate.GetType();
+            var funcType = factoryDelegate.GetType();
             emitter.PushConstant(factoryDelegateIndex, funcType);
             emitter.PushConstant(serviceFactoryIndex, typeof(IServiceFactory));            
             if (factoryDelegate.GetMethodInfo().GetParameters().Length > 2)
@@ -3056,13 +3057,13 @@ namespace Raft.Server.LightInject
                 emitter.PushArguments(parameters);                
             }
                                    
-            MethodInfo invokeMethod = funcType.GetMethod("Invoke");            
+            var invokeMethod = funcType.GetMethod("Invoke");            
             emitter.Call(invokeMethod);
         }
 
         private void EmitConstructorDependencies(ConstructionInfo constructionInfo, IEmitter emitter, Action<IEmitter> decoratorTargetEmitter)
         {
-            foreach (ConstructorDependency dependency in constructionInfo.ConstructorDependencies)
+            foreach (var dependency in constructionInfo.ConstructorDependencies)
             {
                 if (!dependency.IsDecoratorTarget)
                 {
@@ -3072,7 +3073,7 @@ namespace Raft.Server.LightInject
                 {                    
                     if (dependency.ServiceType.IsLazy())
                     {
-                        Action<IEmitter> instanceEmitter = decoratorTargetEmitter;                        
+                        var instanceEmitter = decoratorTargetEmitter;                        
                         decoratorTargetEmitter = CreateEmitMethodBasedOnLazyServiceRequest(
                             dependency.ServiceType, t => CreateTypedInstanceDelegate(instanceEmitter, t));
                     }
@@ -3134,7 +3135,7 @@ namespace Raft.Server.LightInject
                 return skeleton => EmitDependencyUsingFactoryExpression(skeleton, dependency);
             }
 
-            Action<IEmitter> emitter = GetEmitMethod(dependency.ServiceType, dependency.ServiceName);
+            var emitter = GetEmitMethod(dependency.ServiceType, dependency.ServiceName);
             if (emitter == null)
             {
                 emitter = GetEmitMethod(dependency.ServiceType, dependency.Name);                
@@ -3154,7 +3155,7 @@ namespace Raft.Server.LightInject
             if (parameterExpression != null)
             {
                 var lambda = Expression.Lambda(dependency.FactoryExpression, new[] { parameterExpression }).Compile();
-                MethodInfo methodInfo = lambda.GetType().GetMethod("Invoke");
+                var methodInfo = lambda.GetType().GetMethod("Invoke");
                 emitter.PushConstant(constants.Add(lambda), lambda.GetType());
                 emitter.PushConstant(constants.Add(this), typeof(IServiceFactory));
                 emitter.Call(methodInfo);                
@@ -3162,7 +3163,7 @@ namespace Raft.Server.LightInject
             else
             {
                 var lambda = Expression.Lambda(dependency.FactoryExpression, new ParameterExpression[] { }).Compile();
-                MethodInfo methodInfo = lambda.GetType().GetMethod("Invoke");
+                var methodInfo = lambda.GetType().GetMethod("Invoke");
                 emitter.PushConstant(constants.Add(lambda), lambda.GetType());
                 emitter.Call(methodInfo);                
             }            
@@ -3175,7 +3176,7 @@ namespace Raft.Server.LightInject
                 return;
             }
 
-            LocalBuilder instanceVariable = emitter.DeclareLocal(constructionInfo.ImplementingType);
+            var instanceVariable = emitter.DeclareLocal(constructionInfo.ImplementingType);
             emitter.Store(instanceVariable);            
             foreach (var propertyDependency in constructionInfo.PropertyDependencies)
             {
@@ -3233,7 +3234,7 @@ namespace Raft.Server.LightInject
         private Action<IEmitter> CreateEmitMethodBasedOnFuncServiceRequest(Type serviceType)
         {
             var returnType = serviceType.GetGenericTypeArguments().Single();
-            MethodInfo getInstanceMethod = ReflectionHelper.GetGetInstanceMethod(returnType);                                    
+            var getInstanceMethod = ReflectionHelper.GetGetInstanceMethod(returnType);                                    
             var del = getInstanceMethod.CreateDelegate(serviceType, this);
             var constantIndex = constants.Add(del);
             return e => e.PushConstant(constantIndex, serviceType);            
@@ -3250,14 +3251,14 @@ namespace Raft.Server.LightInject
         private Action<IEmitter> CreateServiceEmitterBasedOnFactoryRule(FactoryRule rule, Type serviceType, string serviceName)
         {
             var serviceRegistration = new ServiceRegistration { ServiceType = serviceType, ServiceName = serviceName, Lifetime = CloneLifeTime(rule.LifeTime) };
-            ParameterExpression serviceFactoryParameterExpression = Expression.Parameter(typeof(IServiceFactory));
-            ConstantExpression serviceRequestConstantExpression = Expression.Constant(new ServiceRequest(serviceType, serviceName, this));
-            ConstantExpression delegateConstantExpression = Expression.Constant(rule.Factory);
-            Type delegateType = typeof(Func<,>).MakeGenericType(typeof(IServiceFactory), serviceType);
-            UnaryExpression convertExpression = Expression.Convert(
+            var serviceFactoryParameterExpression = Expression.Parameter(typeof(IServiceFactory));
+            var serviceRequestConstantExpression = Expression.Constant(new ServiceRequest(serviceType, serviceName, this));
+            var delegateConstantExpression = Expression.Constant(rule.Factory);
+            var delegateType = typeof(Func<,>).MakeGenericType(typeof(IServiceFactory), serviceType);
+            var convertExpression = Expression.Convert(
                 Expression.Invoke(delegateConstantExpression, serviceRequestConstantExpression), serviceType);
 
-            LambdaExpression lambdaExpression = Expression.Lambda(delegateType, convertExpression, serviceFactoryParameterExpression);
+            var lambdaExpression = Expression.Lambda(delegateType, convertExpression, serviceFactoryParameterExpression);
             serviceRegistration.FactoryExpression = lambdaExpression;
 
             if (rule.LifeTime != null)
@@ -3270,17 +3271,17 @@ namespace Raft.Server.LightInject
 
         private Action<IEmitter> CreateEmitMethodForArrayServiceRequest(Type serviceType)
         {
-            Action<IEmitter> enumerableEmitter = CreateEmitMethodForEnumerableServiceServiceRequest(serviceType);
+            var enumerableEmitter = CreateEmitMethodForEnumerableServiceServiceRequest(serviceType);
             return enumerableEmitter;            
         }
 
         private Action<IEmitter> CreateEmitMethodForListServiceRequest(Type serviceType)
         {
             // Note replace this with getEmitMethod();
-            Action<IEmitter> enumerableEmitter = CreateEmitMethodForEnumerableServiceServiceRequest(serviceType);
+            var enumerableEmitter = CreateEmitMethodForEnumerableServiceServiceRequest(serviceType);
 
-            MethodInfo openGenericToArrayMethod = typeof(Enumerable).GetMethod("ToList");
-            MethodInfo closedGenericToListMethod = openGenericToArrayMethod.MakeGenericMethod(TypeHelper.GetElementType(serviceType));
+            var openGenericToArrayMethod = typeof(Enumerable).GetMethod("ToList");
+            var closedGenericToListMethod = openGenericToArrayMethod.MakeGenericMethod(TypeHelper.GetElementType(serviceType));
             return ms =>
             {
                 enumerableEmitter(ms);
@@ -3300,10 +3301,10 @@ namespace Raft.Server.LightInject
 
         private Action<IEmitter> CreateEmitMethodBasedOnLazyServiceRequest(Type serviceType, Func<Type, Delegate> valueFactoryDelegate)
         {            
-            Type actualServiceType = serviceType.GetGenericTypeArguments()[0];
-            Type funcType = ReflectionHelper.GetFuncType(actualServiceType);            
-            ConstructorInfo lazyConstructor = ReflectionHelper.GetLazyConstructor(actualServiceType);
-            Delegate getInstanceDelegate = valueFactoryDelegate(actualServiceType);
+            var actualServiceType = serviceType.GetGenericTypeArguments()[0];
+            var funcType = ReflectionHelper.GetFuncType(actualServiceType);            
+            var lazyConstructor = ReflectionHelper.GetLazyConstructor(actualServiceType);
+            var getInstanceDelegate = valueFactoryDelegate(actualServiceType);
             var constantIndex = constants.Add(getInstanceDelegate);
 
             return emitter =>
@@ -3333,8 +3334,8 @@ namespace Raft.Server.LightInject
 
         private Action<IEmitter> CreateEmitMethodBasedOnClosedGenericServiceRequest(Type closedGenericServiceType, string serviceName)
         {
-            Type openGenericServiceType = closedGenericServiceType.GetGenericTypeDefinition();
-            ServiceRegistration openGenericServiceRegistration =
+            var openGenericServiceType = closedGenericServiceType.GetGenericTypeDefinition();
+            var openGenericServiceRegistration =
                 GetOpenGenericServiceRegistration(openGenericServiceType, serviceName);
            
             if (openGenericServiceRegistration == null)
@@ -3344,7 +3345,7 @@ namespace Raft.Server.LightInject
             
             Type[] closedGenericArguments = closedGenericServiceType.GetGenericTypeArguments();
 
-            Type closedGenericImplementingType = TryMakeGenericType(
+            var closedGenericImplementingType = TryMakeGenericType(
                 openGenericServiceRegistration.ImplementingType,
                 closedGenericArguments);
 
@@ -3370,7 +3371,7 @@ namespace Raft.Server.LightInject
 
         private Action<IEmitter> CreateEmitMethodForEnumerableServiceServiceRequest(Type serviceType)
         {
-            Type actualServiceType = TypeHelper.GetElementType(serviceType);
+            var actualServiceType = TypeHelper.GetElementType(serviceType);
             if (actualServiceType.IsGenericType())
             {
                 EnsureEmitMethodsForOpenGenericTypesAreCreated(actualServiceType);
@@ -3431,7 +3432,7 @@ namespace Raft.Server.LightInject
         {
             if (serviceRegistration.Lifetime is PerContainerLifetime)
             {
-                Func<object> instanceDelegate =
+                var instanceDelegate =
                     WrapAsFuncDelegate(CreateDynamicMethodDelegate(emitMethod));                        
                 var instance = serviceRegistration.Lifetime.GetInstance(instanceDelegate, null);
                 var instanceIndex = constants.Add(instance);
@@ -3439,9 +3440,9 @@ namespace Raft.Server.LightInject
             }
             else
             {
-                int instanceDelegateIndex = CreateInstanceDelegateIndex(emitMethod);
-                int lifetimeIndex = CreateLifetimeIndex(serviceRegistration.Lifetime);
-                int scopeManagerProviderIndex = CreateScopeManagerProviderIndex();
+                var instanceDelegateIndex = CreateInstanceDelegateIndex(emitMethod);
+                var lifetimeIndex = CreateLifetimeIndex(serviceRegistration.Lifetime);
+                var scopeManagerProviderIndex = CreateScopeManagerProviderIndex();
                 var getInstanceMethod = ReflectionHelper.LifetimeGetInstanceMethod;
                 emitter.PushConstant(lifetimeIndex, typeof(ILifetime));
                 emitter.PushConstant(instanceDelegateIndex, typeof(Func<object>));
@@ -3542,7 +3543,7 @@ namespace Raft.Server.LightInject
 
             public int Add(T value)
             {
-                int index = Array.IndexOf(Items, value);
+                var index = Array.IndexOf(Items, value);
                 if (index == -1)
                 {
                     return TryAddValue(value);
@@ -3563,7 +3564,7 @@ namespace Raft.Server.LightInject
             {
                 lock (lockObject)
                 {
-                    int index = Array.IndexOf(Items, value);
+                    var index = Array.IndexOf(Items, value);
                     if (index == -1)
                     {
                         index = AddValue(value);
@@ -3575,8 +3576,8 @@ namespace Raft.Server.LightInject
 
             private int AddValue(T value)
             {
-                int index = Items.Length;
-                T[] snapshot = CreateSnapshot();
+                var index = Items.Length;
+                var snapshot = CreateSnapshot();
                 snapshot[index] = value;
                 Items = snapshot;
                 return index;
@@ -3709,7 +3710,7 @@ namespace Raft.Server.LightInject
         /// when creating a new instance of the <paramref name="implementingType"/>.</returns>
         public ConstructorInfo Execute(Type implementingType)
         {
-            ConstructorInfo[] constructorCandidates = implementingType.GetConstructors();
+            var constructorCandidates = implementingType.GetConstructors();
             if (constructorCandidates.Length == 0)
             {
                 throw new InvalidOperationException("Missing public constructor for Type: " + implementingType.FullName);
@@ -3722,7 +3723,7 @@ namespace Raft.Server.LightInject
 
             foreach (var constructorCandidate in constructorCandidates.OrderByDescending(c => c.GetParameters().Count()))
             {
-                ParameterInfo[] parameters = constructorCandidate.GetParameters();
+                var parameters = constructorCandidate.GetParameters();
                 if (CanCreateParameterDependencies(parameters))
                 {
                     return constructorCandidate;
@@ -3993,10 +3994,10 @@ namespace Raft.Server.LightInject
         private static ConstructionInfo CreateConstructionInfoBasedOnNewExpression(NewExpression newExpression)
         {
             var constructionInfo = CreateConstructionInfo(newExpression);
-            ParameterInfo[] parameters = newExpression.Constructor.GetParameters();
-            for (int i = 0; i < parameters.Length; i++)
+            var parameters = newExpression.Constructor.GetParameters();
+            for (var i = 0; i < parameters.Length; i++)
             {
-                ConstructorDependency constructorDependency = CreateConstructorDependency(parameters[i]);
+                var constructorDependency = CreateConstructorDependency(parameters[i]);
                 ApplyDependencyDetails(newExpression.Arguments[i], constructorDependency);
                 constructionInfo.ConstructorDependencies.Add(constructorDependency);
             }
@@ -4013,7 +4014,7 @@ namespace Raft.Server.LightInject
         private static ConstructionInfo CreateConstructionInfoBasedOnHandleMemberInitExpression(MemberInitExpression memberInitExpression)
         {
             var constructionInfo = CreateConstructionInfoBasedOnNewExpression(memberInitExpression.NewExpression);
-            foreach (MemberBinding memberBinding in memberInitExpression.Bindings)
+            foreach (var memberBinding in memberInitExpression.Bindings)
             {
                 HandleMemberAssignment((MemberAssignment)memberBinding, constructionInfo);
             }
@@ -4734,7 +4735,7 @@ namespace Raft.Server.LightInject
         /// <returns>A set of concrete <see cref="ICompositionRoot"/> implementations found in the given <paramref name="assembly"/>.</returns>
         public Type[] Execute(Assembly assembly)
         {
-            CompositionRootTypeAttribute[] compositionRootAttributes =
+            var compositionRootAttributes =
                 assembly.GetCustomAttributes(typeof(CompositionRootTypeAttribute))
                         .Cast<CompositionRootTypeAttribute>().ToArray();
             
@@ -4926,8 +4927,8 @@ namespace Raft.Server.LightInject
         /// <param name="shouldRegister">A function delegate that determines if a service implementation should be registered.</param>
         public void Scan(Assembly assembly, IServiceRegistry serviceRegistry, Func<ILifetime> lifetimeFactory, Func<Type, Type, bool> shouldRegister)
         {            
-            Type[] concreteTypes = GetConcreteTypes(assembly);
-            foreach (Type type in concreteTypes)
+            var concreteTypes = GetConcreteTypes(assembly);
+            foreach (var type in concreteTypes)
             {
                 BuildImplementationMap(type, serviceRegistry, lifetimeFactory, shouldRegister);
             }
@@ -4940,7 +4941,7 @@ namespace Raft.Server.LightInject
         /// <param name="serviceRegistry">The target <see cref="IServiceRegistry"/> instance.</param>
         public void Scan(Assembly assembly, IServiceRegistry serviceRegistry)
         {
-            Type[] compositionRootTypes = GetCompositionRootTypes(assembly);
+            var compositionRootTypes = GetCompositionRootTypes(assembly);
             if (compositionRootTypes.Length > 0 && !Equals(currentAssembly, assembly))
             {
                 currentAssembly = assembly;
@@ -4950,8 +4951,8 @@ namespace Raft.Server.LightInject
 
         private static string GetServiceName(Type serviceType, Type implementingType)
         {
-            string implementingTypeName = implementingType.Name;
-            string serviceTypeName = serviceType.Name;
+            var implementingTypeName = implementingType.Name;
+            var serviceTypeName = serviceType.Name;
             if (implementingType.IsGenericTypeDefinition())
             {
                 var regex = new Regex("((?:[a-z][a-z]+))", RegexOptions.IgnoreCase);
@@ -4969,7 +4970,7 @@ namespace Raft.Server.LightInject
 
         private static IEnumerable<Type> GetBaseTypes(Type concreteType)
         {
-            Type baseType = concreteType;
+            var baseType = concreteType;
             while (baseType != typeof(object) && baseType != null)
             {
                 yield return baseType;
@@ -4997,8 +4998,8 @@ namespace Raft.Server.LightInject
 
         private void BuildImplementationMap(Type implementingType, IServiceRegistry serviceRegistry, Func<ILifetime> lifetimeFactory, Func<Type, Type, bool> shouldRegister)
         {
-            Type[] interfaces = implementingType.GetInterfaces();
-            foreach (Type interfaceType in interfaces)
+            var interfaces = implementingType.GetInterfaces();
+            foreach (var interfaceType in interfaces)
             {
                 if (shouldRegister(interfaceType, implementingType))
                 {
@@ -5006,7 +5007,7 @@ namespace Raft.Server.LightInject
                 }
             }
 
-            foreach (Type baseType in GetBaseTypes(implementingType))
+            foreach (var baseType in GetBaseTypes(implementingType))
             {
                 if (shouldRegister(baseType, implementingType))
                 {
@@ -5071,11 +5072,11 @@ namespace Raft.Server.LightInject
         /// <returns>A list of assemblies based on the given <paramref name="searchPattern"/>.</returns>
         public IEnumerable<Assembly> Load(string searchPattern)
         {
-            string directory = Path.GetDirectoryName(new Uri(typeof(ServiceContainer).Assembly.CodeBase).LocalPath);
+            var directory = Path.GetDirectoryName(new Uri(typeof(ServiceContainer).Assembly.CodeBase).LocalPath);
             if (directory != null)
             {
-                string[] searchPatterns = searchPattern.Split('|');
-                foreach (string file in searchPatterns.SelectMany(sp => Directory.GetFiles(directory, sp)).Where(CanLoad))
+                var searchPatterns = searchPattern.Split('|');
+                foreach (var file in searchPatterns.SelectMany(sp => Directory.GetFiles(directory, sp)).Where(CanLoad))
                 {
                     yield return Assembly.LoadFrom(file);
                 }
@@ -5514,7 +5515,7 @@ namespace Raft.Server.LightInject
             else if (code == OpCodes.Ldelem_Ref)
             {
                 stack.Pop();                
-                Type arrayType = stack.Pop();
+                var arrayType = stack.Pop();
                 stack.Push(arrayType.GetElementType());
             }
             else if (code == OpCodes.Ldlen)
@@ -5715,7 +5716,7 @@ namespace Raft.Server.LightInject
             if (code == OpCodes.Newobj)
             {
                 var parameterCount = constructor.GetParameters().Length;
-                for (int i = 0; i < parameterCount; i++)
+                for (var i = 0; i < parameterCount; i++)
                 {
                     stack.Pop();
                 }
@@ -5763,7 +5764,7 @@ namespace Raft.Server.LightInject
             if (code == OpCodes.Callvirt || code == OpCodes.Call)
             {
                 var parameterCount = methodInfo.GetParameters().Length;
-                for (int i = 0; i < parameterCount; i++)
+                for (var i = 0; i < parameterCount; i++)
                 {
                     stack.Pop();
                 }

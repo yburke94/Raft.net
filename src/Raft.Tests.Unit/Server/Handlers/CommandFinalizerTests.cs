@@ -2,7 +2,6 @@
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
-using Raft.Server;
 using Raft.Server.Handlers;
 using Raft.Tests.Unit.TestData.Commands;
 
@@ -17,7 +16,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Arrange
             var raftNode = Substitute.For<IRaftNode>();
             var @event = TestEventFactory.GetCommandEvent();
-            var handler = new CommandFinalizer(new LogRegister(), raftNode);
+            var handler = new CommandFinalizer(raftNode);
 
             // Act
             handler.Handle(@event);
@@ -33,7 +32,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Arrange
             var raftNode = Substitute.For<IRaftNode>();
             var @event = TestEventFactory.GetCommandEvent();
-            var handler = new CommandFinalizer(new LogRegister(), raftNode);
+            var handler = new CommandFinalizer(raftNode);
 
             // Act
             handler.Handle(@event);
@@ -53,7 +52,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             var @event = TestEventFactory.GetCommandEvent();
 
-            var handler = new CommandFinalizer(new LogRegister(), raftNode);
+            var handler = new CommandFinalizer(raftNode);
 
             // Act
             handler.Handle(@event);

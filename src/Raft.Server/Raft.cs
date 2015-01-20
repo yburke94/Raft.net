@@ -1,20 +1,21 @@
 ﻿using System.Threading.Tasks;
 using Disruptor;
+using Raft.Server.Commands;
 
 namespace Raft.Server
 {
-    internal class RaftServer : IRaftServer
+    internal class Raft : IRaft
     {
         private readonly EventPublisher<CommandScheduledEvent> _stateMachineCommandPublisher;
 
-        public RaftServer(RingBuffer<CommandScheduledEvent> commandBuffer)
+        public Raft(RingBuffer<CommandScheduledEvent> commandBuffer)
         {
             _stateMachineCommandPublisher = new EventPublisher<CommandScheduledEvent>(commandBuffer);
         }
 
-        public Task<LogResult> Execute<T>(T command) where T : IRaftCommand, new()
+        public Task<CommandExecutionResult> ExecuteCommand<T>(T command) where T : IRaftCommand, new()
         {
-            var taskCompetionSource = new TaskCompletionSource<LogResult>();
+            var taskCompetionSource = new TaskCompletionSource<CommandExecutionResult>();
 
             _stateMachineCommandPublisher.PublishEvent((@event, l) =>
                 @event.ResetEvent(command, taskCompetionSource));

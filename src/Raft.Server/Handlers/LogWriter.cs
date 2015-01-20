@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Raft.Infrastructure.Journaler;
+using Raft.Server.Log;
 
 namespace Raft.Server.Handlers
 {

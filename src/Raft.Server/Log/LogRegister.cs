@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Raft.Server
+namespace Raft.Server.Log
 {
     public class LogRegister
     {

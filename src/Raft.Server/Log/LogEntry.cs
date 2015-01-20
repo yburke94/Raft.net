@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
+using Raft.Server.Commands;
 
-namespace Raft.Server
+namespace Raft.Server.Log
 {
     [ProtoContract]
     public class LogEntry

@@ -54,12 +54,12 @@
     <Compile Include="JournalOffsetManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Readers\JournalReader.cs" />
-    <Compile Include="KernelHelpers\SectorSize.cs" />
+    <Compile Include="Kernel\SectorSize.cs" />
     <Compile Include="Transformers\PadToAlignToSector.cs" />
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Writers\JournalFileWriter.cs" />
     <Compile Include="Writers\UnbufferedJournalFileWriter.cs" />
-    <Compile Include="KernelHelpers\UnbufferedStream.cs" />
+    <Compile Include="Kernel\UnbufferedStream.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

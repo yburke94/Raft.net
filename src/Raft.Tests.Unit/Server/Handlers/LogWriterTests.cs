@@ -1,13 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Infrastructure.Journaler;
-using Raft.Server;
 using Raft.Server.Handlers;
+using Raft.Server.Log;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Server.Handlers

@@ -13,19 +13,17 @@ namespace Raft.Server.Handlers
     /// </summary>
     internal class CommandFinalizer : RaftEventHandler
     {
-        private readonly LogRegister _logRegister;
         private readonly IRaftNode _raftNode;
 
-        public CommandFinalizer(LogRegister logRegister, IRaftNode raftNode)
+        public CommandFinalizer(IRaftNode raftNode)
         {
-            _logRegister = logRegister;
             _raftNode = raftNode;
         }
 
         public override void Handle(CommandScheduledEvent @event)
         {
             if (@event.TaskCompletionSource != null)
-                @event.TaskCompletionSource.SetResult(new LogResult(true));
+                @event.TaskCompletionSource.SetResult(new CommandExecutionResult(true));
 
             _raftNode.EntryLogged();
         }

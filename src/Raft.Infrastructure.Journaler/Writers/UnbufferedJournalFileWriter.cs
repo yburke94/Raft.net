@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Raft.Infrastructure.Journaler.KernelHelpers;
+using Raft.Infrastructure.Journaler.Kernel;
 
 namespace Raft.Infrastructure.Journaler.Writers
 {

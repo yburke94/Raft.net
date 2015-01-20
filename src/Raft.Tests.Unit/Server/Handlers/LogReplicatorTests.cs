@@ -5,7 +5,9 @@ using NSubstitute;
 using NUnit.Framework;
 using Raft.Server;
 using Raft.Server.Handlers;
+using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
+using Raft.Server.Services;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Server.Handlers

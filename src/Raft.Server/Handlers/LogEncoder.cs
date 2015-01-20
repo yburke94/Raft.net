@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ProtoBuf;
 using Raft.Core;
+using Raft.Server.Log;
 
 namespace Raft.Server.Handlers
 {

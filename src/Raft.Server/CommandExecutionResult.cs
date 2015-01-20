@@ -2,11 +2,11 @@
 
 namespace Raft.Server
 {
-    public class LogResult
+    public class CommandExecutionResult
     {
-        internal LogResult(bool successful) : this(successful, null) { }
+        internal CommandExecutionResult(bool successful) : this(successful, null) { }
 
-        internal LogResult(bool successful, Exception exception)
+        internal CommandExecutionResult(bool successful, Exception exception)
         {
             Successful = successful;
             Exception = exception;

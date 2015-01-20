@@ -2,6 +2,7 @@
 using ProtoBuf;
 using Raft.Core;
 using Raft.Server;
+using Raft.Server.Commands;
 
 namespace Raft.Tests.Unit.TestData.Commands
 {

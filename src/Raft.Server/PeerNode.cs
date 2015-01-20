@@ -1,4 +1,5 @@
 ﻿using System;
+using Raft.Server.Services;
 
 namespace Raft.Server
 {

@@ -8,13 +8,13 @@ namespace Raft.Tests.Unit.TestData.Commands
         public static CommandScheduledEvent GetInternalCommandEvent()
         {
             return new CommandScheduledEvent()
-                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<LogResult>());
+                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<CommandExecutionResult>());
         }
 
         public static CommandScheduledEvent GetCommandEvent()
         {
             return new CommandScheduledEvent()
-                .ResetEvent(new TestCommand(), new TaskCompletionSource<LogResult>());
+                .ResetEvent(new TestCommand(), new TaskCompletionSource<CommandExecutionResult>());
         }
 
 

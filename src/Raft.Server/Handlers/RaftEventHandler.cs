@@ -1,5 +1,6 @@
 ﻿using System;
 using Disruptor;
+using Raft.Server.Commands;
 
 namespace Raft.Server.Handlers
 {

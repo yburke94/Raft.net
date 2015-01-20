@@ -3,7 +3,7 @@ using ProtoBuf;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Messages.RequestVote;
 
-namespace Raft.Server
+namespace Raft.Server.Services
 {
     [ServiceContract, ProtoContract]
     public interface IRaftService
