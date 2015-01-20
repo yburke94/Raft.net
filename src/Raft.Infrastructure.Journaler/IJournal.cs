@@ -1,6 +1,6 @@
 ﻿namespace Raft.Infrastructure.Journaler
 {
-    public interface IJournaler
+    public interface IJournal
     {
         void WriteBlock(byte[] block);
 

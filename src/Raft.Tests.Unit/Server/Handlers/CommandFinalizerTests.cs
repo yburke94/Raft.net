@@ -58,7 +58,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             handler.Handle(@event);
 
             // Assert
-            raftNode.Received().EntryLogged();
+            raftNode.Received().AddLogEntry();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Raft.Server.Handlers
             if (@event.TaskCompletionSource != null)
                 @event.TaskCompletionSource.SetResult(new CommandExecutionResult(true));
 
-            _raftNode.EntryLogged();
+            _raftNode.AddLogEntry();
         }
     }
 }

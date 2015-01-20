@@ -8,71 +8,71 @@ namespace Raft.Tests.Unit.Core
     public class RaftNodeTests
     {
         [Test]
-        public void CanTransitionToLeaderWhenJoinClusterIsCalled()
+        public void CanTransitionToLeaderWhenCreateClusterIsCalled()
         {
             // Arrange
             var raftNode = new RaftNode();
 
             // Act
-            raftNode.JoinCluster();
+            raftNode.CreateCluster();
 
             // Assert
             raftNode.CurrentState.Should().Be(NodeState.Leader);
         }
 
         [Test]
-        public void ShouldReEnterLeaderStateLogEntryIsCalled()
+        public void ShouldReEnterLeaderStateWhenExecuteCommandIsCalled()
         {
             // Arrange
             var raftNode = new RaftNode();
-            raftNode.JoinCluster();
+            raftNode.CreateCluster();
 
             // Act
-            raftNode.LogEntry();
+            raftNode.ExecuteCommand();
 
             // Assert
             raftNode.CurrentState.Should().Be(NodeState.Leader);
         }
 
         [Test]
-        public void ShouldNotIncrementLastLogIndexWhenEntryLoggedIsCalledForTheFirstTime()
+        public void ShouldNotIncrementLastLogIndexWhenAddLogEntryIsCalledForTheFirstTime()
         {
             // Arrange
             var raftNode = new RaftNode();
-            raftNode.JoinCluster();
+            raftNode.CreateCluster();
 
             // Act
-            raftNode.EntryLogged();
+            raftNode.AddLogEntry();
 
             // Assert
             raftNode.LastLogIndex.ShouldBeEquivalentTo(0);
         }
 
         [Test]
-        public void ShouldIncrementLastLogIndexWhenEntryLoggedIsCalledEveryTimeAfterTheFirstTime()
+        public void ShouldIncrementLastLogIndexWhenAddLogEntryIsCalledEveryTimeAfterTheFirstTime()
         {
             // Arrange
             var raftNode = new RaftNode();
-            raftNode.JoinCluster();
+            raftNode.CreateCluster();
 
             // Act
-            raftNode.EntryLogged();
-            raftNode.EntryLogged();
-            raftNode.EntryLogged();
+            raftNode.AddLogEntry();
+            raftNode.AddLogEntry();
+            raftNode.AddLogEntry();
 
             // Assert
             raftNode.LastLogIndex.ShouldBeEquivalentTo(2);
         }
 
         [Test]
-        public void CurrentTermIsAddedToLogAtLastLogIndexWhenEntryLoggedIsCalled()
+        public void CurrentTermIsAddedToLogAtLastLogIndexWhenAddLogEntryIsCalled()
         {
             // Arrange
             var raftNode = new RaftNode();
-            raftNode.JoinCluster();
+            raftNode.CreateCluster();
 
             // Act
-            raftNode.EntryLogged();
+            raftNode.AddLogEntry();
 
             // Assert
             raftNode.Log[raftNode.LastLogIndex]
@@ -80,19 +80,19 @@ namespace Raft.Tests.Unit.Core
         }
 
         [Test]
-        public void IncreaseLogLengthBy64WhenPreviousLogIndexEqualsLengthAndEntryLoggedIsCalled()
+        public void IncreaseLogLengthBy64WhenPreviousLogIndexEqualsLengthAndAddLogEntryIsCalled()
         {
             // Arrange
             var raftNode = new RaftNode();
-            raftNode.JoinCluster();
+            raftNode.CreateCluster();
 
             for (var i = 0; i < 64; i++)
-                raftNode.EntryLogged();
+                raftNode.AddLogEntry();
 
             raftNode.Log.Length.ShouldBeEquivalentTo(64);
 
             // Act
-            raftNode.EntryLogged();
+            raftNode.AddLogEntry();
 
             // Assert
             raftNode.Log.Length.ShouldBeEquivalentTo(128);

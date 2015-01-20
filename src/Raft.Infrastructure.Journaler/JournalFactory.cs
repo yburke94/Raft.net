@@ -4,9 +4,9 @@ using Raft.Infrastructure.Journaler.Writers;
 
 namespace Raft.Infrastructure.Journaler
 {
-    public class JournalerFactory
+    public class JournalFactory
     {
-        public IJournaler CreateJournaler(JournalConfiguration configuration)
+        public IJournal CreateJournaler(JournalConfiguration configuration)
         {
             var fileWriter = configuration.IoType == IoType.Buffered
                 ? (IJournalFileWriter)new BufferedJournalFileWriter(configuration)
@@ -22,7 +22,7 @@ namespace Raft.Infrastructure.Journaler
             if (configuration.IoType == IoType.Unbuffered)
                 transformers.Add(new PadToAlignToSector(configuration));
 
-            return new Journaler(configuration, fileWriter, offsetManager, transformers);
+            return new Journal(configuration, fileWriter, offsetManager, transformers);
         }
     }
 }

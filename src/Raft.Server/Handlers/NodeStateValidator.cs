@@ -28,7 +28,7 @@ namespace Raft.Server.Handlers
             if (internalCommand != null)
                 internalCommand.NodeAction(_raftNode);
             else
-                _raftNode.LogEntry();
+                _raftNode.ExecuteCommand();
         }
     }
 }

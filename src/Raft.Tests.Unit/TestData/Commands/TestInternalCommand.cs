@@ -18,7 +18,7 @@ namespace Raft.Tests.Unit.TestData.Commands
         }
 
         public Action<IRaftNode> NodeAction {
-            get { return x => x.JoinCluster(); }
+            get { return x => x.CreateCluster(); }
         }
     }
 }

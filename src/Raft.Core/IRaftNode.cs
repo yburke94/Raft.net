@@ -7,8 +7,8 @@
 
         long?[] Log { get; }
 
-        void JoinCluster();
-        void LogEntry();
-        void EntryLogged();
+        void CreateCluster();
+        void ExecuteCommand();
+        void AddLogEntry();
     }
 }

@@ -29,7 +29,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var data = BitConverter.GetBytes(1);
 
             var @event = TestEventFactory.GetCommandEvent();
-            var journaler = Substitute.For<IJournaler>();
+            var journaler = Substitute.For<IJournal>();
 
             var logRegister = new LogRegister();
             logRegister.AddEncodedLog(@event.Id, data);
@@ -50,7 +50,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var data = BitConverter.GetBytes(1);
 
             var @event = TestEventFactory.GetCommandEvent();
-            var journaler = Substitute.For<IJournaler>();
+            var journaler = Substitute.For<IJournal>();
 
             var logRegister = new LogRegister();
             logRegister.AddEncodedLog(@event.Id, data);
@@ -79,7 +79,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var data3 = BitConverter.GetBytes(3);
             var event3 = TestEventFactory.GetCommandEvent();
 
-            var journaler = Substitute.For<IJournaler>();
+            var journaler = Substitute.For<IJournal>();
 
             var logRegister = new LogRegister();
             logRegister.AddEncodedLog(event1.Id, data1);
@@ -115,7 +115,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var data3 = BitConverter.GetBytes(3);
             var event3 = TestEventFactory.GetCommandEvent();
 
-            var journaler = Substitute.For<IJournaler>();
+            var journaler = Substitute.For<IJournal>();
 
             var logRegister = new LogRegister();
             logRegister.AddEncodedLog(event1.Id, data1);
@@ -153,7 +153,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var data3 = BitConverter.GetBytes(3);
             var event3 = TestEventFactory.GetCommandEvent();
 
-            var journaler = Substitute.For<IJournaler>();
+            var journaler = Substitute.For<IJournal>();
 
             var logRegister = new LogRegister();
             logRegister.AddEncodedLog(event1.Id, data1);

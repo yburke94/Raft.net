@@ -18,14 +18,14 @@ namespace Raft.Server.Handlers
     internal class LogWriter : RaftEventHandler, ISkipInternalCommands
     {
         private readonly LogRegister _logRegister;
-        private readonly IJournaler _journaler;
+        private readonly IJournal _journal;
 
         private readonly IDictionary<long, Guid> _entrySequenceIdMap = new Dictionary<long, Guid>();
 
-        public LogWriter(LogRegister logRegister, IJournaler journaler)
+        public LogWriter(LogRegister logRegister, IJournal journal)
         {
             _logRegister = logRegister;
-            _journaler = journaler;
+            _journal = journal;
         }
 
         public override void Handle(CommandScheduledEvent @event)
@@ -39,7 +39,7 @@ namespace Raft.Server.Handlers
                 .Select(x => _logRegister.GetEncodedLog(x.Value))
                 .ToArray();
 
-            _journaler.WriteBlocks(blocksToWrite);
+            _journal.WriteBlocks(blocksToWrite);
 
             _entrySequenceIdMap.Values.ToList()
                 .ForEach(x => _logRegister.EvictEntry(x));

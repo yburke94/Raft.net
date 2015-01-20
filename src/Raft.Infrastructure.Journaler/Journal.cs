@@ -6,14 +6,14 @@ using Raft.Infrastructure.Journaler.Writers;
 
 namespace Raft.Infrastructure.Journaler
 {
-    internal class Journaler : IJournaler, IDisposable
+    internal class Journal : IJournal, IDisposable
     {
         private readonly JournalConfiguration _journalConfiguration;
         private readonly IJournalFileWriter _journalFileWriter;
         private readonly JournalOffsetManager _journalOffsetManager;
         private readonly IList<ITransformJournalEntry> _entryTransformers;
         
-        public Journaler(JournalConfiguration journalConfiguration, IJournalFileWriter journalFileWriter, JournalOffsetManager journalOffsetManager, IList<ITransformJournalEntry> entryTransformers)
+        public Journal(JournalConfiguration journalConfiguration, IJournalFileWriter journalFileWriter, JournalOffsetManager journalOffsetManager, IList<ITransformJournalEntry> entryTransformers)
         {
             _journalConfiguration = journalConfiguration;
             _journalFileWriter = journalFileWriter;

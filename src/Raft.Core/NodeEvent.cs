@@ -2,7 +2,7 @@
 {
     internal enum NodeEvent
     {
-        NodeJoinedCluster,
-        ClientLoggedCommand
+        NodeCreatedCluster,
+        ClientExecutedCommand
     }
 }

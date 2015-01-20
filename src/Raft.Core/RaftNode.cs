@@ -17,10 +17,10 @@ namespace Raft.Core
 
             _stateMachine = new StateMachine<NodeState, NodeEvent>(NodeState.Initial);
             _stateMachine.Configure(NodeState.Initial)
-                .Permit(NodeEvent.NodeJoinedCluster, NodeState.Leader);
+                .Permit(NodeEvent.NodeCreatedCluster, NodeState.Leader);
 
             _stateMachine.Configure(NodeState.Leader)
-                .PermitReentry(NodeEvent.ClientLoggedCommand);
+                .PermitReentry(NodeEvent.ClientExecutedCommand);
         }
 
         public NodeState CurrentState {
@@ -33,17 +33,17 @@ namespace Raft.Core
 
         public long?[] Log { get; private set; }
 
-        public void JoinCluster()
+        public void CreateCluster()
         {
-            _stateMachine.Fire(NodeEvent.NodeJoinedCluster);
+            _stateMachine.Fire(NodeEvent.NodeCreatedCluster);
         }
 
-        public void LogEntry()
+        public void ExecuteCommand()
         {
-            _stateMachine.Fire(NodeEvent.ClientLoggedCommand);
+            _stateMachine.Fire(NodeEvent.ClientExecutedCommand);
         }
 
-        public void EntryLogged()
+        public void AddLogEntry()
         {
             if (Log[0] != null)
                 LastLogIndex++;

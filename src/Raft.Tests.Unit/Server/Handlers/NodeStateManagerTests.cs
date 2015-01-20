@@ -22,7 +22,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             handler.OnNext(@event, 0, false);
 
             // Assert
-            raftNode.Received().JoinCluster();
+            raftNode.Received().CreateCluster();
         }
 
         public void LogsEntryWhenHandlingRaftCommand()
@@ -37,7 +37,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             handler.OnNext(@event, 0, false);
 
             // Assert
-            raftNode.Received().LogEntry();
+            raftNode.Received().ExecuteCommand();
         }
     }
 }

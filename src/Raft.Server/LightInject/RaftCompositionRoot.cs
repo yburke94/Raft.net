@@ -20,7 +20,7 @@ namespace Raft.Server.LightInject
             serviceRegistry.Register<LogWriter>();
             serviceRegistry.Register<CommandFinalizer>();
 
-            serviceRegistry.Register(factory => new JournalerFactory()
+            serviceRegistry.Register(factory => new JournalFactory()
                 .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
 
             // TODO: Create binding for IRaftConfiguration...

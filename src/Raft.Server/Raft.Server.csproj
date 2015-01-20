@@ -90,7 +90,7 @@
     <Compile Include="Commands\IRaftCommand.cs" />
     <Compile Include="Commands\IRaftInternalCommand.cs" />
     <Compile Include="IRaft.cs" />
-    <Compile Include="Commands\Internal\JoinCluster.cs" />
+    <Compile Include="Commands\Internal\CreateCluster.cs" />
     <Compile Include="Messages\RequestVote\RequestVoteRequest.cs" />
     <Compile Include="Messages\RequestVote\RequestVoteResponse.cs" />
     <Compile Include="PeerNode.cs" />

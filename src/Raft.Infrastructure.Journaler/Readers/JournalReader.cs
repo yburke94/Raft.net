@@ -27,14 +27,21 @@ namespace Raft.Infrastructure.Journaler.Readers
 
                 SetJournalFile(journalIdxPath.Value);
 
-                while (_fileStream.Position != _fileStream.Length)
+                while (_fileStream.Position < _fileStream.Length)
                 {
                     using (var binaryReader = new BinaryReader(_fileStream))
                     {
-                        var entryLength = binaryReader.ReadInt32();
-                        var entry = binaryReader.ReadBytes(entryLength);
+                        byte[] entry;
+                        try
+                        {
+                            var entryLength = binaryReader.ReadInt32();
+                            if (entryLength == 0) break;
 
-                        while (_fileStream.Position != _fileStream.Length)
+                            entry = binaryReader.ReadBytes(entryLength);
+                        }
+                        catch (EndOfStreamException) { break; }
+
+                        while (_fileStream.Position < _fileStream.Length)
                         {
                             var nextByte = _fileStream.ReadByte();
                             if (nextByte == 0) continue;
@@ -85,7 +92,7 @@ namespace Raft.Infrastructure.Journaler.Readers
                 if (Enumerable.Range(0, keys.Length).Any(i => keys[i] != keys[0] + i))
                     throw new FileLoadException(
                         "The loaded journal files were not in sequential order. " +
-                        "Please ensure the specified journal directory contains all journal files created by the Journaler object.");
+                        "Please ensure the specified journal directory contains all journal files created by the journal object.");
             }
 
             return orderedJournalIndexPathMap;
