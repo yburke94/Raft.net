@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Disruptor;
 using Disruptor.Dsl;
+using Raft.Infrastructure.Journaler;
+using Raft.Server.Configuration;
 using Raft.Server.Handlers;
 using Raft.Server.LightInject;
 
@@ -17,6 +19,11 @@ namespace Raft.Server
             serviceRegistry.Register<LogReplicator>();
             serviceRegistry.Register<LogWriter>();
             serviceRegistry.Register<CommandFinalizer>();
+
+            serviceRegistry.Register(factory => new JournalerFactory()
+                .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
+
+            // TODO: Create binding for IRaftConfiguration...
 
             serviceRegistry.Register(factory => CreateCommandBuffer(factory, 1024),
                 new PerContainerLifetime());

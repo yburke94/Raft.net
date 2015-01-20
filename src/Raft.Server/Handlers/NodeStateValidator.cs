@@ -3,12 +3,13 @@ using Raft.Core;
 namespace Raft.Server.Handlers
 {
     /// <summary>
-    /// 1 of 4 EventHandlers for scheduled state machine commands.
+    /// 1 of 5 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     NodeStateValidator*
     ///     LogEncoder
     ///     LogReplicator
     ///     LogWriter
+    ///     CommandFinalizer
     /// </summary>
     internal class NodeStateValidator : RaftEventHandler
     {

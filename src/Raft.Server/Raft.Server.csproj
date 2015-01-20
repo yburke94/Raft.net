@@ -73,11 +73,8 @@
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Handlers\CommandExecutor.cs" />
     <Compile Include="Handlers\CommandFinalizer.cs" />
-    <Compile Include="IMetadataFlushStrategy.cs" />
-    <Compile Include="ILogMetadata.cs" />
     <Compile Include="ISkipInternalCommands.cs" />
     <Compile Include="IRaftService.cs" />
-    <Compile Include="LogMetadata.cs" />
     <Compile Include="LogRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
@@ -102,12 +99,15 @@
     <Compile Include="CommandScheduledEvent.cs" />
     <Compile Include="RaftServerContext.cs" />
     <Compile Include="Handlers\NodeStateValidator.cs" />
-    <Compile Include="Services\MemoryMappedFileService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Raft.Core\Raft.Core.csproj">
       <Project>{38aa7867-734c-4b09-abd4-8db3f74ace6c}</Project>
       <Name>Raft.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj">
+      <Project>{4ad63ebe-afc9-4b7e-a536-8608a83691d3}</Project>
+      <Name>Raft.Infrastructure.Journaler</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure\Raft.Infrastructure.csproj">
       <Project>{435a85af-e1cb-442b-a7a4-bb04a92847a7}</Project>

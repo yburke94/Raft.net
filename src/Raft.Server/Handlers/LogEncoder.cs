@@ -5,12 +5,13 @@ using Raft.Core;
 namespace Raft.Server.Handlers
 {
     /// <summary>
-    /// 2 of 4 EventHandlers for scheduled state machine commands.
+    /// 2 of 5 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     NodeStateValidator
     ///     LogEncoder*
     ///     LogReplicator
     ///     LogWriter
+    ///     CommandFinalizer
     /// </summary>
     internal class LogEncoder : RaftEventHandler, ISkipInternalCommands
     {
@@ -23,7 +24,7 @@ namespace Raft.Server.Handlers
             _logRegister = logRegister;
         }
 
-        // TODO: Should prepend checksum... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
+        // TODO: Should add checksum for validation when sourcing from log... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
         public override void Handle(CommandScheduledEvent @event)
         {
             var logEntry = new LogEntry {

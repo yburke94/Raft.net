@@ -2,6 +2,15 @@
 
 namespace Raft.Server.Handlers
 {
+    /// <summary>
+    /// 5 of 5 EventHandlers for scheduled state machine commands.
+    /// Order of execution:
+    ///     NodeStateValidator
+    ///     LogEncoder
+    ///     LogReplicator
+    ///     LogWriter
+    ///     CommandFinalizer*
+    /// </summary>
     internal class CommandFinalizer : RaftEventHandler
     {
         private readonly LogRegister _logRegister;
