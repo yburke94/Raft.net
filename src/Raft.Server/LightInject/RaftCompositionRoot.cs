@@ -45,20 +45,6 @@ namespace Raft.Server.LightInject
 
             return disruptor.Start();
         }
-
-        private static RingBuffer<AppendEntriesEvent> CreateRpcBuffer(IServiceFactory factory, int bufferSize)
-        {
-            var disruptor = new Disruptor<AppendEntriesEvent>(
-                () => new AppendEntriesEvent(),
-                new MultiThreadedClaimStrategy(bufferSize),
-                new YieldingWaitStrategy(), TaskScheduler.Default);
-
-            disruptor
-                .HandleEventsWith(factory.GetInstance<NodeStateValidator>())
-                .Then(factory.GetInstance<LogWriter>());
-
-            return disruptor.Start();
-        }
     }
 
     internal class AppendEntriesEvent

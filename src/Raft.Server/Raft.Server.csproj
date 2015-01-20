@@ -74,6 +74,7 @@
     <Compile Include="Handlers\CommandExecutor.cs" />
     <Compile Include="Handlers\CommandFinalizer.cs" />
     <Compile Include="Handlers\ISkipInternalCommands.cs" />
+    <Compile Include="INodeTimer.cs" />
     <Compile Include="Services\IRaftService.cs" />
     <Compile Include="Log\LogRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />

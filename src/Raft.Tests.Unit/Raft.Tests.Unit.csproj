@@ -79,6 +79,7 @@
     <Compile Include="Server\Handlers\LogReplicatorTests.cs" />
     <Compile Include="Server\Handlers\LogWriterTests.cs" />
     <Compile Include="Server\Handlers\NodeStateManagerTests.cs" />
+    <Compile Include="Server\Services\RaftServiceTests.cs" />
     <Compile Include="TestData\Commands\TestCommand.cs" />
     <Compile Include="TestData\Commands\TestEventFactory.cs" />
     <Compile Include="TestData\Commands\TestInternalCommand.cs" />
