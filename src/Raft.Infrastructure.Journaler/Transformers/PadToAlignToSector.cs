@@ -1,6 +1,12 @@
 ﻿
-namespace Raft.Infrastructure.Journaler
+using Raft.Infrastructure.Journaler.Extensions;
+using Raft.Infrastructure.Journaler.KernelHelpers;
+
+namespace Raft.Infrastructure.Journaler.Transformers
 {
+    /// <summary>
+    /// Should only be used when writing to an unbuffered FileStream.
+    /// </summary>
     internal class PadToAlignToSector : ITransformJournalEntry
     {
         private readonly JournalConfiguration _journalConfiguration;

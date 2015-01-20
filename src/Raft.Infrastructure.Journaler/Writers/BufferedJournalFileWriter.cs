@@ -1,19 +1,19 @@
-﻿using System.IO;
+﻿
+using System.IO;
 
-namespace Raft.Infrastructure.Journaler
+namespace Raft.Infrastructure.Journaler.Writers
 {
-    internal sealed class UnbufferedJournalFileWriter : JournalFileWriter
+    internal sealed class BufferedJournalFileWriter : JournalFileWriter
     {
-        public UnbufferedJournalFileWriter(JournalConfiguration journalConfiguration)
+        public BufferedJournalFileWriter(JournalConfiguration journalConfiguration)
             : base(journalConfiguration) { }
 
         protected override void SetFileStream(string path, bool newFile, long fileSizeInBytes, long startingPosition)
         {
             const int bufferSize = 2 << 11;
 
-            CurrentStream = UnbufferedStream.Get(
-                path, FileMode.OpenOrCreate,
-                FileAccess.Write, FileShare.None, bufferSize);
+            CurrentStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write,
+                FileShare.None, bufferSize, FileOptions.SequentialScan);
 
             CurrentStream.Seek(startingPosition, SeekOrigin.Current);
 

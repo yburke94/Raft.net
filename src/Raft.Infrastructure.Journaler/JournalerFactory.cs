@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Raft.Infrastructure.Journaler.Transformers;
+using Raft.Infrastructure.Journaler.Writers;
 
 namespace Raft.Infrastructure.Journaler
 {

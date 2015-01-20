@@ -3,16 +3,16 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Raft.Infrastructure.Journaler
+namespace Raft.Infrastructure.Journaler.KernelHelpers
 {
     internal class SectorSize
     {
         private static readonly ConcurrentDictionary<string, uint> DriveSectorSizeMap = new ConcurrentDictionary<string, uint>();
 
         /// <summary>
-        /// Return the sector size of the volume the specified filepath lives on.
+        /// Return the sector size of the volume for the specified file path.
         /// </summary>
-        /// <returns>device sector size in bytes </returns>
+        /// <returns>Device sector size in bytes </returns>
         public static uint Get(string uncPath)
         {
             uint size = 0;

@@ -1,4 +1,4 @@
-﻿namespace Raft.Infrastructure.Journaler
+﻿namespace Raft.Infrastructure.Journaler.Transformers
 {
     internal interface ITransformJournalEntry
     {

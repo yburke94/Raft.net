@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Raft.Infrastructure.Journaler.Reader
+namespace Raft.Infrastructure.Journaler.Readers
 {
     public class JournalReader : IDisposable
     {
@@ -56,11 +56,11 @@ namespace Raft.Infrastructure.Journaler.Reader
             var journalIndexPathMap = new Dictionary<int, string>();
 
             if (!Directory.Exists(configuration.JournalDirectory))
-                throw new DirectoryNotFoundException(); // Directory doesn't exist...
+                throw new DirectoryNotFoundException("Could not find journal directory at path: " + configuration.JournalDirectory);
 
             var files = Directory.GetFiles(configuration.JournalDirectory, configuration.JournalFileName + ".*");
             if (!files.Any())
-                throw new FileNotFoundException(); // No files in directory...
+                throw new FileNotFoundException("No journal files found at path: " + configuration.JournalDirectory);
 
             Array.ForEach(files, filePath =>
             {
@@ -73,7 +73,7 @@ namespace Raft.Infrastructure.Journaler.Reader
             });
 
             if (!journalIndexPathMap.Any())
-                throw new Exception(); // Could not parse journal file names...
+                throw new FileLoadException("Failed to find any valid journal files to load at path: " + configuration.JournalDirectory);
 
             var orderedJournalIndexPathMap = journalIndexPathMap
                 .OrderBy(x => x.Key)
@@ -83,7 +83,9 @@ namespace Raft.Infrastructure.Journaler.Reader
             {
                 var keys = orderedJournalIndexPathMap.Keys.ToArray();
                 if (Enumerable.Range(0, keys.Length).Any(i => keys[i] != keys[0] + i))
-                    throw new Exception(); // Could not validate journal file sequence...
+                    throw new FileLoadException(
+                        "The loaded journal files were not in sequential order. " +
+                        "Please ensure the specified journal directory contains all journal files created by the Journaler object.");
             }
 
             return orderedJournalIndexPathMap;
@@ -111,20 +113,6 @@ namespace Raft.Infrastructure.Journaler.Reader
         public void Dispose()
         {
             CloseCurrentStream();
-        }
-    }
-
-    public class JournalReadResult
-    {
-        public int JournalIndex { get; private set; }
-        public long Index { get; private set; }
-        public byte[] Entry { get; private set; }
-
-        public JournalReadResult(int journalIndex, long index, byte[] entry)
-        {
-            JournalIndex = journalIndex;
-            Index = index;
-            Entry = entry;
         }
     }
 }

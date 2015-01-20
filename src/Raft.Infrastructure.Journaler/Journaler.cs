@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Raft.Infrastructure.Journaler.Transformers;
+using Raft.Infrastructure.Journaler.Writers;
 
 namespace Raft.Infrastructure.Journaler
 {
@@ -42,7 +44,7 @@ namespace Raft.Infrastructure.Journaler
             if ((_journalOffsetManager.NextJournalEntryOffset + block.Length) > _journalConfiguration.LengthInBytes)
             {
                 _journalOffsetManager.IncrementJournalIndex();
-                _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex);
+                _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex, _journalOffsetManager.NextJournalEntryOffset);
             }
 
             _journalOffsetManager.UpdateJournalOffset(block.Length);

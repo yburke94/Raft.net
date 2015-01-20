@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
+using Raft.Infrastructure.Journaler.Extensions;
 
-namespace Raft.Infrastructure.Journaler
+namespace Raft.Infrastructure.Journaler.Writers
 {
     internal abstract class JournalFileWriter : IJournalFileWriter
     {

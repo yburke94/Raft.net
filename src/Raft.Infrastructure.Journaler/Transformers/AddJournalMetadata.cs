@@ -1,6 +1,7 @@
 ﻿using System;
+using Raft.Infrastructure.Journaler.Extensions;
 
-namespace Raft.Infrastructure.Journaler
+namespace Raft.Infrastructure.Journaler.Transformers
 {
     internal class AddJournalMetadata : ITransformJournalEntry
     {

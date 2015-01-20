@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace Raft.Infrastructure.Journaler
+namespace Raft.Infrastructure.Journaler.KernelHelpers
 {
     internal class UnbufferedStream
     {
@@ -12,6 +12,9 @@ namespace Raft.Infrastructure.Journaler
         const int FILE_FLAG_SEQUENTIAL_SCAN = unchecked(0x08000000);
         // ReSharper restore InconsistentNaming
 
+        /// <summary>
+        /// Creates a FileStream which will perform unbuffered writes to the disk.
+        /// </summary>
         /// <remarks>
         /// BufferSize must be a multiple of the size of a single sector for the hard disk.
         /// </remarks>

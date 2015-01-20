@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace Raft.Infrastructure.Journaler
+namespace Raft.Infrastructure.Journaler.Extensions
 {
     internal static class StreamExtensions
     {
