@@ -29,7 +29,7 @@ namespace Raft.Server.Handlers
         public override void Handle(CommandScheduledEvent @event)
         {
             var logEntry = new LogEntry {
-                Term = _raftNode.CurrentLogTerm,
+                Term = _raftNode.CurrentTerm,
                 Index = _raftNode.LastLogIndex + 1,
                 CommandType = @event.Command.GetType().AssemblyQualifiedName,
                 Command = @event.Command

@@ -2,9 +2,10 @@
 {
     public interface IRaftNode
     {
-        long CurrentLogTerm { get; }
+        long CurrentTerm { get; }
         long LastLogIndex { get; }
 
+        long?[] Log { get; }
 
         void JoinCluster();
         void LogEntry();

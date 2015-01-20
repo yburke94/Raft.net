@@ -24,9 +24,19 @@ namespace Raft.Server.Services
         {
             _timer.ResetTimer();
 
+            if (_raftNode.CurrentTerm > entriesRequest.Term ||
+                _raftNode.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
+            {
+                return new AppendEntriesResponse
+                {
+                    Term = _raftNode.CurrentTerm,
+                    Success = false
+                };
+            }
+
             return new AppendEntriesResponse
             {
-                Term = _raftNode.CurrentLogTerm
+                Term = _raftNode.CurrentTerm
             };
         }
     }

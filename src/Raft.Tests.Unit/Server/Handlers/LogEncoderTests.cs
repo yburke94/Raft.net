@@ -39,7 +39,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent();
 
             var raftNode = Substitute.For<IRaftNode>();
-            raftNode.CurrentLogTerm.Returns(1);
+            raftNode.CurrentTerm.Returns(1);
             raftNode.LastLogIndex.Returns(0);
 
             var logRegister = new LogRegister();
@@ -61,7 +61,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent();
 
             var raftNode = Substitute.For<IRaftNode>();
-            raftNode.CurrentLogTerm.Returns(1);
+            raftNode.CurrentTerm.Returns(1);
             raftNode.LastLogIndex.Returns(0);
             var logRegister = new LogRegister();
             var handler = new LogEncoder(raftNode, logRegister);
