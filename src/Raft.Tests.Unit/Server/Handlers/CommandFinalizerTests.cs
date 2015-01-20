@@ -1,5 +1,4 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
@@ -45,26 +44,6 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             @event.TaskCompletionSource.Task.Result.Successful
                 .Should().BeTrue();
-        }
-
-        [Test]
-        public void CommandFinalizerDoesRemoveEntriesInLogRegistryForEvent()
-        {
-            // Arrange
-            var raftNode = Substitute.For<IRaftNode>();
-            var @event = TestEventFactory.GetCommandEvent();
-
-            var logRegister = new LogRegister();
-            logRegister.AddEncodedLog(@event.Id, BitConverter.GetBytes(100));
-
-            var handler = new CommandFinalizer(logRegister, raftNode);
-
-            // Act
-            handler.Handle(@event);
-
-            // Assert
-            logRegister.HasLogEntry(@event.Id)
-                .Should().BeFalse();
         }
 
         [Test]
