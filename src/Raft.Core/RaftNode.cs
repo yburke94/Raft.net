@@ -5,15 +5,13 @@ namespace Raft.Core
 {
     internal class RaftNode : IRaftNode
     {
-        private const int LogIncrementSize = 64;
-
         private readonly StateMachine<NodeState, NodeEvent> _stateMachine;
         public RaftNode()
         {
             NodeId = Guid.NewGuid();
             CurrentTerm = 0;
-            LastLogIndex = 0;
-            Log = new long?[LogIncrementSize];
+            CommitIndex = 0;
+            Log = new RaftLog();
 
             _stateMachine = new StateMachine<NodeState, NodeEvent>(NodeState.Initial);
             _stateMachine.Configure(NodeState.Initial)
@@ -29,9 +27,14 @@ namespace Raft.Core
 
         public Guid NodeId { get; private set; }
         public long CurrentTerm { get; private set; }
-        public long LastLogIndex { get; private set; }
 
-        public long?[] Log { get; private set; }
+        /// <summary>
+        /// Index of highest log entry known to be committed
+        /// </summary>
+        /// <remarks>Initialized to 0, increases monotonically.</remarks>
+        public long CommitIndex { get; private set; }
+
+        public RaftLog Log { get; private set; }
 
         public void CreateCluster()
         {
@@ -45,17 +48,8 @@ namespace Raft.Core
 
         public void AddLogEntry()
         {
-            if (Log[0] != null)
-                LastLogIndex++;
-
-            if (LastLogIndex >= Log.Length)
-            {
-                var newLog = new long?[Log.Length + LogIncrementSize];
-                Log.CopyTo(newLog, 0);
-                Log = newLog;
-            }
-
-            Log[LastLogIndex] = CurrentTerm;
+            CommitIndex++;
+            Log.SetLogEntry(CommitIndex, CurrentTerm);
         }
     }
 }

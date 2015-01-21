@@ -3,9 +3,9 @@
     public interface IRaftNode
     {
         long CurrentTerm { get; }
-        long LastLogIndex { get; }
+        long CommitIndex { get; }
 
-        long?[] Log { get; }
+        RaftLog Log { get; }
 
         void CreateCluster();
         void ExecuteCommand();

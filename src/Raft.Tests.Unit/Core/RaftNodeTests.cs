@@ -35,7 +35,7 @@ namespace Raft.Tests.Unit.Core
         }
 
         [Test]
-        public void ShouldNotIncrementLastLogIndexWhenAddLogEntryIsCalledForTheFirstTime()
+        public void ShouldIncrementCommitIndexWhenAddLogEntryIsCalledEverytime()
         {
             // Arrange
             var raftNode = new RaftNode();
@@ -45,27 +45,11 @@ namespace Raft.Tests.Unit.Core
             raftNode.AddLogEntry();
 
             // Assert
-            raftNode.LastLogIndex.ShouldBeEquivalentTo(0);
+            raftNode.CommitIndex.ShouldBeEquivalentTo(1);
         }
 
         [Test]
-        public void ShouldIncrementLastLogIndexWhenAddLogEntryIsCalledEveryTimeAfterTheFirstTime()
-        {
-            // Arrange
-            var raftNode = new RaftNode();
-            raftNode.CreateCluster();
-
-            // Act
-            raftNode.AddLogEntry();
-            raftNode.AddLogEntry();
-            raftNode.AddLogEntry();
-
-            // Assert
-            raftNode.LastLogIndex.ShouldBeEquivalentTo(2);
-        }
-
-        [Test]
-        public void CurrentTermIsAddedToLogAtLastLogIndexWhenAddLogEntryIsCalled()
+        public void CurrentTermIsAddedToLogAtCommitIndexWhenAddLogEntryIsCalled()
         {
             // Arrange
             var raftNode = new RaftNode();
@@ -75,27 +59,8 @@ namespace Raft.Tests.Unit.Core
             raftNode.AddLogEntry();
 
             // Assert
-            raftNode.Log[raftNode.LastLogIndex]
+            raftNode.Log[raftNode.CommitIndex]
                 .ShouldBeEquivalentTo(raftNode.CurrentTerm);
-        }
-
-        [Test]
-        public void IncreaseLogLengthBy64WhenPreviousLogIndexEqualsLengthAndAddLogEntryIsCalled()
-        {
-            // Arrange
-            var raftNode = new RaftNode();
-            raftNode.CreateCluster();
-
-            for (var i = 0; i < 64; i++)
-                raftNode.AddLogEntry();
-
-            raftNode.Log.Length.ShouldBeEquivalentTo(64);
-
-            // Act
-            raftNode.AddLogEntry();
-
-            // Assert
-            raftNode.Log.Length.ShouldBeEquivalentTo(128);
         }
     }
 }

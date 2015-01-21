@@ -21,7 +21,7 @@ namespace Raft.Tests.Unit.Server.Services
             var timer = Substitute.For<INodeTimer>();
             var service = new RaftService(timer, raftNode);
 
-            raftNode.Log.Returns(new long?[64]);
+            raftNode.Log.Returns(new RaftLog());
 
             // Act
             service.AppendEntries(message);
@@ -41,7 +41,7 @@ namespace Raft.Tests.Unit.Server.Services
             var timer = Substitute.For<INodeTimer>();
             var service = new RaftService(timer, raftNode);
 
-            raftNode.Log.Returns(new long?[64]);
+            raftNode.Log.Returns(new RaftLog());
             raftNode.CurrentTerm.Returns(expectedTerm);
 
             // Act
@@ -64,7 +64,7 @@ namespace Raft.Tests.Unit.Server.Services
             var timer = Substitute.For<INodeTimer>();
             var service = new RaftService(timer, raftNode);
 
-            raftNode.Log.Returns(new long?[64]);
+            raftNode.Log.Returns(new RaftLog());
             raftNode.CurrentTerm.Returns(message.Term + 10);
 
             // Act
@@ -89,8 +89,10 @@ namespace Raft.Tests.Unit.Server.Services
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
             var service = new RaftService(timer, raftNode);
+            var raftLog = new RaftLog();
+            raftLog.SetLogEntry(1, 2L);
 
-            raftNode.Log.Returns(new long?[]{2L});
+            raftNode.Log.Returns(raftLog);
 
             // Act
             var response = service.AppendEntries(message);

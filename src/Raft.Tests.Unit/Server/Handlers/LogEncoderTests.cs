@@ -40,7 +40,7 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentTerm.Returns(1);
-            raftNode.LastLogIndex.Returns(0);
+            raftNode.CommitIndex.Returns(0);
 
             var logRegister = new LogRegister();
 
@@ -62,7 +62,7 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentTerm.Returns(1);
-            raftNode.LastLogIndex.Returns(0);
+            raftNode.CommitIndex.Returns(0);
             var logRegister = new LogRegister();
             var handler = new LogEncoder(raftNode, logRegister);
 

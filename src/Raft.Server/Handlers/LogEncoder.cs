@@ -30,7 +30,7 @@ namespace Raft.Server.Handlers
         {
             var logEntry = new LogEntry {
                 Term = _raftNode.CurrentTerm,
-                Index = _raftNode.LastLogIndex + 1,
+                Index = _raftNode.CommitIndex + 1,
                 CommandType = @event.Command.GetType().AssemblyQualifiedName,
                 Command = @event.Command
             };
