@@ -3,6 +3,8 @@
     internal enum NodeEvent
     {
         NodeCreatedCluster,
-        ClientExecutedCommand
+        ClientScheduledCommandExecution,
+        LogEntryAdded,
+        CommandExecuted
     }
 }

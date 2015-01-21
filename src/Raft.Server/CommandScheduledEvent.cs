@@ -14,7 +14,7 @@ namespace Raft.Server
 
         public CommandScheduledEvent ResetEvent(IRaftCommand command, TaskCompletionSource<CommandExecutionResult> taskCompletionSource)
         {
-            if (TaskCompletionSource != null && IsValidForProcessing())
+            if (TaskCompletionSource != null && IsCompletedSuccessfully())
                 throw new InvalidOperationException("The event has not finished processing.");
 
             if (command == null)
@@ -31,9 +31,14 @@ namespace Raft.Server
             return this;
         }
 
-        public bool IsValidForProcessing()
+        public bool IsCompletedSuccessfully()
         {
-            return !TaskCompletionSource.Task.IsCompleted;
+            return TaskCompletionSource.Task.IsCompleted && !IsFaulted();
+        }
+
+        public bool IsFaulted()
+        {
+            return TaskCompletionSource.Task.IsFaulted;
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             handler.OnNext(@event, 0, false);
 
             // Assert
-            raftNode.Received().ExecuteCommand();
+            raftNode.Received().ScheduleCommandExecution();
         }
     }
 }

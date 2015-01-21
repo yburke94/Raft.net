@@ -7,25 +7,28 @@ namespace Raft.Server.Handlers
     /// Order of execution:
     ///     NodeStateValidator
     ///     LogEncoder
-    ///     LogReplicator
     ///     LogWriter
-    ///     CommandFinalizer*
+    ///     LogReplicator
+    ///     CommandApplier*
     /// </summary>
-    internal class CommandFinalizer : RaftEventHandler
+    internal class CommandApplier : RaftEventHandler
     {
         private readonly IRaftNode _raftNode;
+        private readonly RaftServerContext _context;
 
-        public CommandFinalizer(IRaftNode raftNode)
+        public CommandApplier(IRaftNode raftNode, RaftServerContext context)
         {
             _raftNode = raftNode;
+            _context = context;
         }
 
         public override void Handle(CommandScheduledEvent @event)
         {
+            @event.Command.Execute(_context);
+            _raftNode.ApplyCommand();
+
             if (@event.TaskCompletionSource != null)
                 @event.TaskCompletionSource.SetResult(new CommandExecutionResult(true));
-
-            _raftNode.AddLogEntry();
         }
     }
 }

@@ -21,14 +21,14 @@ namespace Raft.Tests.Unit.Core
         }
 
         [Test]
-        public void ShouldReEnterLeaderStateWhenExecuteCommandIsCalled()
+        public void ShouldReEnterLeaderStateWhenScheduleCommandExecutionIsCalled()
         {
             // Arrange
             var raftNode = new RaftNode();
             raftNode.CreateCluster();
 
             // Act
-            raftNode.ExecuteCommand();
+            raftNode.ScheduleCommandExecution();
 
             // Assert
             raftNode.CurrentState.Should().Be(NodeState.Leader);
@@ -61,6 +61,20 @@ namespace Raft.Tests.Unit.Core
             // Assert
             raftNode.Log[raftNode.CommitIndex]
                 .ShouldBeEquivalentTo(raftNode.CurrentTerm);
+        }
+
+        [Test]
+        public void CallingApplyCommandIncrementsLastApplied()
+        {
+            // Arrange
+            var raftNode = new RaftNode();
+            raftNode.CreateCluster();
+
+            // Act
+            raftNode.ApplyCommand();
+
+            // Assert
+            raftNode.LastApplied.Should().Be(1);
         }
     }
 }

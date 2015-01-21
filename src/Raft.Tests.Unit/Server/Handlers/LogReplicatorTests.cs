@@ -5,6 +5,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Raft.Server;
 using Raft.Server.Handlers;
+using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Services;
@@ -34,7 +35,7 @@ namespace Raft.Tests.Unit.Server.Handlers
                 new PeerNode {Channel = service1},
                 new PeerNode {Channel = service2}
             };
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             var handler = new LogReplicator(peers, logRegister);
 
             var encodedLog = BitConverter.GetBytes(100);
@@ -63,7 +64,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var peers = new List<PeerNode> {
                 new PeerNode {Channel = service}
             };
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             var handler = new LogReplicator(peers, logRegister);
 
             var @event = TestEventFactory.GetCommandEvent();

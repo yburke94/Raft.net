@@ -8,7 +8,8 @@
         RaftLog Log { get; }
 
         void CreateCluster();
-        void ExecuteCommand();
+        void ScheduleCommandExecution();
         void AddLogEntry();
+        void ApplyCommand();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Disruptor;
 using Raft.Server.Commands;
+using Raft.Server.Handlers.Contracts;
 
 namespace Raft.Server.Handlers
 {
@@ -11,7 +12,10 @@ namespace Raft.Server.Handlers
 
         public void OnNext(CommandScheduledEvent data, long sequence, bool endOfBatch)
         {
-            if (!data.IsValidForProcessing())
+            if (data.IsFaulted() && !(this is IHandleFaultedCommands))
+                return;
+
+            if (data.IsCompletedSuccessfully())
                 return;
 
             if (this is ISkipInternalCommands && (data.Command is IRaftInternalCommand))

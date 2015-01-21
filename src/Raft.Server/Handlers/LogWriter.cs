@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Raft.Core;
 using Raft.Infrastructure.Journaler;
+using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 
 namespace Raft.Server.Handlers
@@ -11,21 +13,23 @@ namespace Raft.Server.Handlers
     /// Order of execution:
     ///     NodeStateValidator
     ///     LogEncoder
-    ///     LogReplicator
     ///     LogWriter*
-    ///     CommandFinalizer
+    ///     LogReplicator
+    ///     CommandApplier
     /// </summary>
     internal class LogWriter : RaftEventHandler, ISkipInternalCommands
     {
-        private readonly LogRegister _logRegister;
+        private readonly EncodedLogRegister _encodedLogRegister;
         private readonly IJournal _journal;
+        private readonly IRaftNode _raftNode;
 
         private readonly IDictionary<long, Guid> _entrySequenceIdMap = new Dictionary<long, Guid>();
 
-        public LogWriter(LogRegister logRegister, IJournal journal)
+        public LogWriter(EncodedLogRegister encodedLogRegister, IJournal journal, IRaftNode raftNode)
         {
-            _logRegister = logRegister;
+            _encodedLogRegister = encodedLogRegister;
             _journal = journal;
+            _raftNode = raftNode;
         }
 
         public override void Handle(CommandScheduledEvent @event)
@@ -36,13 +40,15 @@ namespace Raft.Server.Handlers
                 return;
 
             var blocksToWrite = _entrySequenceIdMap.OrderBy(x => x.Key)
-                .Select(x => _logRegister.GetEncodedLog(x.Value))
+                .Select(x => _encodedLogRegister.GetEncodedLog(x.Value))
                 .ToArray();
 
             _journal.WriteBlocks(blocksToWrite);
 
-            _entrySequenceIdMap.Values.ToList()
-                .ForEach(x => _logRegister.EvictEntry(x));
+            for (var i = 0; i < _entrySequenceIdMap.Count; i++)
+            {
+                _raftNode.AddLogEntry();
+            }
 
             _entrySequenceIdMap.Clear();
         }

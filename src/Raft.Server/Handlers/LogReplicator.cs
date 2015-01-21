@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
 
@@ -9,24 +10,24 @@ namespace Raft.Server.Handlers
     /// Order of execution:
     ///     NodeStateValidator
     ///     LogEncoder
-    ///     LogReplicator*
     ///     LogWriter
-    ///     CommandFinalizer
+    ///     LogReplicator*
+    ///     CommandApplier
     /// </summary>
     internal class LogReplicator : RaftEventHandler, ISkipInternalCommands
     {
         private readonly IList<PeerNode> _peers;
-        private readonly LogRegister _logRegister;
+        private readonly EncodedLogRegister _encodedLogRegister;
 
-        public LogReplicator(IList<PeerNode> peers, LogRegister logRegister)
+        public LogReplicator(IList<PeerNode> peers, EncodedLogRegister encodedLogRegister)
         {
             _peers = peers;
-            _logRegister = logRegister;
+            _encodedLogRegister = encodedLogRegister;
         }
 
         public override void Handle(CommandScheduledEvent @event)
         {
-            var bytes = _logRegister.GetEncodedLog(@event.Id);
+            var bytes = _encodedLogRegister.GetEncodedLog(@event.Id);
 
             var request = new AppendEntriesRequest {
                 Entries = new[] {

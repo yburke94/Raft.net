@@ -4,8 +4,10 @@ using System.Linq.Expressions;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using Raft.Core;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.Handlers;
+using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Tests.Unit.TestData.Commands;
 
@@ -30,11 +32,12 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             var @event = TestEventFactory.GetCommandEvent();
             var journaler = Substitute.For<IJournal>();
+            var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             logRegister.AddEncodedLog(@event.Id, data);
 
-            var handler = new LogWriter(logRegister, journaler);
+            var handler = new LogWriter(logRegister, journaler, node);
 
             // Act
             handler.OnNext(@event, 0, false);
@@ -51,11 +54,12 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             var @event = TestEventFactory.GetCommandEvent();
             var journaler = Substitute.For<IJournal>();
+            var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             logRegister.AddEncodedLog(@event.Id, data);
 
-            var handler = new LogWriter(logRegister, journaler);
+            var handler = new LogWriter(logRegister, journaler, node);
 
             Expression<Predicate<byte[][]>> match = x => x[0].SequenceEqual(data);
 
@@ -80,13 +84,14 @@ namespace Raft.Tests.Unit.Server.Handlers
             var event3 = TestEventFactory.GetCommandEvent();
 
             var journaler = Substitute.For<IJournal>();
+            var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             logRegister.AddEncodedLog(event1.Id, data1);
             logRegister.AddEncodedLog(event2.Id, data2);
             logRegister.AddEncodedLog(event3.Id, data3);
 
-            var handler = new LogWriter(logRegister, journaler);
+            var handler = new LogWriter(logRegister, journaler, node);
 
             Expression<Predicate<byte[][]>> match = x =>
                 x[0].SequenceEqual(data1) &&
@@ -103,44 +108,6 @@ namespace Raft.Tests.Unit.Server.Handlers
         }
 
         [Test]
-        public void ClearsAllEncodedEntriesWhenForBatchWhenAtTheEndOfBatch()
-        {
-            // Arrange
-            var data1 = BitConverter.GetBytes(1);
-            var event1 = TestEventFactory.GetCommandEvent();
-
-            var data2 = BitConverter.GetBytes(2);
-            var event2 = TestEventFactory.GetCommandEvent();
-
-            var data3 = BitConverter.GetBytes(3);
-            var event3 = TestEventFactory.GetCommandEvent();
-
-            var journaler = Substitute.For<IJournal>();
-
-            var logRegister = new LogRegister();
-            logRegister.AddEncodedLog(event1.Id, data1);
-            logRegister.AddEncodedLog(event2.Id, data2);
-            logRegister.AddEncodedLog(event3.Id, data3);
-
-            var handler = new LogWriter(logRegister, journaler);
-
-            // Act
-            handler.OnNext(event1, 0, false);
-            handler.OnNext(event2, 1, false);
-            handler.OnNext(event3, 2, true);
-
-            // Assert
-            logRegister.HasLogEntry(event1.Id)
-                .Should().BeFalse("because the writer should have evicted the entry upon writing the blocks.");
-
-            logRegister.HasLogEntry(event2.Id)
-                .Should().BeFalse("because the writer should have evicted the entry upon writing the blocks.");
-
-            logRegister.HasLogEntry(event3.Id)
-                .Should().BeFalse("because the writer should have evicted the entry upon writing the blocks.");
-        }
-
-        [Test]
         public void ResetsEntriesToBeWrittenUponFlushOfEachBatch()
         {
             // Arrange
@@ -154,13 +121,14 @@ namespace Raft.Tests.Unit.Server.Handlers
             var event3 = TestEventFactory.GetCommandEvent();
 
             var journaler = Substitute.For<IJournal>();
+            var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             logRegister.AddEncodedLog(event1.Id, data1);
             logRegister.AddEncodedLog(event2.Id, data2);
             logRegister.AddEncodedLog(event3.Id, data3);
 
-            var handler = new LogWriter(logRegister, journaler);
+            var handler = new LogWriter(logRegister, journaler, node);
 
             Expression<Predicate<byte[][]>> matchForBatch1 = x =>
                 x[0].SequenceEqual(data1) &&
@@ -177,6 +145,38 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Assert
             journaler.Received().WriteBlocks(Arg.Is(matchForBatch1));
             journaler.Received().WriteBlocks(Arg.Is(matchForBatch2));
+        }
+
+        [Test]
+        public void CallsAddLogEntryOnRaftNodeForAllEntriesWrittenToLog()
+        {
+            // Arrange
+            var data1 = BitConverter.GetBytes(1);
+            var event1 = TestEventFactory.GetCommandEvent();
+
+            var data2 = BitConverter.GetBytes(2);
+            var event2 = TestEventFactory.GetCommandEvent();
+
+            var data3 = BitConverter.GetBytes(3);
+            var event3 = TestEventFactory.GetCommandEvent();
+
+            var journaler = Substitute.For<IJournal>();
+            var node = Substitute.For<IRaftNode>();
+
+            var logRegister = new EncodedLogRegister(1);
+            logRegister.AddEncodedLog(event1.Id, data1);
+            logRegister.AddEncodedLog(event2.Id, data2);
+            logRegister.AddEncodedLog(event3.Id, data3);
+
+            var handler = new LogWriter(logRegister, journaler, node);
+
+            // Act
+            handler.OnNext(event1, 0, false);
+            handler.OnNext(event2, 1, false);
+            handler.OnNext(event3, 2, true);
+
+            // Assert
+            node.Received(3).AddLogEntry();
         }
     }
 }

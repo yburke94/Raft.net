@@ -6,6 +6,7 @@ using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
 using Raft.Server.Handlers;
+using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Tests.Unit.TestData.Commands;
 
@@ -42,7 +43,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(0);
 
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
 
             var handler = new LogEncoder(raftNode, logRegister);
 
@@ -63,7 +64,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(0);
-            var logRegister = new LogRegister();
+            var logRegister = new EncodedLogRegister(1);
             var handler = new LogEncoder(raftNode, logRegister);
 
             // Act

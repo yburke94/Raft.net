@@ -12,13 +12,16 @@ namespace Raft.Server.LightInject
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
-            serviceRegistry.Register<LogRegister>(new PerContainerLifetime());
+            serviceRegistry.RegisterInstance(new EncodedLogRegister(2));
+
+            serviceRegistry.Register<RaftServerContext>(new PerContainerLifetime());
 
             serviceRegistry.Register<NodeStateValidator>();
             serviceRegistry.Register<LogEncoder>();
-            serviceRegistry.Register<LogReplicator>();
             serviceRegistry.Register<LogWriter>();
-            serviceRegistry.Register<CommandFinalizer>();
+            serviceRegistry.Register<LogReplicator>();
+            serviceRegistry.Register<CommandApplier>();
+            serviceRegistry.Register<FaultedCommandHandler>();
 
             serviceRegistry.Register(factory => new JournalFactory()
                 .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
@@ -39,15 +42,12 @@ namespace Raft.Server.LightInject
             disruptor
                 .HandleEventsWith(factory.GetInstance<NodeStateValidator>())
                 .Then(factory.GetInstance<LogEncoder>())
-                .Then(factory.GetInstance<LogReplicator>())
                 .Then(factory.GetInstance<LogWriter>())
-                .Then(factory.GetInstance<CommandFinalizer>());
+                .Then(factory.GetInstance<LogReplicator>())
+                .Then(factory.GetInstance<CommandApplier>())
+                .Then(factory.GetInstance<FaultedCommandHandler>());
 
             return disruptor.Start();
         }
-    }
-
-    internal class AppendEntriesEvent
-    {
     }
 }

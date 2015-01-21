@@ -8,9 +8,9 @@ namespace Raft.Server.Handlers
     /// Order of execution:
     ///     NodeStateValidator*
     ///     LogEncoder
-    ///     LogReplicator
     ///     LogWriter
-    ///     CommandFinalizer
+    ///     LogReplicator
+    ///     CommandApplier
     /// </summary>
     internal class NodeStateValidator : RaftEventHandler
     {
@@ -28,7 +28,7 @@ namespace Raft.Server.Handlers
             if (internalCommand != null)
                 internalCommand.NodeAction(_raftNode);
             else
-                _raftNode.ExecuteCommand();
+                _raftNode.ScheduleCommandExecution();
         }
     }
 }

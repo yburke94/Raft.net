@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ProtoBuf;
 using Raft.Core;
+using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 
 namespace Raft.Server.Handlers
@@ -10,19 +11,19 @@ namespace Raft.Server.Handlers
     /// Order of execution:
     ///     NodeStateValidator
     ///     LogEncoder*
-    ///     LogReplicator
     ///     LogWriter
-    ///     CommandFinalizer
+    ///     LogReplicator
+    ///     CommandApplier
     /// </summary>
     internal class LogEncoder : RaftEventHandler, ISkipInternalCommands
     {
         private readonly IRaftNode _raftNode;
-        private readonly LogRegister _logRegister;
+        private readonly EncodedLogRegister _encodedLogRegister;
 
-        public LogEncoder(IRaftNode raftNode, LogRegister logRegister)
+        public LogEncoder(IRaftNode raftNode, EncodedLogRegister encodedLogRegister)
         {
             _raftNode = raftNode;
-            _logRegister = logRegister;
+            _encodedLogRegister = encodedLogRegister;
         }
 
         // TODO: Should add checksum for validation when sourcing from log... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
@@ -38,7 +39,7 @@ namespace Raft.Server.Handlers
             using (var ms = new MemoryStream())
             {
                 Serializer.Serialize(ms, logEntry);
-                _logRegister.AddEncodedLog(@event.Id, ms.ToArray());
+                _encodedLogRegister.AddEncodedLog(@event.Id, ms.ToArray());
             }
         }
     }
