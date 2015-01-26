@@ -11,5 +11,6 @@
         void ScheduleCommandExecution();
         void AddLogEntry();
         void ApplyCommand();
+        void SetHigherTerm(long term);
     }
 }

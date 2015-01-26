@@ -5,6 +5,7 @@
         NodeCreatedCluster,
         ClientScheduledCommandExecution,
         LogEntryAdded,
-        CommandExecuted
+        CommandExecuted,
+        HigherTermSet
     }
 }

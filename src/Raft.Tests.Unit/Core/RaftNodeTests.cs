@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using NUnit.Framework;
 using Raft.Core;
 
@@ -75,6 +76,49 @@ namespace Raft.Tests.Unit.Core
 
             // Assert
             raftNode.LastApplied.Should().Be(1);
+        }
+
+        [Test]
+        public void ShouldTransitionToFollowerStateIfNotAlreadyAndSetHigherTermIsCalled()
+        {
+            // Arrange
+            var raftNode = new RaftNode();
+            raftNode.CreateCluster();
+            raftNode.CurrentState.Should().Be(NodeState.Leader);
+
+            // Act
+            raftNode.SetHigherTerm(2);
+
+            // Assert
+            raftNode.CurrentState.Should().Be(NodeState.Follower);
+        }
+
+        [Test]
+        public void ShouldChangeCurrentTermToNewTermWhenSetHigherTermIsCalled()
+        {
+            // Arrange
+            var raftNode = new RaftNode();
+            raftNode.CreateCluster();
+            raftNode.CurrentTerm.Should().Be(0);
+
+            // Act
+            raftNode.SetHigherTerm(2);
+
+            // Assert
+            raftNode.CurrentTerm.Should().Be(2);
+        }
+
+        [Test]
+        public void ShouldThrowWhenSetHigherTermIsCalledAndCurrentTermIsGreaterThanSuppliedTerm()
+        {
+            // Arrange
+            var raftNode = new RaftNode();
+            raftNode.CreateCluster();
+            raftNode.SetHigherTerm(2);
+
+            // Act, Assert
+            new Action(() => raftNode.SetHigherTerm(1))
+                .ShouldThrow<InvalidOperationException>();
         }
     }
 }

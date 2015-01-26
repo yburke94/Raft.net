@@ -16,13 +16,25 @@ namespace Raft.Core
             Log = new RaftLog();
 
             _stateMachine = new StateMachine<NodeState, NodeEvent>(NodeState.Initial);
+
+            // Initial State Rules
             _stateMachine.Configure(NodeState.Initial)
                 .Permit(NodeEvent.NodeCreatedCluster, NodeState.Leader);
 
+            // Leader State Rules
             _stateMachine.Configure(NodeState.Leader)
                 .PermitReentry(NodeEvent.ClientScheduledCommandExecution)
                 .PermitReentry(NodeEvent.LogEntryAdded)
-                .PermitReentry(NodeEvent.CommandExecuted);
+                .PermitReentry(NodeEvent.CommandExecuted)
+                .Permit(NodeEvent.HigherTermSet, NodeState.Follower);
+
+            // Candidate State Rules
+            _stateMachine.Configure(NodeState.Candidate)
+                .Permit(NodeEvent.HigherTermSet, NodeState.Follower);
+
+            // Follower State Rules
+            _stateMachine.Configure(NodeState.Follower)
+                .PermitReentry(NodeEvent.HigherTermSet);
         }
 
         public NodeState CurrentState {
@@ -73,6 +85,18 @@ namespace Raft.Core
         {
             _stateMachine.Fire(NodeEvent.CommandExecuted);
             LastApplied++;
+        }
+
+        public void SetHigherTerm(long term)
+        {
+            if (term < CurrentTerm)
+                throw new InvalidOperationException(string.Format(
+                    "The current term for this node was: {0}." +
+                    "An attempt was made to set the term for this node to: {1}." +
+                    "The node must only ever increment their term.", CurrentTerm, term));
+
+            _stateMachine.Fire((NodeEvent.HigherTermSet));
+            CurrentTerm = term;
         }
     }
 }

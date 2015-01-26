@@ -4,6 +4,7 @@ using NUnit.Framework;
 using Raft.Core;
 using Raft.Server;
 using Raft.Server.Messages.AppendEntries;
+using Raft.Server.Messages.RequestVote;
 using Raft.Server.Services;
 
 namespace Raft.Tests.Unit.Server.Services
@@ -103,7 +104,53 @@ namespace Raft.Tests.Unit.Server.Services
                 "for the leaders previous log index does not match.");
         }
 
+        [Test]
+        public void AppendEntriesAmendsTermOnRaftNodeWhenTermIsGreaterThanCurrentTerm()
+        {
+            // Arrange
+            var message = new AppendEntriesRequest
+            {
+                Term = 1,
+                PreviousLogIndex = 1,
+                PreviousLogTerm = 0
+            };
 
+            var raftNode = Substitute.For<IRaftNode>();
+            var timer = Substitute.For<INodeTimer>();
+            var raftLog = new RaftLog();
+            var service = new RaftService(timer, raftNode);
 
+            raftLog.SetLogEntry(1, 0);
+            raftNode.Log.Returns(raftLog);
+            raftNode.CurrentTerm.Returns(0);
+
+            // Act
+            service.AppendEntries(message);
+
+            // Assert
+            raftNode.Received(1).SetHigherTerm(message.Term);
+        }
+
+        [Test]
+        public void RequestVoteAmendsTermOnRaftNodeWhenTermIsGreaterThanCurrentTerm()
+        {
+            // Arrange
+            var message = new RequestVoteRequest
+            {
+                Term = 1
+            };
+
+            var raftNode = Substitute.For<IRaftNode>();
+            var timer = Substitute.For<INodeTimer>();
+            var service = new RaftService(timer, raftNode);
+
+            raftNode.CurrentTerm.Returns(0);
+
+            // Act
+            service.RequestVote(message);
+
+            // Assert
+            raftNode.Received(1).SetHigherTerm(message.Term);
+        }
     }
 }

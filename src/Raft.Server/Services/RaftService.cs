@@ -17,6 +17,9 @@ namespace Raft.Server.Services
 
         public RequestVoteResponse RequestVote(RequestVoteRequest voteRequest)
         {
+            if (_raftNode.CurrentTerm < voteRequest.Term)
+                _raftNode.SetHigherTerm(voteRequest.Term);
+
             return null;
         }
 
@@ -33,6 +36,9 @@ namespace Raft.Server.Services
                     Success = false
                 };
             }
+
+            if (_raftNode.CurrentTerm < entriesRequest.Term)
+                _raftNode.SetHigherTerm(entriesRequest.Term);
 
             return new AppendEntriesResponse
             {
