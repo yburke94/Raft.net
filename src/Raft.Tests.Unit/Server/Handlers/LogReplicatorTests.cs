@@ -35,12 +35,12 @@ namespace Raft.Tests.Unit.Server.Handlers
                 new PeerNode {Channel = service1},
                 new PeerNode {Channel = service2}
             };
-            var logRegister = new EncodedLogRegister(1);
+            var logRegister = new LogEntryRegister(1);
             var handler = new LogReplicator(peers, logRegister);
 
             var encodedLog = BitConverter.GetBytes(100);
             var @event = TestEventFactory.GetCommandEvent();
-            logRegister.AddEncodedLog(@event.Id, encodedLog);
+            logRegister.AddEncodedLog(@event.Id, 1L, encodedLog);
 
             // Act
             handler.Handle(@event);
@@ -64,11 +64,11 @@ namespace Raft.Tests.Unit.Server.Handlers
             var peers = new List<PeerNode> {
                 new PeerNode {Channel = service}
             };
-            var logRegister = new EncodedLogRegister(1);
+            var logRegister = new LogEntryRegister(1);
             var handler = new LogReplicator(peers, logRegister);
 
             var @event = TestEventFactory.GetCommandEvent();
-            logRegister.AddEncodedLog(@event.Id, encodedLog);
+            logRegister.AddEncodedLog(@event.Id, 1L, encodedLog);
 
             // Act
             handler.Handle(@event);

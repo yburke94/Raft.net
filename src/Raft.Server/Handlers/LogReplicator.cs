@@ -17,21 +17,21 @@ namespace Raft.Server.Handlers
     internal class LogReplicator : RaftEventHandler, ISkipInternalCommands
     {
         private readonly IList<PeerNode> _peers;
-        private readonly EncodedLogRegister _encodedLogRegister;
+        private readonly LogEntryRegister _logEntryRegister;
 
-        public LogReplicator(IList<PeerNode> peers, EncodedLogRegister encodedLogRegister)
+        public LogReplicator(IList<PeerNode> peers, LogEntryRegister logEntryRegister)
         {
             _peers = peers;
-            _encodedLogRegister = encodedLogRegister;
+            _logEntryRegister = logEntryRegister;
         }
 
         public override void Handle(CommandScheduledEvent @event)
         {
-            var bytes = _encodedLogRegister.GetEncodedLog(@event.Id);
+            var encodedEntry = _logEntryRegister.GetEncodedLog(@event.Id);
 
             var request = new AppendEntriesRequest {
                 Entries = new[] {
-                    bytes
+                    encodedEntry.Value
                 }
             };
 

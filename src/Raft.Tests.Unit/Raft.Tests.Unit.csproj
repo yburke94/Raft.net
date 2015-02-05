@@ -74,7 +74,7 @@
   <ItemGroup>
     <Compile Include="Core\RaftLogTests.cs" />
     <Compile Include="Core\RaftNodeTests.cs" />
-    <Compile Include="Log\EncodedLogRegisterTests.cs" />
+    <Compile Include="Log\LogEntryRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\Handlers\CommandApplierTests.cs" />
     <Compile Include="Server\Handlers\LogEncoderTests.cs" />

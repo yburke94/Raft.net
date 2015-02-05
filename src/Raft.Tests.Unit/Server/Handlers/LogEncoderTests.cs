@@ -43,7 +43,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(0);
 
-            var logRegister = new EncodedLogRegister(1);
+            var logRegister = new LogEntryRegister(1);
 
             var handler = new LogEncoder(raftNode, logRegister);
 
@@ -56,6 +56,29 @@ namespace Raft.Tests.Unit.Server.Handlers
         }
 
         [Test]
+        public void LogEncoderDoesAddEncodedLogToLogRegisterWithCorrectIndex()
+        {
+            // Arrange
+            const long expectedLogIdx = 7;
+            var @event = TestEventFactory.GetCommandEvent();
+
+            var raftNode = Substitute.For<IRaftNode>();
+            raftNode.CurrentTerm.Returns(1);
+            raftNode.CommitIndex.Returns(expectedLogIdx-1);
+
+            var logRegister = new LogEntryRegister(1);
+
+            var handler = new LogEncoder(raftNode, logRegister);
+
+            // Act
+            handler.OnNext(@event, 1, false);
+
+            // Assert
+            logRegister.GetEncodedLog(@event.Id)
+                .Key.Should().Be(expectedLogIdx);
+        }
+
+        [Test]
         public void TheEncodedLogDoesMatchTheEncodedLogInTestData()
         {
             // Arrange
@@ -64,14 +87,14 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(0);
-            var logRegister = new EncodedLogRegister(1);
+            var logRegister = new LogEntryRegister(1);
             var handler = new LogEncoder(raftNode, logRegister);
 
             // Act
             handler.OnNext(@event, 1, false);
 
             // Assert
-            logRegister.GetEncodedLog(@event.Id)
+            logRegister.GetEncodedLog(@event.Id).Value
                 .SequenceEqual(_testCommandLogEntryEncoded)
                 .Should().BeTrue();
         }

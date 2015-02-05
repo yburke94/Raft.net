@@ -34,8 +34,8 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new EncodedLogRegister(1);
-            logRegister.AddEncodedLog(@event.Id, data);
+            var logRegister = new LogEntryRegister(1);
+            logRegister.AddEncodedLog(@event.Id, 1L, data);
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -56,8 +56,8 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new EncodedLogRegister(1);
-            logRegister.AddEncodedLog(@event.Id, data);
+            var logRegister = new LogEntryRegister(1);
+            logRegister.AddEncodedLog(@event.Id, 1L, data);
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -86,10 +86,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new EncodedLogRegister(1);
-            logRegister.AddEncodedLog(event1.Id, data1);
-            logRegister.AddEncodedLog(event2.Id, data2);
-            logRegister.AddEncodedLog(event3.Id, data3);
+            var logRegister = new LogEntryRegister(1);
+            logRegister.AddEncodedLog(event1.Id, 1L, data1);
+            logRegister.AddEncodedLog(event2.Id, 1L, data2);
+            logRegister.AddEncodedLog(event3.Id, 1L, data3);
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -123,10 +123,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new EncodedLogRegister(1);
-            logRegister.AddEncodedLog(event1.Id, data1);
-            logRegister.AddEncodedLog(event2.Id, data2);
-            logRegister.AddEncodedLog(event3.Id, data3);
+            var logRegister = new LogEntryRegister(1);
+            logRegister.AddEncodedLog(event1.Id, 1L, data1);
+            logRegister.AddEncodedLog(event2.Id, 1L, data2);
+            logRegister.AddEncodedLog(event3.Id, 1L, data3);
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -163,10 +163,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new EncodedLogRegister(1);
-            logRegister.AddEncodedLog(event1.Id, data1);
-            logRegister.AddEncodedLog(event2.Id, data2);
-            logRegister.AddEncodedLog(event3.Id, data3);
+            var logRegister = new LogEntryRegister(1);
+            logRegister.AddEncodedLog(event1.Id, 1L, data1);
+            logRegister.AddEncodedLog(event2.Id, 1L, data2);
+            logRegister.AddEncodedLog(event3.Id, 1L, data3);
 
             var handler = new LogWriter(logRegister, journaler, node);
 

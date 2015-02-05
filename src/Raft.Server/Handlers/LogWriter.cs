@@ -19,15 +19,15 @@ namespace Raft.Server.Handlers
     /// </summary>
     internal class LogWriter : RaftEventHandler, ISkipInternalCommands
     {
-        private readonly EncodedLogRegister _encodedLogRegister;
+        private readonly LogEntryRegister _logEntryRegister;
         private readonly IJournal _journal;
         private readonly IRaftNode _raftNode;
 
         private readonly IDictionary<long, Guid> _entrySequenceIdMap = new Dictionary<long, Guid>();
 
-        public LogWriter(EncodedLogRegister encodedLogRegister, IJournal journal, IRaftNode raftNode)
+        public LogWriter(LogEntryRegister logEntryRegister, IJournal journal, IRaftNode raftNode)
         {
-            _encodedLogRegister = encodedLogRegister;
+            _logEntryRegister = logEntryRegister;
             _journal = journal;
             _raftNode = raftNode;
         }
@@ -40,7 +40,7 @@ namespace Raft.Server.Handlers
                 return;
 
             var blocksToWrite = _entrySequenceIdMap.OrderBy(x => x.Key)
-                .Select(x => _encodedLogRegister.GetEncodedLog(x.Value))
+                .Select(x => _logEntryRegister.GetEncodedLog(x.Value).Value)
                 .ToArray();
 
             _journal.WriteBlocks(blocksToWrite);

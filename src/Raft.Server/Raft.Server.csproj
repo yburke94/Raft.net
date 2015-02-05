@@ -77,7 +77,7 @@
     <Compile Include="Handlers\FaultedCommandHandler.cs" />
     <Compile Include="INodeTimer.cs" />
     <Compile Include="Services\IRaftService.cs" />
-    <Compile Include="Log\EncodedLogRegister.cs" />
+    <Compile Include="Log\LogEntryRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
     <Compile Include="Handlers\RaftEventHandler.cs" />

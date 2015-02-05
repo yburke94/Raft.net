@@ -12,7 +12,7 @@ namespace Raft.Server.LightInject
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
-            serviceRegistry.RegisterInstance(new EncodedLogRegister(2));
+            serviceRegistry.RegisterInstance(new LogEntryRegister(2));
 
             serviceRegistry.Register<RaftServerContext>(new PerContainerLifetime());
 

@@ -17,13 +17,17 @@ namespace Raft.Server.Handlers
     /// </summary>
     internal class LogEncoder : RaftEventHandler, ISkipInternalCommands
     {
-        private readonly IRaftNode _raftNode;
-        private readonly EncodedLogRegister _encodedLogRegister;
+        private long _lastLogId;
 
-        public LogEncoder(IRaftNode raftNode, EncodedLogRegister encodedLogRegister)
+        private readonly IRaftNode _raftNode;
+        private readonly LogEntryRegister _logEntryRegister;
+
+        public LogEncoder(IRaftNode raftNode, LogEntryRegister logEntryRegister)
         {
             _raftNode = raftNode;
-            _encodedLogRegister = encodedLogRegister;
+            _logEntryRegister = logEntryRegister;
+
+            _lastLogId = _raftNode.CommitIndex;
         }
 
         // TODO: Should add checksum for validation when sourcing from log... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
@@ -31,7 +35,7 @@ namespace Raft.Server.Handlers
         {
             var logEntry = new LogEntry {
                 Term = _raftNode.CurrentTerm,
-                Index = _raftNode.CommitIndex + 1,
+                Index = _lastLogId + 1,
                 CommandType = @event.Command.GetType().AssemblyQualifiedName,
                 Command = @event.Command
             };
@@ -39,8 +43,10 @@ namespace Raft.Server.Handlers
             using (var ms = new MemoryStream())
             {
                 Serializer.Serialize(ms, logEntry);
-                _encodedLogRegister.AddEncodedLog(@event.Id, ms.ToArray());
+                _logEntryRegister.AddEncodedLog(@event.Id, logEntry.Index, ms.ToArray());
             }
+
+            _lastLogId++;
         }
     }
 }
