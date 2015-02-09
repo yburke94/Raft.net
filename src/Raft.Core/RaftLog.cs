@@ -6,7 +6,7 @@ namespace Raft.Core
     {
         private const int LogIncrementSize = 64;
 
-        private long?[] _log = new long?[LogIncrementSize];
+        private RaftLogEntry[] _log = new RaftLogEntry[LogIncrementSize];
 
         public long? this[long commitIndex]
         {
@@ -15,7 +15,8 @@ namespace Raft.Core
                 if (commitIndex == 0)
                     return null;
 
-                return _log[commitIndex - 1];
+                var logEntry = _log[commitIndex - 1];
+                return logEntry.Set ? (long?) logEntry.Term : null;
             }
         }
 
@@ -24,15 +25,27 @@ namespace Raft.Core
             if (commitIndex < 1)
                 throw new IndexOutOfRangeException("Commit index for log must start from 1.");
 
-
             if (commitIndex > _log.Length)
             {
-                var newLog = new long?[_log.Length + LogIncrementSize];
+                var newLog = new RaftLogEntry[_log.Length + LogIncrementSize];
                 _log.CopyTo(newLog, 0);
                 _log = newLog;
             }
 
-            _log[commitIndex - 1] = term;
+            _log[commitIndex - 1] = new RaftLogEntry(term);
+        }
+
+        private struct RaftLogEntry
+        {
+            public RaftLogEntry(long term)
+            {
+                Term = term;
+                Set = true;
+            }
+
+            public readonly long Term;
+
+            public readonly bool Set;
         }
     }
 }

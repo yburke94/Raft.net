@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -10,6 +11,7 @@ using Raft.Server.Handlers;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Tests.Unit.TestData.Commands;
+using Raft.Tests.Unit.TestHelpers;
 
 namespace Raft.Tests.Unit.Server.Handlers
 {
@@ -34,8 +36,8 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogEntryRegister(1);
-            logRegister.AddEncodedLog(@event.Id, 1L, data);
+            var logRegister = new EncodedEntryRegister();
+            logRegister.AddLogEntry(@event.Id, 1L, data, TestTask.Create());
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -56,8 +58,8 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogEntryRegister(1);
-            logRegister.AddEncodedLog(@event.Id, 1L, data);
+            var logRegister = new EncodedEntryRegister();
+            logRegister.AddLogEntry(@event.Id, 1L, data, TestTask.Create());
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -86,10 +88,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogEntryRegister(1);
-            logRegister.AddEncodedLog(event1.Id, 1L, data1);
-            logRegister.AddEncodedLog(event2.Id, 1L, data2);
-            logRegister.AddEncodedLog(event3.Id, 1L, data3);
+            var logRegister = new EncodedEntryRegister();
+            logRegister.AddLogEntry(event1.Id, 1L, data1, TestTask.Create());
+            logRegister.AddLogEntry(event2.Id, 2L, data2, TestTask.Create());
+            logRegister.AddLogEntry(event3.Id, 3L, data3, TestTask.Create());
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -100,8 +102,8 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             // Act
             handler.OnNext(event1, 0, false);
-            handler.OnNext(event2, 1, false);
-            handler.OnNext(event3, 2, true);
+            handler.OnNext(event2, 0, false);
+            handler.OnNext(event3, 0, true);
 
             // Assert
             journaler.Received().WriteBlocks(Arg.Is(match));
@@ -123,10 +125,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogEntryRegister(1);
-            logRegister.AddEncodedLog(event1.Id, 1L, data1);
-            logRegister.AddEncodedLog(event2.Id, 1L, data2);
-            logRegister.AddEncodedLog(event3.Id, 1L, data3);
+            var logRegister = new EncodedEntryRegister();
+            logRegister.AddLogEntry(event1.Id, 1L, data1, TestTask.Create());
+            logRegister.AddLogEntry(event2.Id, 2L, data2, TestTask.Create());
+            logRegister.AddLogEntry(event3.Id, 3L, data3, TestTask.Create());
 
             var handler = new LogWriter(logRegister, journaler, node);
 
@@ -151,6 +153,7 @@ namespace Raft.Tests.Unit.Server.Handlers
         public void CallsAddLogEntryOnRaftNodeForAllEntriesWrittenToLog()
         {
             // Arrange
+            var commitIdxs = new []{1L, 2L, 3L};
             var data1 = BitConverter.GetBytes(1);
             var event1 = TestEventFactory.GetCommandEvent();
 
@@ -163,20 +166,22 @@ namespace Raft.Tests.Unit.Server.Handlers
             var journaler = Substitute.For<IJournal>();
             var node = Substitute.For<IRaftNode>();
 
-            var logRegister = new LogEntryRegister(1);
-            logRegister.AddEncodedLog(event1.Id, 1L, data1);
-            logRegister.AddEncodedLog(event2.Id, 1L, data2);
-            logRegister.AddEncodedLog(event3.Id, 1L, data3);
+            var logRegister = new EncodedEntryRegister();
+            logRegister.AddLogEntry(event1.Id, commitIdxs[0], data1, TestTask.Create());
+            logRegister.AddLogEntry(event2.Id, commitIdxs[1], data2, TestTask.Create());
+            logRegister.AddLogEntry(event3.Id, commitIdxs[2], data3, TestTask.Create());
 
             var handler = new LogWriter(logRegister, journaler, node);
 
             // Act
             handler.OnNext(event1, 0, false);
-            handler.OnNext(event2, 1, false);
-            handler.OnNext(event3, 2, true);
+            handler.OnNext(event2, 0, false);
+            handler.OnNext(event3, 0, true);
 
             // Assert
-            node.Received(3).AddLogEntry();
+            Expression<Predicate<long>> match = x => commitIdxs.Contains(x);
+
+            node.Received(3).CommitLogEntry(Arg.Is(match));
         }
     }
 }

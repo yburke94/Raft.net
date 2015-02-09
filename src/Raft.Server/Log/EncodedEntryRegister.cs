@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Raft.Server.Log
 {
-    public class LogEntryRegister
+    public class EncodedEntryRegister
     {
-        private readonly int _maxAccessTimes;
-        private readonly Dictionary<Guid, Entry> _logs = new Dictionary<Guid, Entry>();
+        private readonly Dictionary<Guid, EncodedEntry> _logs = new Dictionary<Guid, EncodedEntry>();
 
-        // TODO: Find better way to evict
-        public LogEntryRegister(int maxAccessTimes)
-        {
-            _maxAccessTimes = maxAccessTimes;
-        }
-
-        public void AddEncodedLog(Guid eventId, long logIdx, byte[] encodedLog)
+        public void AddLogEntry(Guid eventId, long logIdx, byte[] encodedLog, Task logTask)
         {
             if(_logs.ContainsKey(eventId))
                 throw new InvalidOperationException("An encoded log already exisst for this event.");
 
-            _logs.Add(eventId, new Entry(logIdx, encodedLog));
+            if (logTask == null || logTask.IsCompleted)
+                throw new ArgumentException("The passed in Task for the log entry is invalid.");
+
+            _logs.Add(eventId, new EncodedEntry(logIdx, encodedLog));
+
+            logTask.ContinueWith(_ => _logs.Remove(eventId), TaskContinuationOptions.ExecuteSynchronously);
         }
 
         public bool HasLogEntry(Guid eventId)
@@ -35,10 +34,6 @@ namespace Raft.Server.Log
                     "This may also have been automatically evicted. Please ensure the MaxAccessTimes is correctly configured.");
 
             var encodedLogEntry = _logs[eventId];
-            encodedLogEntry.TimesAccessed++;
-
-            if (encodedLogEntry.TimesAccessed >= _maxAccessTimes)
-                _logs.Remove(eventId);
 
             return new KeyValuePair<long, byte[]>(encodedLogEntry.LogIndex, encodedLogEntry.Data);
         }
@@ -48,18 +43,16 @@ namespace Raft.Server.Log
             _logs.Remove(eventId);
         }
 
-        private class Entry
+        private class EncodedEntry
         {
-            public Entry(long logIdx, byte[] data)
+            public EncodedEntry(long logIdx, byte[] data)
             {
                 LogIndex = logIdx;
                 Data = data;
-                TimesAccessed = 0;
             }
 
-            public long LogIndex { get; set; }
+            public long LogIndex { get; private set; }
             public byte[] Data { get;  private set; }
-            public int TimesAccessed { get; set; }
         }
     }
 }

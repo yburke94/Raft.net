@@ -12,7 +12,7 @@ namespace Raft.Server.LightInject
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
-            serviceRegistry.RegisterInstance(new LogEntryRegister(2));
+            serviceRegistry.RegisterInstance(new EncodedEntryRegister());
 
             serviceRegistry.Register<RaftServerContext>(new PerContainerLifetime());
 
@@ -21,7 +21,6 @@ namespace Raft.Server.LightInject
             serviceRegistry.Register<LogWriter>();
             serviceRegistry.Register<LogReplicator>();
             serviceRegistry.Register<CommandApplier>();
-            serviceRegistry.Register<FaultedCommandHandler>();
 
             serviceRegistry.Register(factory => new JournalFactory()
                 .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
@@ -30,6 +29,8 @@ namespace Raft.Server.LightInject
             // TODO: Make Buffer size configurable...
             serviceRegistry.Register(factory => CreateCommandBuffer(factory, 1024),
                 new PerContainerLifetime());
+
+            serviceRegistry.Register<EventPublisher<CommandScheduledEvent>>();
         }
 
         private static RingBuffer<CommandScheduledEvent> CreateCommandBuffer(IServiceFactory factory, int bufferSize)
@@ -44,8 +45,7 @@ namespace Raft.Server.LightInject
                 .Then(factory.GetInstance<LogEncoder>())
                 .Then(factory.GetInstance<LogWriter>())
                 .Then(factory.GetInstance<LogReplicator>())
-                .Then(factory.GetInstance<CommandApplier>())
-                .Then(factory.GetInstance<FaultedCommandHandler>());
+                .Then(factory.GetInstance<CommandApplier>());
 
             return disruptor.Start();
         }

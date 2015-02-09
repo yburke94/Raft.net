@@ -74,10 +74,9 @@
     <Compile Include="Handlers\CommandApplier.cs" />
     <Compile Include="Handlers\Contracts\IHandleFaultedCommands.cs" />
     <Compile Include="Handlers\Contracts\ISkipInternalCommands.cs" />
-    <Compile Include="Handlers\FaultedCommandHandler.cs" />
     <Compile Include="INodeTimer.cs" />
     <Compile Include="Services\IRaftService.cs" />
-    <Compile Include="Log\LogEntryRegister.cs" />
+    <Compile Include="Log\EncodedEntryRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
     <Compile Include="Handlers\RaftEventHandler.cs" />

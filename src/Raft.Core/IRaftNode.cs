@@ -9,8 +9,8 @@
 
         void CreateCluster();
         void ScheduleCommandExecution();
-        void AddLogEntry();
-        void ApplyCommand();
+        void CommitLogEntry(long entryIdx);
+        void ApplyCommand(long entryIdx);
         void SetHigherTerm(long term);
     }
 }

@@ -7,12 +7,12 @@ namespace Raft.Server
     internal class Raft : IRaft
     {
         private readonly RaftServerContext _context;
-        private readonly EventPublisher<CommandScheduledEvent> _stateMachineCommandPublisher;
+        private readonly EventPublisher<CommandScheduledEvent> _commandPublisher;
 
-        public Raft(RingBuffer<CommandScheduledEvent> commandBuffer, RaftServerContext context)
+        public Raft(EventPublisher<CommandScheduledEvent> commandPublisher, RaftServerContext context)
         {
             _context = context;
-            _stateMachineCommandPublisher = new EventPublisher<CommandScheduledEvent>(commandBuffer);
+            _commandPublisher = commandPublisher;
         }
 
         public RaftServerContext Context
@@ -24,7 +24,7 @@ namespace Raft.Server
         {
             var taskCompetionSource = new TaskCompletionSource<CommandExecutionResult>();
 
-            _stateMachineCommandPublisher.PublishEvent((@event, l) =>
+            _commandPublisher.PublishEvent((@event, l) =>
                 @event.ResetEvent(command, taskCompetionSource));
 
             return taskCompetionSource.Task;

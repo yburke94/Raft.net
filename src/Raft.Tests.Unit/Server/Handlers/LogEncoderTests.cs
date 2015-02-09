@@ -43,7 +43,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(0);
 
-            var logRegister = new LogEntryRegister(1);
+            var logRegister = new EncodedEntryRegister();
 
             var handler = new LogEncoder(raftNode, logRegister);
 
@@ -66,7 +66,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(expectedLogIdx-1);
 
-            var logRegister = new LogEntryRegister(1);
+            var logRegister = new EncodedEntryRegister();
 
             var handler = new LogEncoder(raftNode, logRegister);
 
@@ -87,7 +87,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             raftNode.CurrentTerm.Returns(1);
             raftNode.CommitIndex.Returns(0);
-            var logRegister = new LogEntryRegister(1);
+            var logRegister = new EncodedEntryRegister();
             var handler = new LogEncoder(raftNode, logRegister);
 
             // Act

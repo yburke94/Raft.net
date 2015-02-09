@@ -36,28 +36,51 @@ namespace Raft.Tests.Unit.Core
         }
 
         [Test]
-        public void ShouldIncrementCommitIndexWhenAddLogEntryIsCalledEverytime()
+        public void ShouldIncreaseCommitIndexWhenCommitLogEntryIsCalledWithALogIndexGreaterThanTheCurrentCommitIndex()
         {
             // Arrange
             var raftNode = new RaftNode();
+            var logIdx = raftNode.CommitIndex + 1;
+
             raftNode.CreateCluster();
 
             // Act
-            raftNode.AddLogEntry();
+            raftNode.CommitLogEntry(logIdx);
 
             // Assert
-            raftNode.CommitIndex.ShouldBeEquivalentTo(1);
+            raftNode.CommitIndex.ShouldBeEquivalentTo(logIdx);
         }
 
         [Test]
-        public void CurrentTermIsAddedToLogAtCommitIndexWhenAddLogEntryIsCalled()
+        public void ShouldNotIncreaseCommitIndexWhenCommitLogEntryIsCalledWithALogIndexLessThanTheCurrentCommitIndex()
         {
             // Arrange
             var raftNode = new RaftNode();
+            var logIdx = raftNode.CommitIndex + 1;
+            var commitIdx = raftNode.CommitIndex + 2;
+
+            raftNode.CreateCluster();
+            raftNode.CommitLogEntry(commitIdx);
+
+            raftNode.CommitIndex.Should().Be(commitIdx);
+
+            // Act
+            raftNode.CommitLogEntry(logIdx);
+
+            // Assert
+            raftNode.CommitIndex.Should().Be(commitIdx);
+        }
+
+        [Test]
+        public void CurrentTermIsAddedToLogAtCommitIndexWhenCommitLogEntryIsCalled()
+        {
+            // Arrange
+            var raftNode = new RaftNode();
+            var logIdx = raftNode.CommitIndex + 1;
             raftNode.CreateCluster();
 
             // Act
-            raftNode.AddLogEntry();
+            raftNode.CommitLogEntry(logIdx);
 
             // Assert
             raftNode.Log[raftNode.CommitIndex]
@@ -65,17 +88,38 @@ namespace Raft.Tests.Unit.Core
         }
 
         [Test]
-        public void CallingApplyCommandIncrementsLastApplied()
+        public void CallingApplyCommandIncreasesLastAppliedWhenLogIdxIsGreaterThanLastAppliedIdx()
         {
             // Arrange
             var raftNode = new RaftNode();
+            var logIdx = raftNode.LastApplied + 1;
             raftNode.CreateCluster();
 
             // Act
-            raftNode.ApplyCommand();
+            raftNode.ApplyCommand(logIdx);
 
             // Assert
-            raftNode.LastApplied.Should().Be(1);
+            raftNode.LastApplied.Should().Be(logIdx);
+        }
+
+        [Test]
+        public void CallingApplyCommandShouldNotIncreaseLastAppliedWhenLogIdxIsLessThanLastAppliedIdx()
+        {
+            // Arrange
+            var raftNode = new RaftNode();
+            var lastApplied = raftNode.LastApplied + 2;
+            var logIdx = raftNode.LastApplied + 1;
+
+            raftNode.CreateCluster();
+            raftNode.ApplyCommand(lastApplied);
+
+            raftNode.LastApplied.Should().Be(lastApplied);
+
+            // Act
+            raftNode.ApplyCommand(logIdx);
+
+            // Assert
+            raftNode.LastApplied.Should().Be(lastApplied);
         }
 
         [Test]

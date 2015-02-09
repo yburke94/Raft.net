@@ -6,11 +6,11 @@ namespace Raft.Server
 {
     internal class CommandScheduledEvent
     {
-        public TaskCompletionSource<CommandExecutionResult> TaskCompletionSource { get; set; }
+        public Guid Id { get; set; }
 
         public IRaftCommand Command { get; set; }
 
-        public Guid Id { get; set; }
+        public TaskCompletionSource<CommandExecutionResult> TaskCompletionSource { get; set; }
 
         public CommandScheduledEvent ResetEvent(IRaftCommand command, TaskCompletionSource<CommandExecutionResult> taskCompletionSource)
         {
@@ -23,10 +23,9 @@ namespace Raft.Server
             if (taskCompletionSource == null)
                 throw new ArgumentNullException("taskCompletionSource");
 
+            Id = Guid.NewGuid();
             Command = command;
             TaskCompletionSource = taskCompletionSource;
-
-            Id = Guid.NewGuid();
 
             return this;
         }

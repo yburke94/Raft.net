@@ -19,38 +19,37 @@ namespace Raft.Server.Handlers
     /// </summary>
     internal class LogWriter : RaftEventHandler, ISkipInternalCommands
     {
-        private readonly LogEntryRegister _logEntryRegister;
+        private readonly EncodedEntryRegister _encodedEntryRegister;
         private readonly IJournal _journal;
         private readonly IRaftNode _raftNode;
 
-        private readonly IDictionary<long, Guid> _entrySequenceIdMap = new Dictionary<long, Guid>();
+        private readonly IDictionary<long, Guid> _entryIndexIdMap = new Dictionary<long, Guid>();
 
-        public LogWriter(LogEntryRegister logEntryRegister, IJournal journal, IRaftNode raftNode)
+        public LogWriter(EncodedEntryRegister encodedEntryRegister, IJournal journal, IRaftNode raftNode)
         {
-            _logEntryRegister = logEntryRegister;
+            _encodedEntryRegister = encodedEntryRegister;
             _journal = journal;
             _raftNode = raftNode;
         }
 
         public override void Handle(CommandScheduledEvent @event)
         {
-            _entrySequenceIdMap.Add(Sequence, @event.Id);
+            var logIdx = _encodedEntryRegister.GetEncodedLog(@event.Id).Key;
+            _entryIndexIdMap.Add(logIdx, @event.Id);
 
             if (!EndOfBatch)
                 return;
 
-            var blocksToWrite = _entrySequenceIdMap.OrderBy(x => x.Key)
-                .Select(x => _logEntryRegister.GetEncodedLog(x.Value).Value)
+            var blocksToWrite = _entryIndexIdMap.OrderBy(x => x.Key)
+                .Select(x => _encodedEntryRegister.GetEncodedLog(x.Value).Value)
                 .ToArray();
 
             _journal.WriteBlocks(blocksToWrite);
 
-            for (var i = 0; i < _entrySequenceIdMap.Count; i++)
-            {
-                _raftNode.AddLogEntry();
-            }
+            _entryIndexIdMap.Select(x => x.Key).ToList()
+                .ForEach(_raftNode.CommitLogEntry);
 
-            _entrySequenceIdMap.Clear();
+            _entryIndexIdMap.Clear();
         }
     }
 }

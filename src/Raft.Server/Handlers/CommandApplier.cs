@@ -1,4 +1,6 @@
-﻿using Raft.Core;
+﻿using System.Runtime.InteropServices;
+using Raft.Core;
+using Raft.Server.Log;
 
 namespace Raft.Server.Handlers
 {
@@ -14,18 +16,22 @@ namespace Raft.Server.Handlers
     internal class CommandApplier : RaftEventHandler
     {
         private readonly IRaftNode _raftNode;
+        private readonly EncodedEntryRegister _entryRegister;
         private readonly RaftServerContext _context;
 
-        public CommandApplier(IRaftNode raftNode, RaftServerContext context)
+        public CommandApplier(IRaftNode raftNode, EncodedEntryRegister entryRegister, RaftServerContext context)
         {
             _raftNode = raftNode;
+            _entryRegister = entryRegister;
             _context = context;
         }
 
         public override void Handle(CommandScheduledEvent @event)
         {
+            var entryIdx = _entryRegister.GetEncodedLog(@event.Id).Key;
+
             @event.Command.Execute(_context);
-            _raftNode.ApplyCommand();
+            _raftNode.ApplyCommand(entryIdx);
 
             if (@event.TaskCompletionSource != null)
                 @event.TaskCompletionSource.SetResult(new CommandExecutionResult(true));

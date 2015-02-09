@@ -73,18 +73,19 @@ namespace Raft.Core
             _stateMachine.Fire(NodeEvent.ClientScheduledCommandExecution);
         }
 
-        public void AddLogEntry()
+        public void CommitLogEntry(long entryIdx)
         {
             _stateMachine.Fire(NodeEvent.LogEntryAdded);
 
-            CommitIndex++;
-            Log.SetLogEntry(CommitIndex, CurrentTerm);
+            CommitIndex = Math.Max(CommitIndex, entryIdx);
+
+            Log.SetLogEntry(entryIdx, CurrentTerm);
         }
 
-        public void ApplyCommand()
+        public void ApplyCommand(long entryIdx)
         {
             _stateMachine.Fire(NodeEvent.CommandExecuted);
-            LastApplied++;
+            LastApplied = Math.Max(LastApplied, entryIdx);
         }
 
         public void SetHigherTerm(long term)

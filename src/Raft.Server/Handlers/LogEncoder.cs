@@ -20,12 +20,12 @@ namespace Raft.Server.Handlers
         private long _lastLogId;
 
         private readonly IRaftNode _raftNode;
-        private readonly LogEntryRegister _logEntryRegister;
+        private readonly EncodedEntryRegister _encodedEntryRegister;
 
-        public LogEncoder(IRaftNode raftNode, LogEntryRegister logEntryRegister)
+        public LogEncoder(IRaftNode raftNode, EncodedEntryRegister encodedEntryRegister)
         {
             _raftNode = raftNode;
-            _logEntryRegister = logEntryRegister;
+            _encodedEntryRegister = encodedEntryRegister;
 
             _lastLogId = _raftNode.CommitIndex;
         }
@@ -43,7 +43,8 @@ namespace Raft.Server.Handlers
             using (var ms = new MemoryStream())
             {
                 Serializer.Serialize(ms, logEntry);
-                _logEntryRegister.AddEncodedLog(@event.Id, logEntry.Index, ms.ToArray());
+                _encodedEntryRegister.AddLogEntry(@event.Id, logEntry.Index, ms.ToArray(),
+                    @event.TaskCompletionSource.Task);
             }
 
             _lastLogId++;
