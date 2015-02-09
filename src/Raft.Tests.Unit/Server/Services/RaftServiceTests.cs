@@ -1,7 +1,9 @@
-﻿using FluentAssertions;
+﻿using Disruptor;
+using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Messages.RequestVote;
@@ -20,7 +22,10 @@ namespace Raft.Tests.Unit.Server.Services
 
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
-            var service = new RaftService(timer, raftNode);
+            var commitPublisher = Substitute.For<IEventPublisher<CommitRequestedEvent>>();
+            var applyPublisher = Substitute.For<IEventPublisher<ApplyRequestedEvent>>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, timer, raftNode);
 
             raftNode.Log.Returns(new RaftLog());
 
@@ -40,7 +45,10 @@ namespace Raft.Tests.Unit.Server.Services
 
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
-            var service = new RaftService(timer, raftNode);
+            var commitPublisher = Substitute.For<IEventPublisher<CommitRequestedEvent>>();
+            var applyPublisher = Substitute.For<IEventPublisher<ApplyRequestedEvent>>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, timer, raftNode);
 
             raftNode.Log.Returns(new RaftLog());
             raftNode.CurrentTerm.Returns(expectedTerm);
@@ -63,7 +71,10 @@ namespace Raft.Tests.Unit.Server.Services
 
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
-            var service = new RaftService(timer, raftNode);
+            var commitPublisher = Substitute.For<IEventPublisher<CommitRequestedEvent>>();
+            var applyPublisher = Substitute.For<IEventPublisher<ApplyRequestedEvent>>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, timer, raftNode);
 
             raftNode.Log.Returns(new RaftLog());
             raftNode.CurrentTerm.Returns(message.Term + 10);
@@ -89,7 +100,11 @@ namespace Raft.Tests.Unit.Server.Services
 
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
-            var service = new RaftService(timer, raftNode);
+            var commitPublisher = Substitute.For<IEventPublisher<CommitRequestedEvent>>();
+            var applyPublisher = Substitute.For<IEventPublisher<ApplyRequestedEvent>>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, timer, raftNode);
+
             var raftLog = new RaftLog();
             raftLog.SetLogEntry(1, 2L);
 
@@ -118,7 +133,10 @@ namespace Raft.Tests.Unit.Server.Services
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
             var raftLog = new RaftLog();
-            var service = new RaftService(timer, raftNode);
+            var commitPublisher = Substitute.For<IEventPublisher<CommitRequestedEvent>>();
+            var applyPublisher = Substitute.For<IEventPublisher<ApplyRequestedEvent>>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, timer, raftNode);
 
             raftLog.SetLogEntry(1, 0);
             raftNode.Log.Returns(raftLog);
@@ -142,7 +160,10 @@ namespace Raft.Tests.Unit.Server.Services
 
             var raftNode = Substitute.For<IRaftNode>();
             var timer = Substitute.For<INodeTimer>();
-            var service = new RaftService(timer, raftNode);
+            var commitPublisher = Substitute.For<IEventPublisher<CommitRequestedEvent>>();
+            var applyPublisher = Substitute.For<IEventPublisher<ApplyRequestedEvent>>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, timer, raftNode);
 
             raftNode.CurrentTerm.Returns(0);
 

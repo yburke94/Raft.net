@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Raft.Server;
 using Raft.Server.Handlers;
 using Raft.Server.Handlers.Contracts;
+using Raft.Server.Handlers.Leader;
 using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Services;

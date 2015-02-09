@@ -4,7 +4,7 @@ using Raft.Core;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 
-namespace Raft.Server.Handlers
+namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
     /// 2 of 5 EventHandlers for scheduled state machine commands.
@@ -15,7 +15,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     CommandApplier
     /// </summary>
-    internal class LogEncoder : RaftEventHandler, ISkipInternalCommands
+    internal class LogEncoder : LeaderEventHandler, ISkipInternalCommands
     {
         private long _lastLogId;
 

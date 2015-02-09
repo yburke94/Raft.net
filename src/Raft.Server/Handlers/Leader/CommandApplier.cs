@@ -1,8 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using Raft.Core;
+﻿using Raft.Core;
 using Raft.Server.Log;
 
-namespace Raft.Server.Handlers
+namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
     /// 5 of 5 EventHandlers for scheduled state machine commands.
@@ -13,7 +12,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     CommandApplier*
     /// </summary>
-    internal class CommandApplier : RaftEventHandler
+    internal class CommandApplier : LeaderEventHandler
     {
         private readonly IRaftNode _raftNode;
         private readonly EncodedEntryRegister _entryRegister;

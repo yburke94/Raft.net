@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Raft.Core;
 using Raft.Server.Handlers;
+using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Server.Handlers

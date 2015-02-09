@@ -3,9 +3,9 @@ using Disruptor;
 using Raft.Server.Commands;
 using Raft.Server.Handlers.Contracts;
 
-namespace Raft.Server.Handlers
+namespace Raft.Server.Handlers.Leader
 {
-    internal abstract class RaftEventHandler : IEventHandler<CommandScheduledEvent>
+    internal abstract class LeaderEventHandler : IEventHandler<CommandScheduledEvent>
     {
         protected long Sequence = 0;
         protected bool EndOfBatch = false;

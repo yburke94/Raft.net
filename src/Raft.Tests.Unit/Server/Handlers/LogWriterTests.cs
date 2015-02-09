@@ -9,6 +9,7 @@ using Raft.Core;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.Handlers;
 using Raft.Server.Handlers.Contracts;
+using Raft.Server.Handlers.Leader;
 using Raft.Server.Log;
 using Raft.Tests.Unit.TestData.Commands;
 using Raft.Tests.Unit.TestHelpers;

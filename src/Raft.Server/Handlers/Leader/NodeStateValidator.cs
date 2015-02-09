@@ -1,7 +1,7 @@
 using Raft.Core;
 using Raft.Server.Commands;
 
-namespace Raft.Server.Handlers
+namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
     /// 1 of 5 EventHandlers for scheduled state machine commands.
@@ -12,7 +12,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     CommandApplier
     /// </summary>
-    internal class NodeStateValidator : RaftEventHandler
+    internal class NodeStateValidator : LeaderEventHandler
     {
         private readonly IRaftNode _raftNode;
 

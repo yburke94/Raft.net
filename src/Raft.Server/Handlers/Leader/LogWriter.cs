@@ -6,7 +6,7 @@ using Raft.Infrastructure.Journaler;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 
-namespace Raft.Server.Handlers
+namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
     /// 4 of 5 EventHandlers for scheduled state machine commands.
@@ -17,7 +17,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator
     ///     CommandApplier
     /// </summary>
-    internal class LogWriter : RaftEventHandler, ISkipInternalCommands
+    internal class LogWriter : LeaderEventHandler, ISkipInternalCommands
     {
         private readonly EncodedEntryRegister _encodedEntryRegister;
         private readonly IJournal _journal;

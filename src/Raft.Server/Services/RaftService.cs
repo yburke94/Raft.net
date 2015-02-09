@@ -1,5 +1,6 @@
 ﻿using Disruptor;
 using Raft.Core;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Messages.RequestVote;
 
@@ -7,13 +8,13 @@ namespace Raft.Server.Services
 {
     internal class RaftService : IRaftService
     {
-        private readonly EventPublisher<CommitRequestedEvent> _commitPublisher;
-        private readonly EventPublisher<ApplyRequestedEvent> _applyPublisher;
+        private readonly IEventPublisher<CommitRequestedEvent> _commitPublisher;
+        private readonly IEventPublisher<ApplyRequestedEvent> _applyPublisher;
         private readonly INodeTimer _timer;
         private readonly IRaftNode _raftNode;
 
-        public RaftService(EventPublisher<CommitRequestedEvent> commitPublisher,
-            EventPublisher<ApplyRequestedEvent> applyPublisher,
+        public RaftService(IEventPublisher<CommitRequestedEvent> commitPublisher,
+            IEventPublisher<ApplyRequestedEvent> applyPublisher,
             INodeTimer timer, IRaftNode raftNode)
         {
             _commitPublisher = commitPublisher;

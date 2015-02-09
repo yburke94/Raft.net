@@ -3,7 +3,7 @@ using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
 
-namespace Raft.Server.Handlers
+namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
     /// 3 of 5 EventHandlers for scheduled state machine commands.
@@ -14,7 +14,7 @@ namespace Raft.Server.Handlers
     ///     LogReplicator*
     ///     CommandApplier
     /// </summary>
-    internal class LogReplicator : RaftEventHandler, ISkipInternalCommands
+    internal class LogReplicator : LeaderEventHandler, ISkipInternalCommands
     {
         private readonly IList<PeerNode> _peers;
         private readonly EncodedEntryRegister _encodedEntryRegister;

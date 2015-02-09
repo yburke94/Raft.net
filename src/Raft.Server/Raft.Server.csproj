@@ -71,7 +71,9 @@
   <ItemGroup>
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
-    <Compile Include="Handlers\CommandApplier.cs" />
+    <Compile Include="Handlers\Follower\RpcCommandApplier.cs" />
+    <Compile Include="Handlers\Follower\RpcLogWriter.cs" />
+    <Compile Include="Handlers\Leader\CommandApplier.cs" />
     <Compile Include="Handlers\Contracts\IHandleFaultedCommands.cs" />
     <Compile Include="Handlers\Contracts\ISkipInternalCommands.cs" />
     <Compile Include="INodeTimer.cs" />
@@ -79,10 +81,10 @@
     <Compile Include="Log\EncodedEntryRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
-    <Compile Include="Handlers\RaftEventHandler.cs" />
-    <Compile Include="Handlers\LogWriter.cs" />
-    <Compile Include="Handlers\LogReplicator.cs" />
-    <Compile Include="Handlers\LogEncoder.cs" />
+    <Compile Include="Handlers\Leader\LeaderEventHandler.cs" />
+    <Compile Include="Handlers\Leader\LogWriter.cs" />
+    <Compile Include="Handlers\Leader\LogReplicator.cs" />
+    <Compile Include="Handlers\Leader\LogEncoder.cs" />
     <Compile Include="Configuration\IConfigureRaft.cs" />
     <Compile Include="LightInject\LightInject.cs" />
     <Compile Include="Log\LogEntry.cs" />
@@ -99,13 +101,17 @@
     <Compile Include="LightInject\RaftCompositionRoot.cs" />
     <Compile Include="CommandScheduledEvent.cs" />
     <Compile Include="RaftServerContext.cs" />
-    <Compile Include="Handlers\NodeStateValidator.cs" />
+    <Compile Include="Handlers\Leader\NodeStateValidator.cs" />
     <Compile Include="Services\RaftService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Raft.Core\Raft.Core.csproj">
       <Project>{38aa7867-734c-4b09-abd4-8db3f74ace6c}</Project>
       <Name>Raft.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Raft.Infrastructure.Disruptor\Raft.Infrastructure.Disruptor.csproj">
+      <Project>{5367D27D-1589-4B8F-92C9-7BBB8DEC9A9F}</Project>
+      <Name>Raft.Infrastructure.Disruptor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj">
       <Project>{4ad63ebe-afc9-4b7e-a536-8608a83691d3}</Project>

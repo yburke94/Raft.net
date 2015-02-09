@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Disruptor;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.Commands;
 
 namespace Raft.Server
@@ -7,9 +7,9 @@ namespace Raft.Server
     internal class Raft : IRaft
     {
         private readonly RaftServerContext _context;
-        private readonly EventPublisher<CommandScheduledEvent> _commandPublisher;
+        private readonly IEventPublisher<CommandScheduledEvent> _commandPublisher;
 
-        public Raft(EventPublisher<CommandScheduledEvent> commandPublisher, RaftServerContext context)
+        public Raft(IEventPublisher<CommandScheduledEvent> commandPublisher, RaftServerContext context)
         {
             _context = context;
             _commandPublisher = commandPublisher;
