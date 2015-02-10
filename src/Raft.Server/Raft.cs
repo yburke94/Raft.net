@@ -1,15 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.Commands;
+using Raft.Server.Events;
 
 namespace Raft.Server
 {
     internal class Raft : IRaft
     {
         private readonly RaftServerContext _context;
-        private readonly IEventPublisher<CommandScheduledEvent> _commandPublisher;
+        private readonly IEventPublisher<CommandScheduled> _commandPublisher;
 
-        public Raft(IEventPublisher<CommandScheduledEvent> commandPublisher, RaftServerContext context)
+        public Raft(IEventPublisher<CommandScheduled> commandPublisher, RaftServerContext context)
         {
             _context = context;
             _commandPublisher = commandPublisher;
@@ -20,14 +22,14 @@ namespace Raft.Server
             get { return _context; }
         }
 
-        public Task<CommandExecutionResult> ExecuteCommand<T>(T command) where T : IRaftCommand, new()
+        public Task<CommandExecuted> ExecuteCommand<T>(T command) where T : IRaftCommand, new()
         {
-            var taskCompetionSource = new TaskCompletionSource<CommandExecutionResult>();
+            var taskCompletionSource = new TaskCompletionSource<CommandExecuted>();
+            var translator = new CommandScheduled.Translator(command, taskCompletionSource);
 
-            _commandPublisher.PublishEvent((@event, l) =>
-                @event.ResetEvent(command, taskCompetionSource));
+            _commandPublisher.PublishEvent(translator.Translate);
 
-            return taskCompetionSource.Task;
+            return taskCompletionSource.Task;
         }
     }
 }

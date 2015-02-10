@@ -1,6 +1,7 @@
 ﻿using Disruptor;
 using Raft.Core;
 using Raft.Infrastructure.Disruptor;
+using Raft.Server.Events;
 using Raft.Server.Messages.AppendEntries;
 using Raft.Server.Messages.RequestVote;
 
@@ -8,13 +9,13 @@ namespace Raft.Server.Services
 {
     internal class RaftService : IRaftService
     {
-        private readonly IEventPublisher<CommitRequestedEvent> _commitPublisher;
-        private readonly IEventPublisher<ApplyRequestedEvent> _applyPublisher;
+        private readonly IEventPublisher<CommitCommandRequested> _commitPublisher;
+        private readonly IEventPublisher<ApplyCommandRequested> _applyPublisher;
         private readonly INodeTimer _timer;
         private readonly IRaftNode _raftNode;
 
-        public RaftService(IEventPublisher<CommitRequestedEvent> commitPublisher,
-            IEventPublisher<ApplyRequestedEvent> applyPublisher,
+        public RaftService(IEventPublisher<CommitCommandRequested> commitPublisher,
+            IEventPublisher<ApplyCommandRequested> applyPublisher,
             INodeTimer timer, IRaftNode raftNode)
         {
             _commitPublisher = commitPublisher;
@@ -54,25 +55,5 @@ namespace Raft.Server.Services
                 Term = _raftNode.CurrentTerm
             };
         }
-    }
-
-    internal class ApplyRequestedEvent
-    {
-        public long LogIdx { get; set; }
-
-        public ApplyRequestedEvent ResetEvent(long logIdx)
-        {
-            // Finish impl... Refactor these out of events!!!
-            return null;
-        }
-    }
-
-    internal class CommitRequestedEvent
-    {
-        public long Term { get; set; }
-
-        public long LogIdx { get; set; }
-
-        public byte[] Entry { get; set; }
     }
 }

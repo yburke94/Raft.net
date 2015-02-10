@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ProtoBuf;
 using Raft.Core;
+using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 
@@ -31,7 +32,7 @@ namespace Raft.Server.Handlers.Leader
         }
 
         // TODO: Should add checksum for validation when sourcing from log... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
-        public override void Handle(CommandScheduledEvent @event)
+        public override void Handle(CommandScheduled @event)
         {
             var logEntry = new LogEntry {
                 Term = _raftNode.CurrentTerm,
@@ -42,7 +43,7 @@ namespace Raft.Server.Handlers.Leader
 
             using (var ms = new MemoryStream())
             {
-                Serializer.Serialize(ms, logEntry);
+                Serializer.SerializeWithLengthPrefix(ms, logEntry, PrefixStyle.Base128);
                 _encodedEntryRegister.AddLogEntry(@event.Id, logEntry.Index, ms.ToArray(),
                     @event.TaskCompletionSource.Task);
             }

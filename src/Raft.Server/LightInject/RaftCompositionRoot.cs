@@ -1,6 +1,7 @@
 ﻿using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.Configuration;
+using Raft.Server.Events;
 using Raft.Server.Handlers.Follower;
 using Raft.Server.Handlers.Leader;
 using Raft.Server.Log;
@@ -34,7 +35,7 @@ namespace Raft.Server.LightInject
             // TODO: Make Buffer size configurable...
 
             // Create Leader ring buffer
-            serviceRegistry.Register(x => new RingBufferBuilder<CommandScheduledEvent>()
+            serviceRegistry.Register(x => new RingBufferBuilder<CommandScheduled>()
                 .UseBufferSize(2<<7) // 256
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
@@ -46,11 +47,11 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<CommandApplier>())
                 .Build());
 
-            serviceRegistry.Register<IEventPublisher<CommandScheduledEvent>,
-                DisruptorEventPublisher<CommandScheduledEvent>>();
+            serviceRegistry.Register<IEventPublisher<CommandScheduled>,
+                DisruptorEventPublisher<CommandScheduled>>();
 
             // Create Follower commit ring buffer
-            serviceRegistry.Register(x => new RingBufferBuilder<CommitRequestedEvent>()
+            serviceRegistry.Register(x => new RingBufferBuilder<CommitCommandRequested>()
                 .UseBufferSize(2<<6) // 128
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
@@ -58,11 +59,11 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<RpcLogWriter>())
                 .Build());
 
-            serviceRegistry.Register<IEventPublisher<CommitRequestedEvent>,
-                DisruptorEventPublisher<CommitRequestedEvent>>();
+            serviceRegistry.Register<IEventPublisher<CommitCommandRequested>,
+                DisruptorEventPublisher<CommitCommandRequested>>();
 
             // Create Follower apply ring buffer
-            serviceRegistry.Register(x => new RingBufferBuilder<ApplyRequestedEvent>()
+            serviceRegistry.Register(x => new RingBufferBuilder<ApplyCommandRequested>()
                 .UseBufferSize(2 << 6) // 128
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
@@ -70,8 +71,8 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<RpcCommandApplier>())
                 .Build());
 
-            serviceRegistry.Register<IEventPublisher<ApplyRequestedEvent>,
-                DisruptorEventPublisher<ApplyRequestedEvent>>();
+            serviceRegistry.Register<IEventPublisher<ApplyCommandRequested>,
+                DisruptorEventPublisher<ApplyCommandRequested>>();
         }
     }
 }

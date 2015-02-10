@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
@@ -25,7 +26,7 @@ namespace Raft.Server.Handlers.Leader
             _encodedEntryRegister = encodedEntryRegister;
         }
 
-        public override void Handle(CommandScheduledEvent @event)
+        public override void Handle(CommandScheduled @event)
         {
             var encodedEntry = _encodedEntryRegister.GetEncodedLog(@event.Id);
 

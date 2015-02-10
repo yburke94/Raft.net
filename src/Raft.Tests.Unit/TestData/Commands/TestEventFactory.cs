@@ -1,29 +1,33 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Raft.Server;
+using Raft.Server.Events;
 
 namespace Raft.Tests.Unit.TestData.Commands
 {
     internal static class TestEventFactory
     {
-        public static CommandScheduledEvent GetInternalCommandEvent()
+        public static CommandScheduled GetInternalCommandEvent()
         {
-            return new CommandScheduledEvent()
-                .ResetEvent(new TestInternalCommand(), new TaskCompletionSource<CommandExecutionResult>());
+            return new CommandScheduled.Translator(
+                new TestInternalCommand(),
+                new TaskCompletionSource<CommandExecuted>())
+                .Translate(new CommandScheduled(), 1L);
         }
 
-        public static CommandScheduledEvent GetCommandEvent()
+        public static CommandScheduled GetCommandEvent()
         {
-            return new CommandScheduledEvent()
-                .ResetEvent(new TestCommand(), new TaskCompletionSource<CommandExecutionResult>());
+            return new CommandScheduled.Translator(
+                new TestCommand(),
+                new TaskCompletionSource<CommandExecuted>())
+                .Translate(new CommandScheduled(), 1L);
         }
 
-        public static CommandScheduledEvent GetCommandEvent(Action executeAction)
+        public static CommandScheduled GetCommandEvent(Action executeAction)
         {
-            return new CommandScheduledEvent()
-                .ResetEvent(new TestExecutableCommand(executeAction), new TaskCompletionSource<CommandExecutionResult>());
+            return new CommandScheduled.Translator(
+                new TestExecutableCommand(executeAction),
+                new TaskCompletionSource<CommandExecuted>())
+                .Translate(new CommandScheduled(), 1L);
         }
-
-
     }
 }

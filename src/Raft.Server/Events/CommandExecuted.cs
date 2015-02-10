@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Raft.Server
+namespace Raft.Server.Events
 {
-    public class CommandExecutionResult
+    public class CommandExecuted
     {
-        internal CommandExecutionResult(bool successful) : this(successful, null) { }
+        internal CommandExecuted(bool successful) : this(successful, null) { }
 
-        internal CommandExecutionResult(bool successful, Exception exception)
+        internal CommandExecuted(bool successful, Exception exception)
         {
             Successful = successful;
             Exception = exception;

@@ -1,16 +1,17 @@
 ﻿using System;
 using Disruptor;
 using Raft.Server.Commands;
+using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
 
 namespace Raft.Server.Handlers.Leader
 {
-    internal abstract class LeaderEventHandler : IEventHandler<CommandScheduledEvent>
+    internal abstract class LeaderEventHandler : IEventHandler<CommandScheduled>
     {
         protected long Sequence = 0;
         protected bool EndOfBatch = false;
 
-        public void OnNext(CommandScheduledEvent data, long sequence, bool endOfBatch)
+        public void OnNext(CommandScheduled data, long sequence, bool endOfBatch)
         {
             if (data.IsFaulted() && !(this is IHandleFaultedCommands))
                 return;
@@ -33,6 +34,6 @@ namespace Raft.Server.Handlers.Leader
             }
         }
 
-        public abstract void Handle(CommandScheduledEvent @event);
+        public abstract void Handle(CommandScheduled @event);
     }
 }

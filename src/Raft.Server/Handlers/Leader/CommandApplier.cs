@@ -1,4 +1,5 @@
 ﻿using Raft.Core;
+using Raft.Server.Events;
 using Raft.Server.Log;
 
 namespace Raft.Server.Handlers.Leader
@@ -25,7 +26,7 @@ namespace Raft.Server.Handlers.Leader
             _context = context;
         }
 
-        public override void Handle(CommandScheduledEvent @event)
+        public override void Handle(CommandScheduled @event)
         {
             var entryIdx = _entryRegister.GetEncodedLog(@event.Id).Key;
 
@@ -33,7 +34,7 @@ namespace Raft.Server.Handlers.Leader
             _raftNode.ApplyCommand(entryIdx);
 
             if (@event.TaskCompletionSource != null)
-                @event.TaskCompletionSource.SetResult(new CommandExecutionResult(true));
+                @event.TaskCompletionSource.SetResult(new CommandExecuted(true));
         }
     }
 }

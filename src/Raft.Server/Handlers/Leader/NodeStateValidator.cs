@@ -1,5 +1,6 @@
 using Raft.Core;
 using Raft.Server.Commands;
+using Raft.Server.Events;
 
 namespace Raft.Server.Handlers.Leader
 {
@@ -21,7 +22,7 @@ namespace Raft.Server.Handlers.Leader
             _raftNode = raftNode;
         }
 
-        public override void Handle(CommandScheduledEvent @event)
+        public override void Handle(CommandScheduled @event)
         {
             var internalCommand = @event.Command as IRaftInternalCommand;
 

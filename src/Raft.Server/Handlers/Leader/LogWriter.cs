@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Raft.Core;
 using Raft.Infrastructure.Journaler;
+using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
 
@@ -32,7 +33,7 @@ namespace Raft.Server.Handlers.Leader
             _raftNode = raftNode;
         }
 
-        public override void Handle(CommandScheduledEvent @event)
+        public override void Handle(CommandScheduled @event)
         {
             var logIdx = _encodedEntryRegister.GetEncodedLog(@event.Id).Key;
             _entryIndexIdMap.Add(logIdx, @event.Id);
