@@ -1,14 +1,20 @@
 ﻿using System;
+using Raft.Core.Enums;
+using Raft.Core.Events;
+using Raft.Infrastructure;
 using Stateless;
 
 namespace Raft.Core
 {
+    // TODO: This is shared state which i don't like! Have the state machine managed by a seperate thread which is sent messages.
     internal class RaftNode : IRaftNode
     {
+        private readonly IEventDispatcher _eventDispatcher;
         private readonly StateMachine<NodeState, NodeEvent> _stateMachine;
 
-        public RaftNode()
+        public RaftNode(IEventDispatcher eventDispatcher)
         {
+            _eventDispatcher = eventDispatcher;
             NodeId = Guid.NewGuid();
             CurrentTerm = 0;
             CommitIndex = 0;
@@ -16,25 +22,7 @@ namespace Raft.Core
             Log = new RaftLog();
 
             _stateMachine = new StateMachine<NodeState, NodeEvent>(NodeState.Initial);
-
-            // Initial State Rules
-            _stateMachine.Configure(NodeState.Initial)
-                .Permit(NodeEvent.NodeCreatedCluster, NodeState.Leader);
-
-            // Leader State Rules
-            _stateMachine.Configure(NodeState.Leader)
-                .PermitReentry(NodeEvent.ClientScheduledCommandExecution)
-                .PermitReentry(NodeEvent.LogEntryAdded)
-                .PermitReentry(NodeEvent.CommandExecuted)
-                .Permit(NodeEvent.HigherTermSet, NodeState.Follower);
-
-            // Candidate State Rules
-            _stateMachine.Configure(NodeState.Candidate)
-                .Permit(NodeEvent.HigherTermSet, NodeState.Follower);
-
-            // Follower State Rules
-            _stateMachine.Configure(NodeState.Follower)
-                .PermitReentry(NodeEvent.HigherTermSet);
+            _stateMachine.ApplyRaftRulesToStateMachine();
         }
 
         public NodeState CurrentState {
@@ -98,6 +86,7 @@ namespace Raft.Core
 
             _stateMachine.Fire((NodeEvent.HigherTermSet));
             CurrentTerm = term;
+            _eventDispatcher.Publish(new TermChanged(CurrentTerm));
         }
     }
 }

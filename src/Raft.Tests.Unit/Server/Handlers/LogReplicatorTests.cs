@@ -10,6 +10,7 @@ using Raft.Server.Handlers.Contracts;
 using Raft.Server.Handlers.Leader;
 using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
+using Raft.Server.Registers;
 using Raft.Server.Services;
 using Raft.Tests.Unit.TestData.Commands;
 using Raft.Tests.Unit.TestHelpers;
@@ -38,12 +39,11 @@ namespace Raft.Tests.Unit.Server.Handlers
                 new PeerNode {Channel = service1},
                 new PeerNode {Channel = service2}
             };
-            var logRegister = new EncodedEntryRegister();
-            var handler = new LogReplicator(peers, logRegister);
+
+            var handler = new LogReplicator(peers);
 
             var encodedLog = BitConverter.GetBytes(100);
-            var @event = TestEventFactory.GetCommandEvent();
-            logRegister.AddLogEntry(@event.Id, 1L, encodedLog, TestTask.Create());
+            var @event = TestEventFactory.GetCommandEvent(1L, encodedLog);
 
             // Act
             handler.Handle(@event);
@@ -67,11 +67,10 @@ namespace Raft.Tests.Unit.Server.Handlers
             var peers = new List<PeerNode> {
                 new PeerNode {Channel = service}
             };
-            var logRegister = new EncodedEntryRegister();
-            var handler = new LogReplicator(peers, logRegister);
 
-            var @event = TestEventFactory.GetCommandEvent();
-            logRegister.AddLogEntry(@event.Id, 1L, encodedLog, TestTask.Create());
+            var handler = new LogReplicator(peers);
+
+            var @event = TestEventFactory.GetCommandEvent(1L, encodedLog);
 
             // Act
             handler.Handle(@event);

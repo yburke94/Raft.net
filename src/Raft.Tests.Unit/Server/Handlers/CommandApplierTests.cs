@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -7,6 +8,7 @@ using Raft.Server;
 using Raft.Server.Handlers;
 using Raft.Server.Handlers.Leader;
 using Raft.Server.Log;
+using Raft.Server.Registers;
 using Raft.Tests.Unit.TestData.Commands;
 using Raft.Tests.Unit.TestHelpers;
 
@@ -19,14 +21,12 @@ namespace Raft.Tests.Unit.Server.Handlers
         public void DoesCompleteTaskInTaskCompletionSource()
         {
             // Arrange
-            var @event = TestEventFactory.GetCommandEvent();
+            var @event = TestEventFactory.GetCommandEvent(1L, new byte[8]);
+
             var raftNode = Substitute.For<IRaftNode>();
-            var entryRegister = new EncodedEntryRegister();
             var context = new RaftServerContext();
 
-            entryRegister.AddLogEntry(@event.Id, 1L, new byte[8], TestTask.Create());
-
-            var handler = new CommandApplier(raftNode, entryRegister, context);
+            var handler = new CommandApplier(raftNode, context);
 
             // Act
             handler.Handle(@event);
@@ -40,14 +40,11 @@ namespace Raft.Tests.Unit.Server.Handlers
         public void DoesSetTaskResultWithSuccessfulLogResult()
         {
             // Arrange
-            var @event = TestEventFactory.GetCommandEvent();
+            var @event = TestEventFactory.GetCommandEvent(1L, new byte[8]);
             var raftNode = Substitute.For<IRaftNode>();
-            var entryRegister = new EncodedEntryRegister();
             var context = new RaftServerContext();
 
-            entryRegister.AddLogEntry(@event.Id, 1L, new byte[8], TestTask.Create());
-
-            var handler = new CommandApplier(raftNode, entryRegister, context);
+            var handler = new CommandApplier(raftNode, context);
 
             // Act
             handler.Handle(@event);
@@ -67,15 +64,13 @@ namespace Raft.Tests.Unit.Server.Handlers
             var shouldEqualTrueWhenCommandExecutes = false;
 
             var @event = TestEventFactory.GetCommandEvent(
+                1L, new byte[4],
                 () => shouldEqualTrueWhenCommandExecutes = true);
 
             var raftNode = Substitute.For<IRaftNode>();
-            var entryRegister = new EncodedEntryRegister();
             var context = new RaftServerContext();
 
-            entryRegister.AddLogEntry(@event.Id, 1L, new byte[8], TestTask.Create());
-
-            var handler = new CommandApplier(raftNode, entryRegister, context);
+            var handler = new CommandApplier(raftNode, context);
 
             // Act
             handler.Handle(@event);
@@ -90,15 +85,12 @@ namespace Raft.Tests.Unit.Server.Handlers
         {
             // Arrange
             const long logIdx = 3L;
-            var @event = TestEventFactory.GetCommandEvent();
+            var @event = TestEventFactory.GetCommandEvent(logIdx, new byte[8]);
 
             var raftNode = Substitute.For<IRaftNode>();
-            var entryRegister = new EncodedEntryRegister();
             var context = new RaftServerContext();
 
-            entryRegister.AddLogEntry(@event.Id, logIdx, new byte[8], TestTask.Create());
-
-            var handler = new CommandApplier(raftNode, entryRegister, context);
+            var handler = new CommandApplier(raftNode, context);
 
             // Act
             handler.Handle(@event);

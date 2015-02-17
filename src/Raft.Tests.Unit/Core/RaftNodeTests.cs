@@ -1,7 +1,11 @@
 ﻿using System;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
+using Raft.Core.Enums;
+using Raft.Core.Events;
+using Raft.Infrastructure;
 
 namespace Raft.Tests.Unit.Core
 {
@@ -12,7 +16,8 @@ namespace Raft.Tests.Unit.Core
         public void CanTransitionToLeaderWhenCreateClusterIsCalled()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
 
             // Act
             raftNode.CreateCluster();
@@ -25,7 +30,8 @@ namespace Raft.Tests.Unit.Core
         public void ShouldReEnterLeaderStateWhenScheduleCommandExecutionIsCalled()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             raftNode.CreateCluster();
 
             // Act
@@ -39,7 +45,8 @@ namespace Raft.Tests.Unit.Core
         public void ShouldIncreaseCommitIndexWhenCommitLogEntryIsCalledWithALogIndexGreaterThanTheCurrentCommitIndex()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             var logIdx = raftNode.CommitIndex + 1;
 
             raftNode.CreateCluster();
@@ -55,7 +62,8 @@ namespace Raft.Tests.Unit.Core
         public void ShouldNotIncreaseCommitIndexWhenCommitLogEntryIsCalledWithALogIndexLessThanTheCurrentCommitIndex()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             var logIdx = raftNode.CommitIndex + 1;
             var commitIdx = raftNode.CommitIndex + 2;
 
@@ -75,7 +83,8 @@ namespace Raft.Tests.Unit.Core
         public void CurrentTermIsAddedToLogAtCommitIndexWhenCommitLogEntryIsCalled()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             var logIdx = raftNode.CommitIndex + 1;
             raftNode.CreateCluster();
 
@@ -91,7 +100,8 @@ namespace Raft.Tests.Unit.Core
         public void CallingApplyCommandIncreasesLastAppliedWhenLogIdxIsGreaterThanLastAppliedIdx()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             var logIdx = raftNode.LastApplied + 1;
             raftNode.CreateCluster();
 
@@ -106,7 +116,8 @@ namespace Raft.Tests.Unit.Core
         public void CallingApplyCommandShouldNotIncreaseLastAppliedWhenLogIdxIsLessThanLastAppliedIdx()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             var lastApplied = raftNode.LastApplied + 2;
             var logIdx = raftNode.LastApplied + 1;
 
@@ -126,7 +137,8 @@ namespace Raft.Tests.Unit.Core
         public void ShouldTransitionToFollowerStateIfNotAlreadyAndSetHigherTermIsCalled()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             raftNode.CreateCluster();
             raftNode.CurrentState.Should().Be(NodeState.Leader);
 
@@ -141,7 +153,8 @@ namespace Raft.Tests.Unit.Core
         public void ShouldChangeCurrentTermToNewTermWhenSetHigherTermIsCalled()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             raftNode.CreateCluster();
             raftNode.CurrentTerm.Should().Be(0);
 
@@ -156,13 +169,29 @@ namespace Raft.Tests.Unit.Core
         public void ShouldThrowWhenSetHigherTermIsCalledAndCurrentTermIsGreaterThanSuppliedTerm()
         {
             // Arrange
-            var raftNode = new RaftNode();
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
             raftNode.CreateCluster();
             raftNode.SetHigherTerm(2);
 
             // Act, Assert
             new Action(() => raftNode.SetHigherTerm(1))
                 .ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public void ShouldPublishTermChangedEventWhenTermIsIncreased()
+        {
+            // Arrange
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new RaftNode(eventDispatcher);
+            raftNode.CreateCluster();
+
+            // Act
+            raftNode.SetHigherTerm(1);
+
+            // Assert;
+            eventDispatcher.Received().Publish(Arg.Any<TermChanged>());
         }
     }
 }

@@ -4,8 +4,6 @@ using Raft.Server.Configuration;
 using Raft.Server.Events;
 using Raft.Server.Handlers.Follower;
 using Raft.Server.Handlers.Leader;
-using Raft.Server.Log;
-using Raft.Server.Services;
 
 namespace Raft.Server.LightInject
 {
@@ -13,8 +11,6 @@ namespace Raft.Server.LightInject
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
-            serviceRegistry.RegisterInstance(new EncodedEntryRegister());
-
             serviceRegistry.Register<RaftServerContext>(new PerContainerLifetime());
 
             // Leader event handlers
@@ -42,8 +38,8 @@ namespace Raft.Server.LightInject
                 .UseSpinAndYieldWaitStrategy()
                 .AddEventHandler(x.GetInstance<NodeStateValidator>())
                 .AddEventHandler(x.GetInstance<LogEncoder>())
-                .AddEventHandler(x.GetInstance<LogReplicator>())
                 .AddEventHandler(x.GetInstance<LogWriter>())
+                .AddEventHandler(x.GetInstance<LogReplicator>())
                 .AddEventHandler(x.GetInstance<CommandApplier>())
                 .Build());
 

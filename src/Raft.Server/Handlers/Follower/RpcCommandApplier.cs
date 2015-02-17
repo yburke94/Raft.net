@@ -1,7 +1,6 @@
 ﻿using System;
 using Disruptor;
 using Raft.Server.Events;
-using Raft.Server.Services;
 
 namespace Raft.Server.Handlers.Follower
 {

@@ -1,4 +1,4 @@
-﻿namespace Raft.Core
+﻿namespace Raft.Core.Enums
 {
     internal enum NodeEvent
     {

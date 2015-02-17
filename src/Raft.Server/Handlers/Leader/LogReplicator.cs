@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
-using Raft.Server.Log;
 using Raft.Server.Messages.AppendEntries;
 
 namespace Raft.Server.Handlers.Leader
@@ -18,21 +17,17 @@ namespace Raft.Server.Handlers.Leader
     internal class LogReplicator : LeaderEventHandler, ISkipInternalCommands
     {
         private readonly IList<PeerNode> _peers;
-        private readonly EncodedEntryRegister _encodedEntryRegister;
 
-        public LogReplicator(IList<PeerNode> peers, EncodedEntryRegister encodedEntryRegister)
+        public LogReplicator(IList<PeerNode> peers)
         {
             _peers = peers;
-            _encodedEntryRegister = encodedEntryRegister;
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            var encodedEntry = _encodedEntryRegister.GetEncodedLog(@event.Id);
-
             var request = new AppendEntriesRequest {
                 Entries = new[] {
-                    encodedEntry.Value
+                    @event.EncodedEntry
                 }
             };
 

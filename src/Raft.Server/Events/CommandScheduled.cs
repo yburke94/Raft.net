@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.Commands;
+using Raft.Server.Log;
 
 namespace Raft.Server.Events
 {
@@ -13,6 +14,9 @@ namespace Raft.Server.Events
 
         public TaskCompletionSource<CommandExecuted> TaskCompletionSource { get; private set; }
 
+        public LogEntry LogEntry { get; private set; }
+        public byte[] EncodedEntry { get; private set; }
+
         public bool IsCompletedSuccessfully()
         {
             return TaskCompletionSource.Task.IsCompleted && !IsFaulted();
@@ -21,6 +25,12 @@ namespace Raft.Server.Events
         public bool IsFaulted()
         {
             return TaskCompletionSource.Task.IsFaulted;
+        }
+
+        public void SetLogEntry(LogEntry entry, byte[] encodedEntry)
+        {
+            LogEntry = entry;
+            EncodedEntry = encodedEntry;
         }
 
         internal class Translator : ITranslator<CommandScheduled>
@@ -46,6 +56,8 @@ namespace Raft.Server.Events
                 existingEvent.Id = _id;
                 existingEvent.Command = _command;
                 existingEvent.TaskCompletionSource = _taskCompletionSource;
+                existingEvent.LogEntry = null;
+                existingEvent.EncodedEntry = null;
                 return existingEvent;
             }
         }

@@ -1,6 +1,5 @@
 ﻿using Raft.Core;
 using Raft.Server.Events;
-using Raft.Server.Log;
 
 namespace Raft.Server.Handlers.Leader
 {
@@ -16,22 +15,18 @@ namespace Raft.Server.Handlers.Leader
     internal class CommandApplier : LeaderEventHandler
     {
         private readonly IRaftNode _raftNode;
-        private readonly EncodedEntryRegister _entryRegister;
         private readonly RaftServerContext _context;
 
-        public CommandApplier(IRaftNode raftNode, EncodedEntryRegister entryRegister, RaftServerContext context)
+        public CommandApplier(IRaftNode raftNode, RaftServerContext context)
         {
             _raftNode = raftNode;
-            _entryRegister = entryRegister;
             _context = context;
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            var entryIdx = _entryRegister.GetEncodedLog(@event.Id).Key;
-
             @event.Command.Execute(_context);
-            _raftNode.ApplyCommand(entryIdx);
+            _raftNode.ApplyCommand(@event.LogEntry.Index);
 
             if (@event.TaskCompletionSource != null)
                 @event.TaskCompletionSource.SetResult(new CommandExecuted(true));

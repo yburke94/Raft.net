@@ -4,6 +4,7 @@ using Raft.Core;
 using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Log;
+using Raft.Server.Registers;
 
 namespace Raft.Server.Handlers.Leader
 {
@@ -21,12 +22,10 @@ namespace Raft.Server.Handlers.Leader
         private long _lastLogId;
 
         private readonly IRaftNode _raftNode;
-        private readonly EncodedEntryRegister _encodedEntryRegister;
 
-        public LogEncoder(IRaftNode raftNode, EncodedEntryRegister encodedEntryRegister)
+        public LogEncoder(IRaftNode raftNode)
         {
             _raftNode = raftNode;
-            _encodedEntryRegister = encodedEntryRegister;
 
             _lastLogId = _raftNode.CommitIndex;
         }
@@ -44,8 +43,7 @@ namespace Raft.Server.Handlers.Leader
             using (var ms = new MemoryStream())
             {
                 Serializer.SerializeWithLengthPrefix(ms, logEntry, PrefixStyle.Base128);
-                _encodedEntryRegister.AddLogEntry(@event.Id, logEntry.Index, ms.ToArray(),
-                    @event.TaskCompletionSource.Task);
+                @event.SetLogEntry(logEntry, ms.ToArray());
             }
 
             _lastLogId++;

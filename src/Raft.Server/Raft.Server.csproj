@@ -79,8 +79,9 @@
     <Compile Include="INodeTimer.cs" />
     <Compile Include="Events\ApplyCommandRequested.cs" />
     <Compile Include="Events\CommitCommandRequested.cs" />
+    <Compile Include="LightInject\LightInjectEventDispatcher.cs" />
+    <Compile Include="Registers\CommandRegister.cs" />
     <Compile Include="Services\IRaftService.cs" />
-    <Compile Include="Log\EncodedEntryRegister.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesRequest.cs" />
     <Compile Include="Messages\AppendEntries\AppendEntriesResponse.cs" />
     <Compile Include="Handlers\Leader\LeaderEventHandler.cs" />
