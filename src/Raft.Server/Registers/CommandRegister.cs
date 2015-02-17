@@ -30,9 +30,7 @@ namespace Raft.Server.Registers
         public IRaftCommand Get(long term, long commandIdx)
         {
             IRaftCommand command;
-            if (!_raftCommands.TryGetValue(new EntryKey(term, commandIdx), out command))
-                throw new ApplicationException("Failed to get entry for command.");
-
+            _raftCommands.TryGetValue(new EntryKey(term, commandIdx), out command);
             return command;
         }
 

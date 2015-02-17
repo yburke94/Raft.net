@@ -26,8 +26,7 @@ namespace Raft.Tests.Unit.Registers
             commandRegister.Handle(new TermChanged(term+1));
 
             // Assert
-            new Action(() => commandRegister.Get(term, logIdx))
-                .ShouldThrow<ApplicationException>();
+            commandRegister.Get(term, logIdx).Should().BeNull();
         }
 
         [Test]

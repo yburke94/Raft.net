@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\EnumerableUtilities.cs" />
     <Compile Include="IBootstrapTask.cs" />
     <Compile Include="IEventDispatcher.cs" />
     <Compile Include="ISubscribe.cs" />
