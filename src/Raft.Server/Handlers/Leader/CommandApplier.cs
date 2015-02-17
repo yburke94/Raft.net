@@ -1,4 +1,5 @@
-﻿using Raft.Core;
+﻿using Microsoft.Practices.ServiceLocation;
+using Raft.Core;
 using Raft.Server.Events;
 
 namespace Raft.Server.Handlers.Leader
@@ -15,17 +16,17 @@ namespace Raft.Server.Handlers.Leader
     internal class CommandApplier : LeaderEventHandler
     {
         private readonly IRaftNode _raftNode;
-        private readonly RaftServerContext _context;
+        private readonly IServiceLocator _serviceLocator;
 
-        public CommandApplier(IRaftNode raftNode, RaftServerContext context)
+        public CommandApplier(IRaftNode raftNode, IServiceLocator serviceLocator)
         {
             _raftNode = raftNode;
-            _context = context;
+            _serviceLocator = serviceLocator;
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            @event.Command.Execute(_context);
+            @event.Command.Execute(_serviceLocator);
             _raftNode.ApplyCommand(@event.LogEntry.Index);
 
             if (@event.TaskCompletionSource != null)

@@ -1,7 +1,7 @@
 using System;
 using Raft.Core;
 
-namespace Raft.Server.Commands
+namespace Raft.Server.InternalCommands
 {
     internal interface IRaftInternalCommand : IRaftCommand
     {

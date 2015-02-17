@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Raft.Core.Events;
 using Raft.Infrastructure;
-using Raft.Server.Commands;
 
 namespace Raft.Server.Registers
 {

@@ -1,8 +1,8 @@
 ﻿using System;
 using Disruptor;
-using Raft.Server.Commands;
 using Raft.Server.Events;
 using Raft.Server.Handlers.Contracts;
+using Raft.Server.InternalCommands;
 
 namespace Raft.Server.Handlers.Leader
 {

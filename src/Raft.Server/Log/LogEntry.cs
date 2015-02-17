@@ -1,5 +1,4 @@
 ﻿using ProtoBuf;
-using Raft.Server.Commands;
 
 namespace Raft.Server.Log
 {

@@ -1,6 +1,6 @@
 using Raft.Core;
-using Raft.Server.Commands;
 using Raft.Server.Events;
+using Raft.Server.InternalCommands;
 
 namespace Raft.Server.Handlers.Leader
 {

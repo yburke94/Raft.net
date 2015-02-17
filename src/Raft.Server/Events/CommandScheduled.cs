@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Raft.Infrastructure.Disruptor;
-using Raft.Server.Commands;
 using Raft.Server.Log;
 
 namespace Raft.Server.Events

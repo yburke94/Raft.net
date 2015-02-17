@@ -11,8 +11,6 @@ namespace Raft.Server.LightInject
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
-            serviceRegistry.Register<RaftServerContext>(new PerContainerLifetime());
-
             // Leader event handlers
             serviceRegistry.Register<NodeStateValidator>();
             serviceRegistry.Register<LogEncoder>();
@@ -29,6 +27,8 @@ namespace Raft.Server.LightInject
 
             // TODO: Create binding for IRaftConfiguration...
             // TODO: Make Buffer size configurable...
+
+            // TODO: Bind IServiceLocator to the locator passed in by config!
 
             // Create Leader ring buffer
             serviceRegistry.Register(x => new RingBufferBuilder<CommandScheduled>()

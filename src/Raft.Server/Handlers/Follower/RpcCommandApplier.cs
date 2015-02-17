@@ -1,4 +1,5 @@
 ﻿using Disruptor;
+using Microsoft.Practices.ServiceLocation;
 using Raft.Core;
 using Raft.Infrastructure.Extensions;
 using Raft.Server.Events;
@@ -10,13 +11,13 @@ namespace Raft.Server.Handlers.Follower
     {
         private readonly IRaftNode _raftNode;
         private readonly CommandRegister _commandRegister;
-        private readonly RaftServerContext _context;
+        private readonly IServiceLocator _serviceLocator;
 
-        public RpcCommandApplier(IRaftNode raftNode, CommandRegister commandRegister, RaftServerContext context)
+        public RpcCommandApplier(IRaftNode raftNode, CommandRegister commandRegister, IServiceLocator serviceLocator)
         {
             _raftNode = raftNode;
             _commandRegister = commandRegister;
-            _context = context;
+            _serviceLocator = serviceLocator;
         }
 
         public void OnNext(ApplyCommandRequested data, long sequence, bool endOfBatch)
@@ -30,7 +31,7 @@ namespace Raft.Server.Handlers.Follower
                 // The term may have been increased before the command was applied. In which case, rely on log matching to fix.
                 if (command == null) continue;
 
-                command.Execute(_context);
+                command.Execute(_serviceLocator);
                 _raftNode.ApplyCommand(logIdx);
             }
         }

@@ -1,16 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
+using Microsoft.Practices.ServiceLocation;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core;
-using Raft.Server;
-using Raft.Server.Handlers;
 using Raft.Server.Handlers.Leader;
-using Raft.Server.Log;
-using Raft.Server.Registers;
 using Raft.Tests.Unit.TestData.Commands;
-using Raft.Tests.Unit.TestHelpers;
 
 namespace Raft.Tests.Unit.Server.Handlers
 {
@@ -24,9 +18,9 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent(1L, new byte[8]);
 
             var raftNode = Substitute.For<IRaftNode>();
-            var context = new RaftServerContext();
+            var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, context);
+            var handler = new CommandApplier(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
@@ -42,9 +36,9 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Arrange
             var @event = TestEventFactory.GetCommandEvent(1L, new byte[8]);
             var raftNode = Substitute.For<IRaftNode>();
-            var context = new RaftServerContext();
+            var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, context);
+            var handler = new CommandApplier(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
@@ -68,9 +62,9 @@ namespace Raft.Tests.Unit.Server.Handlers
                 () => shouldEqualTrueWhenCommandExecutes = true);
 
             var raftNode = Substitute.For<IRaftNode>();
-            var context = new RaftServerContext();
+            var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, context);
+            var handler = new CommandApplier(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
@@ -88,9 +82,9 @@ namespace Raft.Tests.Unit.Server.Handlers
             var @event = TestEventFactory.GetCommandEvent(logIdx, new byte[8]);
 
             var raftNode = Substitute.For<IRaftNode>();
-            var context = new RaftServerContext();
+            var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, context);
+            var handler = new CommandApplier(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
