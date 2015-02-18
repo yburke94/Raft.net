@@ -56,18 +56,26 @@ namespace Raft.Core
             _stateMachine.Fire(NodeEvent.NodeCreatedCluster);
         }
 
+        public void JoinCluster()
+        {
+            _stateMachine.Fire(NodeEvent.NodeJoinedCluster);
+        }
+
         public void ScheduleCommandExecution()
         {
             _stateMachine.Fire(NodeEvent.ClientScheduledCommandExecution);
         }
 
-        public void CommitLogEntry(long entryIdx)
+        public void CommitLogEntry(long entryIdx, long term)
         {
-            _stateMachine.Fire(NodeEvent.LogEntryAdded);
+            if (term > CurrentTerm)
+                throw new InvalidOperationException("Cannot commit a log entry against a term greater than the current term.");
+
+            _stateMachine.Fire(NodeEvent.LogEntryCommited);
 
             CommitIndex = Math.Max(CommitIndex, entryIdx);
 
-            Log.SetLogEntry(entryIdx, CurrentTerm);
+            Log.SetLogEntry(entryIdx, term);
         }
 
         public void ApplyCommand(long entryIdx)
@@ -76,7 +84,7 @@ namespace Raft.Core
             LastApplied = Math.Max(LastApplied, entryIdx);
         }
 
-        public void SetHigherTerm(long term)
+        public void SetTermFromRpc(long term)
         {
             if (term < CurrentTerm)
                 throw new InvalidOperationException(string.Format(
@@ -84,9 +92,21 @@ namespace Raft.Core
                     "An attempt was made to set the term for this node to: {1}." +
                     "The node must only ever increment their term.", CurrentTerm, term));
 
-            _stateMachine.Fire((NodeEvent.HigherTermSet));
+            _stateMachine.Fire((NodeEvent.TermSetFromRpc));
             CurrentTerm = term;
             _eventDispatcher.Publish(new TermChanged(CurrentTerm));
+        }
+
+        public void TimeoutLeaderHeartbeat()
+        {
+            _stateMachine.Fire(NodeEvent.LeaderHearbeatTimedOut);
+            CurrentTerm++;
+            _eventDispatcher.Publish(new TermChanged(CurrentTerm));
+        }
+
+        public void WinCandidateElection()
+        {
+            _stateMachine.Fire(NodeEvent.CandidateElectionWon);
         }
     }
 }

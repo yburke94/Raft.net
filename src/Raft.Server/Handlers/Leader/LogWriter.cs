@@ -13,7 +13,7 @@ namespace Raft.Server.Handlers.Leader
     ///     LogEncoder
     ///     LogWriter*
     ///     LogReplicator
-    ///     CommandApplier
+    ///     CommandFinalizer
     /// </summary>
     internal class LogWriter : LeaderEventHandler, ISkipInternalCommands
     {
@@ -32,7 +32,6 @@ namespace Raft.Server.Handlers.Leader
                 throw new InvalidOperationException("Must set LogEntry on event before executing this step.");
 
             _journal.WriteBlock(@event.EncodedEntry);
-            _raftNode.CommitLogEntry(@event.LogEntry.Index);
         }
     }
 }

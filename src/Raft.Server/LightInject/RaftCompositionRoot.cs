@@ -16,7 +16,7 @@ namespace Raft.Server.LightInject
             serviceRegistry.Register<LogEncoder>();
             serviceRegistry.Register<LogWriter>();
             serviceRegistry.Register<LogReplicator>();
-            serviceRegistry.Register<CommandApplier>();
+            serviceRegistry.Register<CommandFinalizer>();
 
             // Follower event handlers
             serviceRegistry.Register<RpcCommandApplier>();
@@ -40,7 +40,7 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<LogEncoder>())
                 .AddEventHandler(x.GetInstance<LogWriter>())
                 .AddEventHandler(x.GetInstance<LogReplicator>())
-                .AddEventHandler(x.GetInstance<CommandApplier>())
+                .AddEventHandler(x.GetInstance<CommandFinalizer>())
                 .Build());
 
             serviceRegistry.Register<IEventPublisher<CommandScheduled>,

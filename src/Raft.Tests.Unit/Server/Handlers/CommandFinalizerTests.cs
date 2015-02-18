@@ -9,8 +9,31 @@ using Raft.Tests.Unit.TestData.Commands;
 namespace Raft.Tests.Unit.Server.Handlers
 {
     [TestFixture]
-    public class CommandApplierTests
+    public class CommandFinalizerTests
     {
+
+        [Test]
+        public void DoesCommitLogEntryOnRaftNode()
+        {
+            // Arrange
+            const long commitIdx = 3L;
+            const long term = 5L;
+
+            var @event = TestEventFactory.GetCommandEvent(commitIdx, new byte[8]);
+            @event.LogEntry.Term = term;
+
+            var node = Substitute.For<IRaftNode>();
+            var serviceLocator = Substitute.For<IServiceLocator>();
+
+            var handler = new CommandFinalizer(node, serviceLocator);
+
+            // Act
+            handler.Handle(@event);
+
+            // Assert
+            node.Received().CommitLogEntry(Arg.Is(commitIdx), Arg.Is(term));
+        }
+
         [Test]
         public void DoesCompleteTaskInTaskCompletionSource()
         {
@@ -20,7 +43,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, serviceLocator);
+            var handler = new CommandFinalizer(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
@@ -38,7 +61,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, serviceLocator);
+            var handler = new CommandFinalizer(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
@@ -64,7 +87,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, serviceLocator);
+            var handler = new CommandFinalizer(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);
@@ -84,7 +107,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var raftNode = Substitute.For<IRaftNode>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
-            var handler = new CommandApplier(raftNode, serviceLocator);
+            var handler = new CommandFinalizer(raftNode, serviceLocator);
 
             // Act
             handler.Handle(@event);

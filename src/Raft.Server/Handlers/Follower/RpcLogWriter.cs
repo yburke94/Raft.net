@@ -34,7 +34,7 @@ namespace Raft.Server.Handlers.Follower
 
                 // TODO: Generate checksum and compare?.
                 _journal.WriteBlock(data.Entry);
-                _raftNode.CommitLogEntry(decodedEntry.Index); // TODO: ADD Term....
+                _raftNode.CommitLogEntry(decodedEntry.Index, decodedEntry.Term);
                 _commandRegister.Add(decodedEntry.Term, decodedEntry.Index, decodedEntry.Command);
             }
             catch

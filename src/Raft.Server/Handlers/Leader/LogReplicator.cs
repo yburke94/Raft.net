@@ -12,7 +12,7 @@ namespace Raft.Server.Handlers.Leader
     ///     LogEncoder
     ///     LogWriter
     ///     LogReplicator*
-    ///     CommandApplier
+    ///     CommandFinalizer
     /// </summary>
     internal class LogReplicator : LeaderEventHandler, ISkipInternalCommands
     {

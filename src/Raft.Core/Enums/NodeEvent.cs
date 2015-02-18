@@ -2,10 +2,18 @@
 {
     internal enum NodeEvent
     {
+        // Init Events
         NodeCreatedCluster,
+        NodeJoinedCluster,
+
+        // Log Events
         ClientScheduledCommandExecution,
-        LogEntryAdded,
+        LogEntryCommited,
         CommandExecuted,
-        HigherTermSet
+
+        // Cluster Events
+        TermSetFromRpc,
+        LeaderHearbeatTimedOut,
+        CandidateElectionWon
     }
 }

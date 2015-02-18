@@ -79,7 +79,7 @@
     <Compile Include="Core\RaftNodeTests.cs" />
     <Compile Include="Registers\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\Handlers\CommandApplierTests.cs" />
+    <Compile Include="Server\Handlers\CommandFinalizerTests.cs" />
     <Compile Include="Server\Handlers\LogEncoderTests.cs" />
     <Compile Include="Server\Handlers\LogReplicatorTests.cs" />
     <Compile Include="Server\Handlers\LogWriterTests.cs" />

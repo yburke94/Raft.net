@@ -76,7 +76,7 @@
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Handlers\Follower\RpcCommandApplier.cs" />
     <Compile Include="Handlers\Follower\RpcLogWriter.cs" />
-    <Compile Include="Handlers\Leader\CommandApplier.cs" />
+    <Compile Include="Handlers\Leader\CommandFinalizer.cs" />
     <Compile Include="Handlers\Contracts\IHandleFaultedCommands.cs" />
     <Compile Include="Handlers\Contracts\ISkipInternalCommands.cs" />
     <Compile Include="INodeTimer.cs" />

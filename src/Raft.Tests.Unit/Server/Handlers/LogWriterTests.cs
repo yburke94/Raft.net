@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
@@ -11,7 +9,6 @@ using Raft.Infrastructure.Journaler;
 using Raft.Server.Handlers.Contracts;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
-using Raft.Tests.Unit.TestHelpers;
 
 namespace Raft.Tests.Unit.Server.Handlers
 {
@@ -45,26 +42,6 @@ namespace Raft.Tests.Unit.Server.Handlers
 
             // Assert
             journaler.Received().WriteBlock(Arg.Is(match));
-        }
-
-        [Test]
-        public void CallsAddLogEntryOnRaftNodeForAllEntriesWrittenToLog()
-        {
-            // Arrange
-            const long commitIdx = 3L;
-            var data = BitConverter.GetBytes(1);
-            var @event = TestEventFactory.GetCommandEvent(commitIdx, data);
-
-            var journaler = Substitute.For<IJournal>();
-            var node = Substitute.For<IRaftNode>();
-
-            var handler = new LogWriter(journaler, node);
-
-            // Act
-            handler.Handle(@event);
-
-            // Assert
-            node.Received().CommitLogEntry(Arg.Is(commitIdx));
         }
     }
 }

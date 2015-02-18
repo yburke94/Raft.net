@@ -147,7 +147,7 @@ namespace Raft.Tests.Unit.Server.Services
             service.AppendEntries(message);
 
             // Assert
-            raftNode.Received(1).SetHigherTerm(message.Term);
+            raftNode.Received(1).SetTermFromRpc(message.Term);
         }
 
         [Test]
@@ -172,7 +172,7 @@ namespace Raft.Tests.Unit.Server.Services
             service.RequestVote(message);
 
             // Assert
-            raftNode.Received(1).SetHigherTerm(message.Term);
+            raftNode.Received(1).SetTermFromRpc(message.Term);
         }
     }
 }

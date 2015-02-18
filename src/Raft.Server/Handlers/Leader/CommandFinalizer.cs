@@ -11,14 +11,14 @@ namespace Raft.Server.Handlers.Leader
     ///     LogEncoder
     ///     LogWriter
     ///     LogReplicator
-    ///     CommandApplier*
+    ///     CommandFinalizer*
     /// </summary>
-    internal class CommandApplier : LeaderEventHandler
+    internal class CommandFinalizer : LeaderEventHandler
     {
         private readonly IRaftNode _raftNode;
         private readonly IServiceLocator _serviceLocator;
 
-        public CommandApplier(IRaftNode raftNode, IServiceLocator serviceLocator)
+        public CommandFinalizer(IRaftNode raftNode, IServiceLocator serviceLocator)
         {
             _raftNode = raftNode;
             _serviceLocator = serviceLocator;
@@ -26,6 +26,8 @@ namespace Raft.Server.Handlers.Leader
 
         public override void Handle(CommandScheduled @event)
         {
+            _raftNode.CommitLogEntry(@event.LogEntry.Index, @event.LogEntry.Term);
+
             @event.Command.Execute(_serviceLocator);
             _raftNode.ApplyCommand(@event.LogEntry.Index);
 

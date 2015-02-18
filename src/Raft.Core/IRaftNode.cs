@@ -17,6 +17,7 @@ namespace Raft.Core
 
         /// <summary>
         /// Index of highest log entry known to be committed.
+        /// A log entry is committed once the leader that created the entry has replicated it on a majority of the servers.
         /// </summary>
         /// <remarks>Initialized to 0, increases monotonically.</remarks>
         long CommitIndex { get; }
@@ -32,10 +33,18 @@ namespace Raft.Core
         /// </summary>
         RaftLog Log { get; }
 
+        // Initialization Actions
         void CreateCluster();
+        void JoinCluster();
+
+        // Log Actions
         void ScheduleCommandExecution();
-        void CommitLogEntry(long entryIdx);
+        void CommitLogEntry(long entryIdx, long term);
         void ApplyCommand(long entryIdx);
-        void SetHigherTerm(long term);
+
+        // Cluster Actions
+        void SetTermFromRpc(long term);
+        void TimeoutLeaderHeartbeat();
+        void WinCandidateElection();
     }
 }
