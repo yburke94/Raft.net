@@ -43,8 +43,8 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<CommandFinalizer>())
                 .Build());
 
-            serviceRegistry.Register<IEventPublisher<CommandScheduled>,
-                DisruptorEventPublisher<CommandScheduled>>();
+            serviceRegistry.Register<IPublishToBuffer<CommandScheduled>,
+                PublishToBuffer<CommandScheduled>>();
 
             // Create Follower commit ring buffer
             serviceRegistry.Register(x => new RingBufferBuilder<CommitCommandRequested>()
@@ -55,8 +55,8 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<RpcLogWriter>())
                 .Build());
 
-            serviceRegistry.Register<IEventPublisher<CommitCommandRequested>,
-                DisruptorEventPublisher<CommitCommandRequested>>();
+            serviceRegistry.Register<IPublishToBuffer<CommitCommandRequested>,
+                PublishToBuffer<CommitCommandRequested>>();
 
             // Create Follower apply ring buffer
             serviceRegistry.Register(x => new RingBufferBuilder<ApplyCommandRequested>()
@@ -67,8 +67,8 @@ namespace Raft.Server.LightInject
                 .AddEventHandler(x.GetInstance<RpcCommandApplier>())
                 .Build());
 
-            serviceRegistry.Register<IEventPublisher<ApplyCommandRequested>,
-                DisruptorEventPublisher<ApplyCommandRequested>>();
+            serviceRegistry.Register<IPublishToBuffer<ApplyCommandRequested>,
+                PublishToBuffer<ApplyCommandRequested>>();
         }
     }
 }

@@ -6,9 +6,9 @@ namespace Raft.Server
 {
     internal class Raft : IRaft
     {
-        private readonly IEventPublisher<CommandScheduled> _commandPublisher;
+        private readonly IPublishToBuffer<CommandScheduled> _commandPublisher;
 
-        public Raft(IEventPublisher<CommandScheduled> commandPublisher)
+        public Raft(IPublishToBuffer<CommandScheduled> commandPublisher)
         {
             _commandPublisher = commandPublisher;
         }

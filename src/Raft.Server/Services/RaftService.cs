@@ -1,5 +1,4 @@
-﻿using Disruptor;
-using Raft.Core;
+﻿using Raft.Core;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.Events;
 using Raft.Server.Messages.AppendEntries;
@@ -9,13 +8,13 @@ namespace Raft.Server.Services
 {
     internal class RaftService : IRaftService
     {
-        private readonly IEventPublisher<CommitCommandRequested> _commitPublisher;
-        private readonly IEventPublisher<ApplyCommandRequested> _applyPublisher;
+        private readonly IPublishToBuffer<CommitCommandRequested> _commitPublisher;
+        private readonly IPublishToBuffer<ApplyCommandRequested> _applyPublisher;
         private readonly INodeTimer _timer;
         private readonly IRaftNode _raftNode;
 
-        public RaftService(IEventPublisher<CommitCommandRequested> commitPublisher,
-            IEventPublisher<ApplyCommandRequested> applyPublisher,
+        public RaftService(IPublishToBuffer<CommitCommandRequested> commitPublisher,
+            IPublishToBuffer<ApplyCommandRequested> applyPublisher,
             INodeTimer timer, IRaftNode raftNode)
         {
             _commitPublisher = commitPublisher;
@@ -27,8 +26,18 @@ namespace Raft.Server.Services
 
         public RequestVoteResponse RequestVote(RequestVoteRequest voteRequest)
         {
-            if (_raftNode.CurrentTerm < voteRequest.Term)
+            if (voteRequest.Term <= _raftNode.CurrentTerm)
+            {
+                return new RequestVoteResponse
+                {
+                    Term = _raftNode.CurrentTerm,
+                    VoteGranted = false
+                };
+            }
+            else
+            {
                 _raftNode.SetTermFromRpc(voteRequest.Term);
+            }
 
             return null;
         }

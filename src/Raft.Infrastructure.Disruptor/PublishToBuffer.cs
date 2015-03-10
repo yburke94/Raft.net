@@ -3,11 +3,11 @@ using Disruptor;
 
 namespace Raft.Infrastructure.Disruptor
 {
-    public class DisruptorEventPublisher<T> : IEventPublisher<T> where T : class
+    public class PublishToBuffer<T> : IPublishToBuffer<T> where T : class
     {
         private readonly EventPublisher<T> _eventPublisher;
 
-        public DisruptorEventPublisher(RingBuffer<T> ringBuffer)
+        public PublishToBuffer(RingBuffer<T> ringBuffer)
         {
             _eventPublisher = new EventPublisher<T>(ringBuffer);
         }
