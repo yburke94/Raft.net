@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38AA7867-734C-4B09-ABD4-8DB3F74ACE6C}</ProjectGuid>
+    <ProjectGuid>{7E1AD8D9-1F82-4167-A1DC-62C25B0CFE02}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Core</RootNamespace>
-    <AssemblyName>Raft.Core</AssemblyName>
+    <RootNamespace>Raft.Core.Events</RootNamespace>
+    <AssemblyName>Raft.Core.Events</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Stateless, Version=2.4.0.1, Culture=neutral, PublicKeyToken=93038f0927583c9a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Stateless.2.4.0\lib\Stateless.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,30 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cluster\PeerNode.cs" />
-    <Compile Include="StateMachine\IRaftNode.cs" />
-    <Compile Include="Log\NodeLog.cs" />
-    <Compile Include="StateMachine\Enums\NodeEvent.cs" />
-    <Compile Include="StateMachine\Enums\NodeState.cs" />
-    <Compile Include="StateMachine\RaftNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StateMachine\RaftNodeRules.cs" />
-    <Compile Include="Timer\INodeTimer.cs" />
+    <Compile Include="TermChanged.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Raft.Core.Events\Raft.Core.Events.csproj">
-      <Project>{7e1ad8d9-1f82-4167-a1dc-62c25b0cfe02}</Project>
-      <Name>Raft.Core.Events</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Infrastructure\Raft.Infrastructure.csproj">
-      <Project>{435A85AF-E1CB-442B-A7A4-BB04A92847A7}</Project>
-      <Name>Raft.Infrastructure</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

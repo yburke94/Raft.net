@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{06386123-E4BF-4C81-825A-3B7472214BB7}</ProjectGuid>
+    <ProjectGuid>{ABC6E34D-645E-42AB-A319-EE76A1DBE12C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Tests.Unit</RootNamespace>
-    <AssemblyName>Raft.Tests.Unit</AssemblyName>
+    <RootNamespace>Raft</RootNamespace>
+    <AssemblyName>Raft</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,40 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Atomic, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Atomic">
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Atomic.dll</HintPath>
     </Reference>
-    <Reference Include="Disruptor, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Disruptor">
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Disruptor.dll</HintPath>
     </Reference>
-    <Reference Include="Disruptor.Scheduler, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Disruptor.Scheduler">
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Disruptor.Scheduler.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentAssertions, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net40\FluentAssertions.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentAssertions.Core, Version=3.2.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net40\FluentAssertions.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
-    <Reference Include="NSubstitute, Version=1.7.2.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\NSubstitute.1.7.2.0\lib\NET40\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,29 +48,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Log\RaftLogTests.cs" />
-    <Compile Include="Core\StateMachine\RaftNodeTests.cs" />
-    <Compile Include="Server\Commands\Registers\CommandRegisterTests.cs" />
+    <Compile Include="IConfigureRaft.cs" />
+    <Compile Include="Configuration\IRaftConfiguration.cs" />
+    <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
+    <Compile Include="LightInject\LightInject.cs" />
+    <Compile Include="LightInject\LightInjectEventDispatcher.cs" />
+    <Compile Include="LightInject\RaftCompositionRoot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\Events\Handlers\CommandFinalizerTests.cs" />
-    <Compile Include="Server\Events\Handlers\LogEncoderTests.cs" />
-    <Compile Include="Server\Events\Handlers\LogReplicatorTests.cs" />
-    <Compile Include="Server\Events\Handlers\LogWriterTests.cs" />
-    <Compile Include="Server\Events\Handlers\NodeStateManagerTests.cs" />
-    <Compile Include="Server\Service\RaftServiceTests.cs" />
-    <Compile Include="TestData\Commands\TestCommand.cs" />
-    <Compile Include="TestData\Commands\TestEventFactory.cs" />
-    <Compile Include="TestData\Commands\TestExecutableCommand.cs" />
-    <Compile Include="TestData\Commands\TestInternalCommand.cs" />
-    <Compile Include="TestHelpers\TestTask.cs" />
+    <Compile Include="Raft.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="TestData\EncodedData\EncodedLogEntry.bin">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\Raft.Contracts\Raft.Contracts.csproj">
+      <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
+      <Name>Raft.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Raft.Core.Events\Raft.Core.Events.csproj">
       <Project>{7e1ad8d9-1f82-4167-a1dc-62c25b0cfe02}</Project>
       <Name>Raft.Core.Events</Name>
@@ -107,7 +71,7 @@
       <Name>Raft.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure.Disruptor\Raft.Infrastructure.Disruptor.csproj">
-      <Project>{5367D27D-1589-4B8F-92C9-7BBB8DEC9A9F}</Project>
+      <Project>{5367d27d-1589-4b8f-92c9-7bbb8dec9a9f}</Project>
       <Name>Raft.Infrastructure.Disruptor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj">
@@ -115,7 +79,7 @@
       <Name>Raft.Infrastructure.Journaler</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure\Raft.Infrastructure.csproj">
-      <Project>{435A85AF-E1CB-442B-A7A4-BB04A92847A7}</Project>
+      <Project>{435a85af-e1cb-442b-a7a4-bb04a92847a7}</Project>
       <Name>Raft.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Server.Commands\Raft.Server.Commands.csproj">
@@ -139,7 +103,9 @@
       <Name>Raft.Service</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

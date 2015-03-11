@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38AA7867-734C-4B09-ABD4-8DB3F74ACE6C}</ProjectGuid>
+    <ProjectGuid>{B7E5F20A-4D77-447A-81AA-016EC0D711C2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Core</RootNamespace>
-    <AssemblyName>Raft.Core</AssemblyName>
+    <RootNamespace>Raft.Server.Commands</RootNamespace>
+    <AssemblyName>Raft.Server.Commands</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,9 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Stateless, Version=2.4.0.1, Culture=neutral, PublicKeyToken=93038f0927583c9a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Stateless.2.4.0\lib\Stateless.dll</HintPath>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,30 +42,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cluster\PeerNode.cs" />
-    <Compile Include="StateMachine\IRaftNode.cs" />
-    <Compile Include="Log\NodeLog.cs" />
-    <Compile Include="StateMachine\Enums\NodeEvent.cs" />
-    <Compile Include="StateMachine\Enums\NodeState.cs" />
-    <Compile Include="StateMachine\RaftNode.cs" />
+    <Compile Include="Internal\CreateCluster.cs" />
+    <Compile Include="IRaftCommand.cs" />
+    <Compile Include="Internal\IRaftInternalCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StateMachine\RaftNodeRules.cs" />
-    <Compile Include="Timer\INodeTimer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <Compile Include="Registers\CommandRegister.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Raft.Core.Events\Raft.Core.Events.csproj">
       <Project>{7e1ad8d9-1f82-4167-a1dc-62c25b0cfe02}</Project>
       <Name>Raft.Core.Events</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Raft.Core\Raft.Core.csproj">
+      <Project>{38aa7867-734c-4b09-abd4-8db3f74ace6c}</Project>
+      <Name>Raft.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure\Raft.Infrastructure.csproj">
-      <Project>{435A85AF-E1CB-442B-A7A4-BB04A92847A7}</Project>
+      <Project>{435a85af-e1cb-442b-a7a4-bb04a92847a7}</Project>
       <Name>Raft.Infrastructure</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

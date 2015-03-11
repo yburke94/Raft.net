@@ -1,11 +1,11 @@
 Raft.NET
 =========
-A .Net port of the RAFT consensus algorithm.
+A .Net implementation of the RAFT consensus algorithm.
 
 WORK IN PROGRESS
 
 Technologies used:
- - LMAX Disruptor (.Net port)
+ - Disruptor-net
  - Protocol Buffers
  - Stateless
  - WCF

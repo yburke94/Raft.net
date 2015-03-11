@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Raft.Infrastructure.Disruptor")]
+[assembly: AssemblyTitle("Raft.Server.Commands")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Raft.Infrastructure.Disruptor")]
+[assembly: AssemblyProduct("Raft.Server.Commands")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d22906a2-76b1-40d5-84c5-db75490b597a")]
+[assembly: Guid("8d4a7e98-b216-4f54-9f8d-10ff4f62c32c")]
 
 // Version information for an assembly consists of the following four values:
 //

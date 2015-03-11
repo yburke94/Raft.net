@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Raft.Server.Events;
-using Raft.Server.Log;
+using Raft.Server.Events.Data;
+using Raft.Server.Events.Translators;
 
 namespace Raft.Tests.Unit.TestData.Commands
 {
@@ -9,7 +10,7 @@ namespace Raft.Tests.Unit.TestData.Commands
     {
         public static CommandScheduled GetInternalCommandEvent()
         {
-            return new CommandScheduled.Translator(
+            return new CommandScheduledTranslator(
                 new TestInternalCommand(),
                 new TaskCompletionSource<CommandExecuted>())
                 .Translate(new CommandScheduled(), 1L);
@@ -17,7 +18,7 @@ namespace Raft.Tests.Unit.TestData.Commands
 
         public static CommandScheduled GetCommandEvent()
         {
-            return new CommandScheduled.Translator(
+            return new CommandScheduledTranslator(
                 new TestCommand(),
                 new TaskCompletionSource<CommandExecuted>())
                 .Translate(new CommandScheduled(), 1L);
@@ -25,7 +26,7 @@ namespace Raft.Tests.Unit.TestData.Commands
 
         public static CommandScheduled GetCommandEvent(long logIdx, byte[] data)
         {
-            var @event =  new CommandScheduled.Translator(
+            var @event =  new CommandScheduledTranslator(
                 new TestCommand(),
                 new TaskCompletionSource<CommandExecuted>())
                 .Translate(new CommandScheduled(), 1L);
@@ -36,7 +37,7 @@ namespace Raft.Tests.Unit.TestData.Commands
 
         public static CommandScheduled GetCommandEvent(long logIdx, byte[] data, Action executeAction)
         {
-            var @event =  new CommandScheduled.Translator(
+            var @event =  new CommandScheduledTranslator(
                 new TestExecutableCommand(executeAction),
                 new TaskCompletionSource<CommandExecuted>())
                 .Translate(new CommandScheduled(), 1L);
