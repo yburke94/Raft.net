@@ -26,6 +26,7 @@ namespace Raft.Server.Handlers.Leader
 
         public override void Handle(CommandScheduled @event)
         {
+            // An entry is considered committed once it has been written to persistant storage and replicated.
             _raftNode.CommitLogEntry(@event.LogEntry.Index, @event.LogEntry.Term);
 
             @event.Command.Execute(_serviceLocator);

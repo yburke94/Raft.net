@@ -1,10 +1,13 @@
 ﻿using System;
 using Raft.Core.Log;
+using Raft.Core.StateMachine.Enums;
 
 namespace Raft.Core.StateMachine
 {
     public interface IRaftNode
     {
+        NodeState CurrentState { get; }
+
         /// <summary>
         /// Id for the Node.
         /// </summary>

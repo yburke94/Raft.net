@@ -1,6 +1,7 @@
 ﻿namespace Raft.Core.StateMachine.Enums
 {
-    internal enum NodeState
+    // TODO: Become objects!!!
+    public enum NodeState
     {
         Initial,
         Leader,

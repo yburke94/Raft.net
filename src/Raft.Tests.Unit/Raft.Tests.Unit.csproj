@@ -75,6 +75,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RaftApiTests.cs" />
     <Compile Include="Core\Log\RaftLogTests.cs" />
     <Compile Include="Core\StateMachine\RaftNodeTests.cs" />
     <Compile Include="Server\CommandRegisterTests.cs" />
@@ -96,6 +97,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Raft.Contracts\Raft.Contracts.csproj">
+      <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
+      <Name>Raft.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Raft.Core.Commands\Raft.Core.Commands.csproj">
       <Project>{9a3f7c7b-6b55-4a42-869c-b5d71c75a2dc}</Project>
       <Name>Raft.Core.Commands</Name>
@@ -131,6 +136,10 @@
     <ProjectReference Include="..\Raft.Service\Raft.Service.csproj">
       <Project>{9ce1b519-0c94-4946-b7e0-584ba2fdf22a}</Project>
       <Name>Raft.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Raft\Raft.csproj">
+      <Project>{abc6e34d-645e-42ab-a319-ee76a1dbe12c}</Project>
+      <Name>Raft</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
