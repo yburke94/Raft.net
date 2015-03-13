@@ -14,9 +14,9 @@ namespace Raft.Core.StateMachine
 
             // Leader State Rules
             machine.Configure(NodeState.Leader)
-                .PermitReentry(NodeEvent.ClientScheduledCommandExecution)
-                .PermitReentry(NodeEvent.LogEntryCommited)
-                .PermitReentry(NodeEvent.CommandExecuted);
+                .Ignore(NodeEvent.ClientScheduledCommandExecution)
+                .Ignore(NodeEvent.LogEntryCommited)
+                .Ignore(NodeEvent.CommandExecuted);
 
             // Candidate State Rules
             machine.Configure(NodeState.Candidate)
@@ -26,9 +26,11 @@ namespace Raft.Core.StateMachine
             // Follower State Rules
             machine.Configure(NodeState.Follower)
                 .Permit(NodeEvent.LeaderHearbeatTimedOut, NodeState.Candidate) // TODO
-                .PermitReentry(NodeEvent.TermSetFromRpc)
-                .PermitReentry(NodeEvent.LogEntryCommited)
-                .PermitReentry(NodeEvent.CommandExecuted);
+                .Ignore(NodeEvent.TermSetFromRpc)
+                .Ignore(NodeEvent.LogEntryCommited)
+                .Ignore(NodeEvent.CommandExecuted);
         }
+
+
     }
 }

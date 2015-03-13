@@ -1,6 +1,5 @@
 ﻿using System;
 using NUnit.Framework;
-using Raft.Core;
 using Raft.Core.Log;
 
 namespace Raft.Tests.Unit.Core.Log

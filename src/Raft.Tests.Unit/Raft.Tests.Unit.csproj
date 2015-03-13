@@ -77,18 +77,16 @@
   <ItemGroup>
     <Compile Include="Core\Log\RaftLogTests.cs" />
     <Compile Include="Core\StateMachine\RaftNodeTests.cs" />
-    <Compile Include="Server\Commands\Registers\CommandRegisterTests.cs" />
+    <Compile Include="Server\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\Events\Handlers\CommandFinalizerTests.cs" />
-    <Compile Include="Server\Events\Handlers\LogEncoderTests.cs" />
-    <Compile Include="Server\Events\Handlers\LogReplicatorTests.cs" />
-    <Compile Include="Server\Events\Handlers\LogWriterTests.cs" />
-    <Compile Include="Server\Events\Handlers\NodeStateManagerTests.cs" />
-    <Compile Include="Server\Service\RaftServiceTests.cs" />
+    <Compile Include="Server\Handlers\CommandFinalizerTests.cs" />
+    <Compile Include="Server\Handlers\LogEncoderTests.cs" />
+    <Compile Include="Server\Handlers\LogReplicatorTests.cs" />
+    <Compile Include="Server\Handlers\LogWriterTests.cs" />
+    <Compile Include="Service\RaftServiceTests.cs" />
     <Compile Include="TestData\Commands\TestCommand.cs" />
     <Compile Include="TestData\Commands\TestEventFactory.cs" />
     <Compile Include="TestData\Commands\TestExecutableCommand.cs" />
-    <Compile Include="TestData\Commands\TestInternalCommand.cs" />
     <Compile Include="TestHelpers\TestTask.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +96,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Raft.Core.Commands\Raft.Core.Commands.csproj">
+      <Project>{9a3f7c7b-6b55-4a42-869c-b5d71c75a2dc}</Project>
+      <Name>Raft.Core.Commands</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Raft.Core.Events\Raft.Core.Events.csproj">
       <Project>{7e1ad8d9-1f82-4167-a1dc-62c25b0cfe02}</Project>
       <Name>Raft.Core.Events</Name>
@@ -118,17 +120,9 @@
       <Project>{435A85AF-E1CB-442B-A7A4-BB04A92847A7}</Project>
       <Name>Raft.Infrastructure</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Raft.Server.Commands\Raft.Server.Commands.csproj">
-      <Project>{b7e5f20a-4d77-447a-81aa-016ec0d711c2}</Project>
-      <Name>Raft.Server.Commands</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Server.Events.Handlers\Raft.Server.Events.Handlers.csproj">
-      <Project>{fbdcda18-2498-40d7-9b84-45ada168cc7f}</Project>
-      <Name>Raft.Server.Events.Handlers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Server.Events\Raft.Server.Events.csproj">
-      <Project>{308212e8-91a4-48d0-95b2-6600dbc83e26}</Project>
-      <Name>Raft.Server.Events</Name>
+    <ProjectReference Include="..\Raft.Server\Raft.Server.csproj">
+      <Project>{cc25a653-6b97-4bfc-8031-347e0ad90155}</Project>
+      <Name>Raft.Server</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Service.Contracts\Raft.Service.Contracts.csproj">
       <Project>{c23f6bd1-7ee0-4e0a-97f0-48d710c3545f}</Project>

@@ -51,9 +51,9 @@
       <Project>{5367d27d-1589-4b8f-92c9-7bbb8dec9a9f}</Project>
       <Name>Raft.Infrastructure.Disruptor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Raft.Server.Events\Raft.Server.Events.csproj">
-      <Project>{308212e8-91a4-48d0-95b2-6600dbc83e26}</Project>
-      <Name>Raft.Server.Events</Name>
+    <ProjectReference Include="..\Raft.Server\Raft.Server.csproj">
+      <Project>{cc25a653-6b97-4bfc-8031-347e0ad90155}</Project>
+      <Name>Raft.Server</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft.Service.Contracts\Raft.Service.Contracts.csproj">
       <Project>{c23f6bd1-7ee0-4e0a-97f0-48d710c3545f}</Project>

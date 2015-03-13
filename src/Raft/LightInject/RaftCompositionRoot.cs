@@ -1,9 +1,9 @@
 ﻿using Raft.Configuration;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
-using Raft.Server.Events;
-using Raft.Server.Events.Handlers.Follower;
-using Raft.Server.Events.Handlers.Leader;
+using Raft.Server.BufferEvents;
+using Raft.Server.Handlers.Follower;
+using Raft.Server.Handlers.Leader;
 
 namespace Raft.LightInject
 {
@@ -12,7 +12,6 @@ namespace Raft.LightInject
         public void Compose(IServiceRegistry serviceRegistry)
         {
             // Leader event handlers
-            serviceRegistry.Register<NodeStateValidator>();
             serviceRegistry.Register<LogEncoder>();
             serviceRegistry.Register<LogWriter>();
             serviceRegistry.Register<LogReplicator>();
@@ -36,7 +35,6 @@ namespace Raft.LightInject
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
                 .UseSpinAndYieldWaitStrategy()
-                .AddEventHandler(x.GetInstance<NodeStateValidator>())
                 .AddEventHandler(x.GetInstance<LogEncoder>())
                 .AddEventHandler(x.GetInstance<LogWriter>())
                 .AddEventHandler(x.GetInstance<LogReplicator>())

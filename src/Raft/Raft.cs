@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Raft.Contracts;
 using Raft.Infrastructure.Disruptor;
-using Raft.Server.Commands;
-using Raft.Server.Events;
-using Raft.Server.Events.Data;
-using Raft.Server.Events.Translators;
+using Raft.Server;
+using Raft.Server.BufferEvents;
+using Raft.Server.BufferEvents.Translators;
+using Raft.Server.Data;
 
 namespace Raft
 {
@@ -17,9 +17,11 @@ namespace Raft
             _commandPublisher = commandPublisher;
         }
 
-        public Task<CommandExecuted> ExecuteCommand<T>(T command) where T : IRaftCommand, new()
+        public Task<CommandExecutionResult> ExecuteCommand<T>(T command) where T : IRaftCommand, new()
         {
-            var taskCompletionSource = new TaskCompletionSource<CommandExecuted>();
+            // TODO: Validate node state!
+
+            var taskCompletionSource = new TaskCompletionSource<CommandExecutionResult>();
             var translator = new CommandScheduledTranslator(command, taskCompletionSource);
 
             _commandPublisher.PublishEvent(translator.Translate);

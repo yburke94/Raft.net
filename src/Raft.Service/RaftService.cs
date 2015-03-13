@@ -1,7 +1,7 @@
 ﻿using Raft.Core.StateMachine;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
-using Raft.Server.Events;
+using Raft.Server.BufferEvents;
 using Raft.Service.Contracts;
 using Raft.Service.Contracts.Messages.AppendEntries;
 using Raft.Service.Contracts.Messages.RequestVote;

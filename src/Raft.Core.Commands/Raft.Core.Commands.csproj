@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AC7784F7-377D-4E31-800F-A19DAB12DF26}</ProjectGuid>
+    <ProjectGuid>{9A3F7C7B-6B55-4A42-869C-B5D71C75A2DC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Contracts</RootNamespace>
-    <AssemblyName>Raft.Contracts</AssemblyName>
+    <RootNamespace>Raft.Core.Commands</RootNamespace>
+    <AssemblyName>Raft.Core.Commands</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,14 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IRaft.cs" />
+    <Compile Include="CreateCluster.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Raft.Server\Raft.Server.csproj">
-      <Project>{cc25a653-6b97-4bfc-8031-347e0ad90155}</Project>
-      <Name>Raft.Server</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
