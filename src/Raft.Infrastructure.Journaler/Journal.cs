@@ -6,7 +6,7 @@ using Raft.Infrastructure.Journaler.Writers;
 
 namespace Raft.Infrastructure.Journaler
 {
-    internal class Journal : IJournal, IDisposable
+    internal class Journal : IWriteDataBlocks, IDisposable
     {
         private readonly JournalConfiguration _journalConfiguration;
         private readonly IJournalFileWriter _journalFileWriter;

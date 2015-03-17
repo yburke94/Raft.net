@@ -44,7 +44,6 @@
     <Compile Include="Writers\BufferedJournalFileWriter.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />
     <Compile Include="Writers\IJournalFileWriter.cs" />
-    <Compile Include="IJournal.cs" />
     <Compile Include="IoType.cs" />
     <Compile Include="Transformers\ITransformJournalEntry.cs" />
     <Compile Include="JournalConfiguration.cs" />
@@ -61,7 +60,12 @@
     <Compile Include="Writers\UnbufferedJournalFileWriter.cs" />
     <Compile Include="Kernel\UnbufferedStream.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Raft.Contracts\Raft.Contracts.csproj">
+      <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
+      <Name>Raft.Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

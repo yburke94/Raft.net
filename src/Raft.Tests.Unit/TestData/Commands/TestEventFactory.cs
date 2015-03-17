@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Raft.Server.BufferEvents;
 using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;

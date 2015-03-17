@@ -19,7 +19,7 @@ namespace Raft.Tests.Unit.Server.Handlers
             var data = BitConverter.GetBytes(1);
 
             var @event = TestEventFactory.GetCommandEvent(1L, data);
-            var journaler = Substitute.For<IJournal>();
+            var journaler = Substitute.For<IWriteDataBlocks>();
 
             var handler = new LogWriter(journaler);
 

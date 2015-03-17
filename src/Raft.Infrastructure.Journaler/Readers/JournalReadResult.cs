@@ -1,5 +1,6 @@
 namespace Raft.Infrastructure.Journaler.Readers
 {
+    // TODO: Move into contracts project.
     public class JournalReadResult
     {
         public int JournalIndex { get; private set; }

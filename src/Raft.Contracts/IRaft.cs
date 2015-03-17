@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Raft.Server;
-using Raft.Server.Data;
 
 namespace Raft.Contracts
 {

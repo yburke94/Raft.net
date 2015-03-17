@@ -102,41 +102,9 @@
       <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
       <Name>Raft.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Raft.Core.Commands\Raft.Core.Commands.csproj">
-      <Project>{9a3f7c7b-6b55-4a42-869c-b5d71c75a2dc}</Project>
-      <Name>Raft.Core.Commands</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Core.Events\Raft.Core.Events.csproj">
-      <Project>{7e1ad8d9-1f82-4167-a1dc-62c25b0cfe02}</Project>
-      <Name>Raft.Core.Events</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Core\Raft.Core.csproj">
-      <Project>{38aa7867-734c-4b09-abd4-8db3f74ace6c}</Project>
-      <Name>Raft.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Infrastructure.Disruptor\Raft.Infrastructure.Disruptor.csproj">
-      <Project>{5367D27D-1589-4B8F-92C9-7BBB8DEC9A9F}</Project>
-      <Name>Raft.Infrastructure.Disruptor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj">
       <Project>{4ad63ebe-afc9-4b7e-a536-8608a83691d3}</Project>
       <Name>Raft.Infrastructure.Journaler</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Infrastructure\Raft.Infrastructure.csproj">
-      <Project>{435A85AF-E1CB-442B-A7A4-BB04A92847A7}</Project>
-      <Name>Raft.Infrastructure</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Server\Raft.Server.csproj">
-      <Project>{cc25a653-6b97-4bfc-8031-347e0ad90155}</Project>
-      <Name>Raft.Server</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Service.Contracts\Raft.Service.Contracts.csproj">
-      <Project>{c23f6bd1-7ee0-4e0a-97f0-48d710c3545f}</Project>
-      <Name>Raft.Service.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Raft.Service\Raft.Service.csproj">
-      <Project>{9ce1b519-0c94-4946-b7e0-584ba2fdf22a}</Project>
-      <Name>Raft.Service</Name>
     </ProjectReference>
     <ProjectReference Include="..\Raft\Raft.csproj">
       <Project>{abc6e34d-645e-42ab-a319-ee76a1dbe12c}</Project>

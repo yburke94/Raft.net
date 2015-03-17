@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Raft.Infrastructure.Journaler.Readers
 {
+    // TODO: Extract generic interface and move into contracts project.
     public class JournalReader : IDisposable
     {
         private readonly IDictionary<int, string> _journalIndexPathMap;

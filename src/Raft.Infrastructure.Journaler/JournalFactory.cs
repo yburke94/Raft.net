@@ -6,7 +6,7 @@ namespace Raft.Infrastructure.Journaler
 {
     public class JournalFactory
     {
-        public IJournal CreateJournaler(JournalConfiguration configuration)
+        public IWriteDataBlocks CreateJournaler(JournalConfiguration configuration)
         {
             var fileWriter = configuration.IoType == IoType.Buffered
                 ? (IJournalFileWriter)new BufferedJournalFileWriter(configuration)

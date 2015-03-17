@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using Raft.Contracts;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Enums;
 using Raft.Exceptions;

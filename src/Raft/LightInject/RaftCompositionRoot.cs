@@ -1,4 +1,5 @@
 ﻿using Raft.Configuration;
+using Raft.Contracts;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Disruptor;
@@ -17,7 +18,9 @@ namespace Raft.LightInject
         {
             // Infrastructure
             serviceRegistry.Register<IEventDispatcher, LightInjectEventDispatcher>();
-            serviceRegistry.Register(factory => new JournalFactory()
+
+            // TODO: make this configurable!!!!!!
+            serviceRegistry.Register<IWriteDataBlocks>(factory => new JournalFactory()
                 .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
 
             // State machine
