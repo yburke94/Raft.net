@@ -1,6 +1,6 @@
 ﻿namespace Raft.Core.Events
 {
-    public class TermChanged
+    internal class TermChanged
     {
         public TermChanged(long newTerm)
         {

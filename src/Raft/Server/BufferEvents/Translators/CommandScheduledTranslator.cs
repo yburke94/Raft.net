@@ -2,11 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Raft.Contracts;
 using Raft.Infrastructure.Disruptor;
-using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents.Translators
 {
-    public class CommandScheduledTranslator : ITranslator<CommandScheduled>
+    internal class CommandScheduledTranslator : IEventTranslator<CommandScheduled>
     {
         private readonly Guid _id = Guid.NewGuid();
         private readonly IRaftCommand _command;

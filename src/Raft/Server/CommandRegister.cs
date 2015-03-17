@@ -16,7 +16,7 @@ namespace Raft.Server
     /// When a follower has received an entry from the leader in order to LogMatch,
     /// This should not be used. Instead the command should be applied as soon as it is received.
     /// </remarks>
-    public class CommandRegister : IHandle<TermChanged>
+    internal class CommandRegister : IHandle<TermChanged>
     {
         private readonly ConcurrentDictionary<EntryKey, IRaftCommand> _raftCommands = new ConcurrentDictionary<EntryKey, IRaftCommand>();
 

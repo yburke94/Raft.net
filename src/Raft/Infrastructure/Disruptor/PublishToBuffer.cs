@@ -5,7 +5,7 @@ using Disruptor;
 
 namespace Raft.Infrastructure.Disruptor
 {
-    public class PublishToBuffer<T> : IPublishToBuffer<T> where T : class
+    internal class PublishToBuffer<T> : IPublishToBuffer<T> where T : class
     {
         private readonly EventPublisher<T> _eventPublisher;
 
@@ -14,18 +14,18 @@ namespace Raft.Infrastructure.Disruptor
             _eventPublisher = new EventPublisher<T>(ringBuffer);
         }
 
-        public void PublishEvent(ITranslator<T> translator)
+        public void PublishEvent(IEventTranslator<T> translator)
         {
             _eventPublisher.PublishEvent(translator.Translate);
         }
 
-        public void PublishEvent(ITranslator<T> translator, TimeSpan timeout)
+        public void PublishEvent(IEventTranslator<T> translator, TimeSpan timeout)
         {
             _eventPublisher.PublishEvent(translator.Translate, timeout);
         }
     }
 
-    public class PublishToBuffer<TEvent, TResult> : IPublishToBuffer<TEvent, TResult>
+    internal class PublishToBuffer<TEvent, TResult> : IPublishToBuffer<TEvent, TResult>
         where TEvent : class, IFutureEvent<TResult>
         where TResult : class
     {
@@ -36,7 +36,7 @@ namespace Raft.Infrastructure.Disruptor
             _eventPublisher = new EventPublisher<TEvent>(ringBuffer);
         }
 
-        public Task<TResult> PublishEvent(ITranslator<TEvent> translator)
+        public Task<TResult> PublishEvent(IEventTranslator<TEvent> translator)
         {
             Task<TResult> task = null;
             _eventPublisher.PublishEvent((@event, l) =>
@@ -50,7 +50,7 @@ namespace Raft.Infrastructure.Disruptor
             return task;
         }
 
-        public Task<TResult> PublishEvent(ITranslator<TEvent> translator, TimeSpan timeout)
+        public Task<TResult> PublishEvent(IEventTranslator<TEvent> translator, TimeSpan timeout)
         {
             Task<TResult> task = null;
             _eventPublisher.PublishEvent((@event, l) =>

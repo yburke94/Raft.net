@@ -2,17 +2,15 @@
 using Disruptor;
 using ProtoBuf;
 using Raft.Core.Commands;
-using Raft.Core.StateMachine;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
 using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
-using Raft.Server.Handlers.Core;
 
 namespace Raft.Server.Handlers.Follower
 {
-    public class RpcLogWriter : IEventHandler<CommitCommandRequested>
+    internal class RpcLogWriter : IEventHandler<CommitCommandRequested>
     {
         private readonly IWriteDataBlocks _writeDataBlocks;
         private readonly CommandRegister _commandRegister;

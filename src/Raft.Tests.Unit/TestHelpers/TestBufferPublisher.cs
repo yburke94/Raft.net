@@ -5,7 +5,7 @@ using Raft.Infrastructure.Disruptor;
 
 namespace Raft.Tests.Unit.TestHelpers
 {
-    public class TestBufferPublisher<TEvent, TResult> : IPublishToBuffer<TEvent, TResult>
+    internal class TestBufferPublisher<TEvent, TResult> : IPublishToBuffer<TEvent, TResult>
         where TEvent : class, IFutureEvent<TResult> where TResult : class
     {
         public TestBufferPublisher()
@@ -14,7 +14,7 @@ namespace Raft.Tests.Unit.TestHelpers
         }
         internal IList<TEvent> Events { get; private set; }
 
-        public Task<TResult> PublishEvent(ITranslator<TEvent> translator)
+        public Task<TResult> PublishEvent(IEventTranslator<TEvent> translator)
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>();
             Events.Add(translator.Translate(Activator.CreateInstance<TEvent>(), 0));
@@ -22,7 +22,7 @@ namespace Raft.Tests.Unit.TestHelpers
             return taskCompletionSource.Task;
         }
 
-        public Task<TResult> PublishEvent(ITranslator<TEvent> translator, TimeSpan timeout)
+        public Task<TResult> PublishEvent(IEventTranslator<TEvent> translator, TimeSpan timeout)
         {
             return PublishEvent(translator);
         }

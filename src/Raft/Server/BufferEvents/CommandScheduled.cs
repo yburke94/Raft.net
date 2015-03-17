@@ -6,7 +6,7 @@ using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents
 {
-    public class CommandScheduled : IFutureEvent<CommandExecutionResult>
+    internal class CommandScheduled : IFutureEvent<CommandExecutionResult>
     {
         public Guid Id { get; internal set; }
 

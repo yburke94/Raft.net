@@ -7,11 +7,10 @@ using Raft.Infrastructure.Extensions;
 using Raft.Server.BufferEvents;
 using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
-using Raft.Server.Handlers.Core;
 
 namespace Raft.Server.Handlers.Follower
 {
-    public class RpcCommandApplier : IEventHandler<ApplyCommandRequested>
+    internal class RpcCommandApplier : IEventHandler<ApplyCommandRequested>
     {
         private readonly INode _node;
         private readonly CommandRegister _commandRegister;

@@ -1,6 +1,6 @@
 ﻿namespace Raft.Core.Timer
 {
-    public interface INodeTimer
+    internal interface INodeTimer
     {
         void ResetTimer();
     }

@@ -1,7 +1,4 @@
 namespace Raft.Core.Commands
 {
-    public interface INodeCommand
-    {
-
-    }
+    internal interface INodeCommand { }
 }

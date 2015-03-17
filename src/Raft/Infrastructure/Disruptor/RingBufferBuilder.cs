@@ -7,7 +7,7 @@ using Disruptor.Dsl;
 
 namespace Raft.Infrastructure.Disruptor
 {
-    public class RingBufferBuilder<TEvent> where TEvent : class
+    internal class RingBufferBuilder<TEvent> where TEvent : class
     {
         private int _bufferSize;
 

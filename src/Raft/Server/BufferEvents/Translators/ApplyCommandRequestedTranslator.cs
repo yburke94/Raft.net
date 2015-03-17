@@ -2,7 +2,7 @@
 
 namespace Raft.Server.BufferEvents.Translators
 {
-    public class ApplyCommandRequestedTranslator : ITranslator<ApplyCommandRequested>
+    internal class ApplyCommandRequestedTranslator : IEventTranslator<ApplyCommandRequested>
     {
         private readonly long _logIdx;
 

@@ -5,14 +5,13 @@ using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
-using Raft.Server.Handlers.Core;
 using Raft.Service.Contracts;
 using Raft.Service.Contracts.Messages.AppendEntries;
 using Raft.Service.Contracts.Messages.RequestVote;
 
 namespace Raft.Service
 {
-    public class RaftService : IRaftService
+    internal class RaftService : IRaftService
     {
         private readonly IPublishToBuffer<CommitCommandRequested> _commitPublisher;
         private readonly IPublishToBuffer<ApplyCommandRequested> _applyPublisher;

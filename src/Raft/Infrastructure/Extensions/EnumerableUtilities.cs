@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Raft.Infrastructure.Extensions
 {
-    public static class EnumerableUtilities
+    internal static class EnumerableUtilities
     {
         public static IEnumerable<long> Range(long start, int count)
         {

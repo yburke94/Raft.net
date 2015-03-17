@@ -1,24 +1,22 @@
 ﻿using Microsoft.Practices.ServiceLocation;
 using Raft.Contracts;
 using Raft.Core.Commands;
-using Raft.Core.StateMachine;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
-using Raft.Server.Handlers.Core;
 
 namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
-    /// 5 of 5 EventHandlers for scheduled state machine commands.
+    /// 4 of 4 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     LogEncoder
     ///     LogWriter
     ///     LogReplicator
     ///     CommandFinalizer*
     /// </summary>
-    public class CommandFinalizer : LeaderEventHandler
+    internal class CommandFinalizer : LeaderEventHandler
     {
         private readonly IServiceLocator _serviceLocator;
         private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;

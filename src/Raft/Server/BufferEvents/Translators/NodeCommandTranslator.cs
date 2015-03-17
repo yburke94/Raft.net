@@ -5,7 +5,7 @@ using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents.Translators
 {
-    public class NodeCommandTranslator : ITranslator<NodeCommandScheduled>
+    internal class NodeCommandTranslator : IEventTranslator<NodeCommandScheduled>
     {
         private readonly INodeCommand _nodeCommand;
         private readonly TaskCompletionSource<NodeCommandResult> _taskCompletionSource;

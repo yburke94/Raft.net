@@ -5,14 +5,14 @@ using Raft.Server.BufferEvents;
 namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
-    /// 4 of 5 EventHandlers for scheduled state machine commands.
+    /// 2 of 4 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     LogEncoder
     ///     LogWriter*
     ///     LogReplicator
     ///     CommandFinalizer
     /// </summary>
-    public class LogWriter : LeaderEventHandler
+    internal class LogWriter : LeaderEventHandler
     {
         private readonly IWriteDataBlocks _writeDataBlocks;
 

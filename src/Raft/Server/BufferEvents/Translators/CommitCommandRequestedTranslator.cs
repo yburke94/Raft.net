@@ -2,7 +2,7 @@ using Raft.Infrastructure.Disruptor;
 
 namespace Raft.Server.BufferEvents.Translators
 {
-    public class CommitCommandRequestedTranslator : ITranslator<CommitCommandRequested>
+    internal class CommitCommandRequestedTranslator : IEventTranslator<CommitCommandRequested>
     {
         private readonly byte[] _entry;
 

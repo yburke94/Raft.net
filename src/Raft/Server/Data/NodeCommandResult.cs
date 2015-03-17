@@ -1,6 +1,6 @@
 ﻿namespace Raft.Server.Data
 {
-    public class NodeCommandResult
+    internal class NodeCommandResult
     {
         public NodeCommandResult(bool successful)
         {

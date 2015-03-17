@@ -2,7 +2,7 @@
 
 namespace Raft.Core.StateMachine.Data
 {
-    public class NodeData
+    internal class NodeData
     {
         public NodeData()
         {

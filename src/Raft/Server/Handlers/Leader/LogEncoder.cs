@@ -7,14 +7,14 @@ using Raft.Server.Data;
 namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
-    /// 2 of 5 EventHandlers for scheduled state machine commands.
+    /// 1 of 4 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     LogEncoder*
     ///     LogWriter
     ///     LogReplicator
     ///     CommandFinalizer
     /// </summary>
-    public class LogEncoder : LeaderEventHandler
+    internal class LogEncoder : LeaderEventHandler
     {
         private long _lastLogId;
 

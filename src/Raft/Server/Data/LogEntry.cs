@@ -4,7 +4,7 @@ using Raft.Contracts;
 namespace Raft.Server.Data
 {
     [ProtoContract]
-    public class LogEntry
+    internal class LogEntry
     {
         [ProtoMember(1, IsRequired = true)]
         public long Index { get; set; }

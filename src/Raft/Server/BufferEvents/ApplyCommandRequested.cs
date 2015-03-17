@@ -1,6 +1,6 @@
 ﻿namespace Raft.Server.BufferEvents
 {
-    public class ApplyCommandRequested
+    internal class ApplyCommandRequested
     {
         public long LogIdx { get; internal set; }
     }

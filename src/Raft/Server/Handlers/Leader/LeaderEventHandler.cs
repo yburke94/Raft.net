@@ -4,7 +4,7 @@ using Raft.Server.BufferEvents;
 
 namespace Raft.Server.Handlers.Leader
 {
-    public abstract class LeaderEventHandler : IEventHandler<CommandScheduled>
+    internal abstract class LeaderEventHandler : IEventHandler<CommandScheduled>
     {
         protected long Sequence = 0;
         protected bool EndOfBatch = false;

@@ -7,14 +7,14 @@ using Raft.Service.Contracts.Messages.AppendEntries;
 namespace Raft.Server.Handlers.Leader
 {
     /// <summary>
-    /// 3 of 5 EventHandlers for scheduled state machine commands.
+    /// 3 of 4 EventHandlers for scheduled state machine commands.
     /// Order of execution:
     ///     LogEncoder
     ///     LogWriter
     ///     LogReplicator*
     ///     CommandFinalizer
     /// </summary>
-    public class LogReplicator : LeaderEventHandler
+    internal class LogReplicator : LeaderEventHandler
     {
         private readonly IList<PeerNode> _peers;
 

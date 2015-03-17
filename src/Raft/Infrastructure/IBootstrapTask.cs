@@ -1,6 +1,6 @@
 ﻿namespace Raft.Infrastructure
 {
-    public interface IBootstrapTask
+    internal interface IBootstrapTask
     {
         void Bootstrap();
     }

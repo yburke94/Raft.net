@@ -73,7 +73,6 @@
     <Compile Include="Core\Events\TermChanged.cs" />
     <Compile Include="Core\StateMachine\Data\NodeData.cs" />
     <Compile Include="Core\StateMachine\Data\NodeLog.cs" />
-    <Compile Include="Core\StateMachine\Enums\NodeEvent.cs" />
     <Compile Include="Core\StateMachine\Enums\NodeState.cs" />
     <Compile Include="Core\StateMachine\INode.cs" />
     <Compile Include="Core\StateMachine\Node.cs" />
@@ -83,8 +82,9 @@
     <Compile Include="IConfigureRaft.cs" />
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
+    <Compile Include="Infrastructure\Disruptor\IFutureEvent.cs" />
     <Compile Include="Infrastructure\Disruptor\IPublishToBuffer.cs" />
-    <Compile Include="Infrastructure\Disruptor\ITranslator.cs" />
+    <Compile Include="Infrastructure\Disruptor\IEventTranslator.cs" />
     <Compile Include="Infrastructure\Disruptor\PublishToBuffer.cs" />
     <Compile Include="Infrastructure\Disruptor\RingBufferBuilder.cs" />
     <Compile Include="Infrastructure\Extensions\EnumerableUtilities.cs" />

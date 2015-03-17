@@ -57,7 +57,6 @@ namespace Raft.Infrastructure.Journaler
         public void Dispose()
         {
             _journalFileWriter.Dispose();
-
         }
     }
 }

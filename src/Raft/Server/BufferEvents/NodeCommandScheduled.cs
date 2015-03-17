@@ -5,7 +5,7 @@ using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents
 {
-    public class NodeCommandScheduled : IFutureEvent<NodeCommandResult>
+    internal class NodeCommandScheduled : IFutureEvent<NodeCommandResult>
     {
         public INodeCommand Command { get; set; }
 

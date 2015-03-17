@@ -3,7 +3,7 @@
     /// <summary>
     /// Dispatches events to subscribers subscribed via the <see cref="IHandle{TEvent}" /> contract.
     /// </summary>
-    public interface IEventDispatcher
+    internal interface IEventDispatcher
     {
         void Publish<TEvent>(TEvent @event);
     }

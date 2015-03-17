@@ -3,7 +3,7 @@ using Raft.Core.StateMachine.Enums;
 
 namespace Raft.Core.StateMachine
 {
-    public interface INode
+    internal interface INode
     {
         NodeState CurrentState { get; }
         NodeData Data { get; }

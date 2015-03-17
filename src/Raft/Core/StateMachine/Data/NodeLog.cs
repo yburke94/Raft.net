@@ -2,7 +2,7 @@
 
 namespace Raft.Core.StateMachine.Data
 {
-    public class NodeLog
+    internal class NodeLog
     {
         private const int LogIncrementSize = 64;
 

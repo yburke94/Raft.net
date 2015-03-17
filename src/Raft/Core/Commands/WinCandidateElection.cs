@@ -1,4 +1,4 @@
 namespace Raft.Core.Commands
 {
-    public class WinCandidateElection : INodeCommand { }
+    internal class WinCandidateElection : INodeCommand { }
 }

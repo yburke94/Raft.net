@@ -12,7 +12,7 @@ using Raft.Server.Handlers.Leader;
 
 namespace Raft.LightInject
 {
-    class RaftCompositionRoot : ICompositionRoot
+    internal class RaftCompositionRoot : ICompositionRoot
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {

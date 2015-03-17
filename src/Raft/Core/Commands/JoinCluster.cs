@@ -1,4 +1,4 @@
 namespace Raft.Core.Commands
 {
-    public class JoinCluster : INodeCommand { }
+    internal class JoinCluster : INodeCommand { }
 }

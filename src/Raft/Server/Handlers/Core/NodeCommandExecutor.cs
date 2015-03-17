@@ -8,7 +8,7 @@ using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Core
 {
-    public class NodeCommandExecutor : IEventHandler<NodeCommandScheduled>
+    internal class NodeCommandExecutor : IEventHandler<NodeCommandScheduled>
     {
         private readonly Node _node;
 

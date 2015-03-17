@@ -1,6 +1,6 @@
 ﻿namespace Raft.Infrastructure.Disruptor
 {
-    public interface ITranslator<TEvent>
+    internal interface IEventTranslator<TEvent>
     {
         TEvent Translate(TEvent existingEvent, long sequence);
     }
