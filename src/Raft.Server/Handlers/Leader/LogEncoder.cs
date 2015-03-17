@@ -18,20 +18,20 @@ namespace Raft.Server.Handlers.Leader
     {
         private long _lastLogId;
 
-        private readonly IRaftNode _raftNode;
+        private readonly INode _node;
 
-        public LogEncoder(IRaftNode raftNode)
+        public LogEncoder(INode node)
         {
-            _raftNode = raftNode;
+            _node = node;
 
-            _lastLogId = _raftNode.CommitIndex;
+            _lastLogId = _node.Data.CommitIndex;
         }
 
         // TODO: Should add checksum for validation when sourcing from log... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
         public override void Handle(CommandScheduled @event)
         {
             var logEntry = new LogEntry {
-                Term = _raftNode.CurrentTerm,
+                Term = _node.Data.CurrentTerm,
                 Index = _lastLogId + 1,
                 CommandType = @event.Command.GetType().AssemblyQualifiedName,
                 Command = @event.Command

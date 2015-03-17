@@ -1,7 +1,4 @@
 namespace Raft.Core.Commands
 {
-    public class CreateCluster
-    {
-        
-    }
+    public class CreateCluster : INodeCommand { }
 }

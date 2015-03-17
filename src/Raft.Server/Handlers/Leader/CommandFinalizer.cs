@@ -1,7 +1,11 @@
 ﻿using Microsoft.Practices.ServiceLocation;
+using Raft.Core.Commands;
 using Raft.Core.StateMachine;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
+using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
+using Raft.Server.Handlers.Core;
 
 namespace Raft.Server.Handlers.Leader
 {
@@ -15,25 +19,34 @@ namespace Raft.Server.Handlers.Leader
     /// </summary>
     public class CommandFinalizer : LeaderEventHandler
     {
-        private readonly IRaftNode _raftNode;
         private readonly IServiceLocator _serviceLocator;
+        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
 
-        public CommandFinalizer(IRaftNode raftNode, IServiceLocator serviceLocator)
+        public CommandFinalizer(IServiceLocator serviceLocator,
+            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher)
         {
-            _raftNode = raftNode;
             _serviceLocator = serviceLocator;
+            _nodePublisher = nodePublisher;
         }
 
         public override void Handle(CommandScheduled @event)
         {
             // An entry is considered committed once it has been written to persistant storage and replicated.
-            _raftNode.CommitLogEntry(@event.LogEntry.Index, @event.LogEntry.Term);
+            _nodePublisher.PublishEvent(new NodeCommandTranslator(new CommitEntry
+            {
+                EntryIdx = @event.LogEntry.Index,
+                EntryTerm = @event.LogEntry.Term
+            })).Wait();
+
 
             @event.Command.Execute(_serviceLocator);
-            _raftNode.ApplyCommand(@event.LogEntry.Index);
+            _nodePublisher.PublishEvent(new NodeCommandTranslator(new ApplyEntry
+            {
+                EntryIdx = @event.LogEntry.Index
+            })).Wait();
 
-            if (@event.TaskCompletionSource != null)
-                @event.TaskCompletionSource.SetResult(new CommandExecutionResult(true));
+            if (@event.CompletionSource != null)
+                @event.CompletionSource.SetResult(new CommandExecutionResult(true));
         }
     }
 }

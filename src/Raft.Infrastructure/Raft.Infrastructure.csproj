@@ -43,11 +43,8 @@
     <Compile Include="Extensions\EnumerableUtilities.cs" />
     <Compile Include="IBootstrapTask.cs" />
     <Compile Include="IEventDispatcher.cs" />
-    <Compile Include="ISubscribe.cs" />
+    <Compile Include="IHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

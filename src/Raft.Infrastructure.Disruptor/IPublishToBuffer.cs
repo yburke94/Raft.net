@@ -1,10 +1,24 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Raft.Infrastructure.Disruptor
 {
-    public interface IPublishToBuffer<T> where T : class
+    public interface IPublishToBuffer<TEvent> where TEvent : class
     {
-        void PublishEvent(Func<T, long, T> translator);
-        void PublishEvent(Func<T, long, T> translator, TimeSpan timeout);
+        void PublishEvent(ITranslator<TEvent> translator);
+        void PublishEvent(ITranslator<TEvent> translator, TimeSpan timeout);
+    }
+
+    public interface IPublishToBuffer<TEvent, TResult>
+        where TEvent : class, IFutureEvent<TResult>
+        where TResult : class
+    {
+        Task<TResult> PublishEvent(ITranslator<TEvent> translator);
+        Task<TResult> PublishEvent(ITranslator<TEvent> translator, TimeSpan timeout);
+    }
+
+    public interface IFutureEvent<T>
+    {
+        TaskCompletionSource<T> CompletionSource { get; }
     }
 }

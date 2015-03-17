@@ -1,24 +1,29 @@
 ﻿using System.IO;
 using Disruptor;
 using ProtoBuf;
+using Raft.Core.Commands;
 using Raft.Core.StateMachine;
+using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
+using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
+using Raft.Server.Handlers.Core;
 
 namespace Raft.Server.Handlers.Follower
 {
     public class RpcLogWriter : IEventHandler<CommitCommandRequested>
     {
         private readonly IJournal _journal;
-        private readonly IRaftNode _raftNode;
         private readonly CommandRegister _commandRegister;
+        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
 
-        public RpcLogWriter(IJournal journal, IRaftNode raftNode, CommandRegister commandRegister)
+        public RpcLogWriter(IJournal journal, CommandRegister commandRegister,
+            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher)
         {
             _journal = journal;
-            _raftNode = raftNode;
             _commandRegister = commandRegister;
+            _nodePublisher = nodePublisher;
         }
 
         public void OnNext(CommitCommandRequested data, long sequence, bool endOfBatch)
@@ -33,7 +38,12 @@ namespace Raft.Server.Handlers.Follower
 
                 // TODO: Generate checksum and compare?.
                 _journal.WriteBlock(data.Entry);
-                _raftNode.CommitLogEntry(decodedEntry.Index, decodedEntry.Term);
+                _nodePublisher.PublishEvent(new NodeCommandTranslator(new CommitEntry
+                {
+                    EntryIdx = decodedEntry.Index,
+                    EntryTerm = decodedEntry.Term
+                })).Wait();
+
                 _commandRegister.Add(decodedEntry.Term, decodedEntry.Index, decodedEntry.Command);
             }
             catch

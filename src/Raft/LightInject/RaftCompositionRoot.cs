@@ -1,7 +1,11 @@
 ﻿using Raft.Configuration;
+using Raft.Core.StateMachine;
+using Raft.Infrastructure;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
+using Raft.Server.Data;
+using Raft.Server.Handlers.Core;
 using Raft.Server.Handlers.Follower;
 using Raft.Server.Handlers.Leader;
 
@@ -11,6 +15,15 @@ namespace Raft.LightInject
     {
         public void Compose(IServiceRegistry serviceRegistry)
         {
+            // Infrastructure
+            serviceRegistry.Register<IEventDispatcher, LightInjectEventDispatcher>();
+            serviceRegistry.Register(factory => new JournalFactory()
+                .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
+
+            // State machine
+            serviceRegistry.Register<Node>(new PerContainerLifetime());
+            serviceRegistry.Register<INode>(factory => factory.GetInstance<Node>());
+
             // Leader event handlers
             serviceRegistry.Register<LogEncoder>();
             serviceRegistry.Register<LogWriter>();
@@ -21,8 +34,8 @@ namespace Raft.LightInject
             serviceRegistry.Register<RpcCommandApplier>();
             serviceRegistry.Register<RpcLogWriter>();
 
-            serviceRegistry.Register(factory => new JournalFactory()
-                .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
+            // Core event handlers
+            serviceRegistry.Register<NodeCommandExecutor>();
 
             // TODO: Create binding for IRaftConfiguration...
             // TODO: Make Buffer size configurable...
@@ -41,8 +54,8 @@ namespace Raft.LightInject
                 .AddEventHandler(x.GetInstance<CommandFinalizer>())
                 .Build());
 
-            serviceRegistry.Register<IPublishToBuffer<CommandScheduled>,
-                PublishToBuffer<CommandScheduled>>();
+            serviceRegistry.Register<IPublishToBuffer<CommandScheduled, CommandExecutionResult>,
+                PublishToBuffer<CommandScheduled, CommandExecutionResult>>();
 
             // Create Follower commit ring buffer
             serviceRegistry.Register(x => new RingBufferBuilder<CommitCommandRequested>()
@@ -67,6 +80,18 @@ namespace Raft.LightInject
 
             serviceRegistry.Register<IPublishToBuffer<ApplyCommandRequested>,
                 PublishToBuffer<ApplyCommandRequested>>();
+
+            // Create core ring buffer
+            serviceRegistry.Register(x => new RingBufferBuilder<NodeCommandScheduled>()
+                .UseBufferSize(2 << 5) // 64
+                .UseDefaultEventCtor()
+                .UseMultipleProducers(false)
+                .UseSpinAndYieldWaitStrategy()
+                .AddEventHandler(x.GetInstance<NodeCommandExecutor>())
+                .Build());
+
+            serviceRegistry.Register<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>,
+                PublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
         }
     }
 }

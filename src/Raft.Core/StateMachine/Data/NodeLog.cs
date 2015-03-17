@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Raft.Core.Log
+namespace Raft.Core.StateMachine.Data
 {
     public class NodeLog
     {

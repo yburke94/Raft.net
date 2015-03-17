@@ -1,7 +1,11 @@
-﻿using Raft.Core.StateMachine;
+﻿using Raft.Core.Commands;
+using Raft.Core.StateMachine;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
+using Raft.Server.BufferEvents.Translators;
+using Raft.Server.Data;
+using Raft.Server.Handlers.Core;
 using Raft.Service.Contracts;
 using Raft.Service.Contracts.Messages.AppendEntries;
 using Raft.Service.Contracts.Messages.RequestVote;
@@ -12,33 +16,39 @@ namespace Raft.Service
     {
         private readonly IPublishToBuffer<CommitCommandRequested> _commitPublisher;
         private readonly IPublishToBuffer<ApplyCommandRequested> _applyPublisher;
+        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
         private readonly INodeTimer _timer;
-        private readonly IRaftNode _raftNode;
+        private readonly INode _node;
 
         public RaftService(IPublishToBuffer<CommitCommandRequested> commitPublisher,
             IPublishToBuffer<ApplyCommandRequested> applyPublisher,
-            INodeTimer timer, IRaftNode raftNode)
+            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher,
+            INodeTimer timer, INode node)
         {
             _commitPublisher = commitPublisher;
             _applyPublisher = applyPublisher;
+            _nodePublisher = nodePublisher;
 
             _timer = timer;
-            _raftNode = raftNode;
+            _node = node;
         }
 
         public RequestVoteResponse RequestVote(RequestVoteRequest voteRequest)
         {
-            if (voteRequest.Term <= _raftNode.CurrentTerm)
+            if (voteRequest.Term <= _node.Data.CurrentTerm)
             {
                 return new RequestVoteResponse
                 {
-                    Term = _raftNode.CurrentTerm,
+                    Term = _node.Data.CurrentTerm,
                     VoteGranted = false
                 };
             }
             else
             {
-                _raftNode.SetTermFromRpc(voteRequest.Term);
+                _nodePublisher.PublishEvent(new NodeCommandTranslator(new SetNewTerm
+                {
+                    Term = voteRequest.Term
+                })).Wait();
             }
 
             return null;
@@ -48,22 +58,27 @@ namespace Raft.Service
         {
             _timer.ResetTimer();
 
-            if (_raftNode.CurrentTerm > entriesRequest.Term ||
-                _raftNode.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
+            if (_node.Data.CurrentTerm > entriesRequest.Term ||
+                _node.Data.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
             {
                 return new AppendEntriesResponse
                 {
-                    Term = _raftNode.CurrentTerm,
+                    Term = _node.Data.CurrentTerm,
                     Success = false
                 };
             }
 
-            if (_raftNode.CurrentTerm < entriesRequest.Term)
-                _raftNode.SetTermFromRpc(entriesRequest.Term);
+            if (_node.Data.CurrentTerm < entriesRequest.Term)
+            {
+                _nodePublisher.PublishEvent(new NodeCommandTranslator(new SetNewTerm
+                {
+                    Term = entriesRequest.Term
+                })).Wait();
+            }
 
             return new AppendEntriesResponse
             {
-                Term = _raftNode.CurrentTerm
+                Term = _node.Data.CurrentTerm
             };
         }
     }

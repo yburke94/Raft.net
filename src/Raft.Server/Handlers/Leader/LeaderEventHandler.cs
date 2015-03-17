@@ -25,7 +25,7 @@ namespace Raft.Server.Handlers.Leader
             }
             catch (Exception exc)
             {
-                data.TaskCompletionSource.SetException(exc);
+                data.CompletionSource.SetException(exc);
             }
         }
 

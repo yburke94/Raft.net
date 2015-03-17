@@ -7,12 +7,13 @@ using Raft.Core.StateMachine.Enums;
 using Raft.Exceptions;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
+using Raft.Server.Data;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit
 {
     [TestFixture]
-    public class RaftApiTests
+    public class RaftAppTests
     {
         [TestCase(NodeState.Candidate)]
         [TestCase(NodeState.Follower)]
@@ -20,10 +21,10 @@ namespace Raft.Tests.Unit
         public void ThrowsWhenExecutingCommandAndNotALeader(NodeState state)
         {
             // Arrange
-            var publishToBuffer = Substitute.For<IPublishToBuffer<CommandScheduled>>();
-            var raftNode = Substitute.For<IRaftNode>();
+            var publishToBuffer = Substitute.For<IPublishToBuffer<CommandScheduled, CommandExecutionResult>>();
+            var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(state);
-            var raftApi = new RaftApi(publishToBuffer, raftNode);
+            var raftApi = new RaftApp(publishToBuffer, raftNode);
 
             // Act
             Action actAction = () => raftApi.ExecuteCommand(new TestCommand());

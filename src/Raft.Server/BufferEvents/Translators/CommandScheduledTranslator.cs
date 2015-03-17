@@ -11,23 +11,20 @@ namespace Raft.Server.BufferEvents.Translators
         private readonly IRaftCommand _command;
         private readonly TaskCompletionSource<CommandExecutionResult> _taskCompletionSource;
 
-        public CommandScheduledTranslator(IRaftCommand command, TaskCompletionSource<CommandExecutionResult> taskCompletionSource)
+        public CommandScheduledTranslator(IRaftCommand command)
         {
             if (command == null)
                 throw new ArgumentNullException("command");
 
-            if (taskCompletionSource == null)
-                throw new ArgumentNullException("taskCompletionSource");
-
             _command = command;
-            _taskCompletionSource = taskCompletionSource;
+            _taskCompletionSource = new TaskCompletionSource<CommandExecutionResult>();
         }
 
         public CommandScheduled Translate(CommandScheduled existingEvent, long sequence)
         {
             existingEvent.Id = _id;
             existingEvent.Command = _command;
-            existingEvent.TaskCompletionSource = _taskCompletionSource;
+            existingEvent.CompletionSource = _taskCompletionSource;
             existingEvent.LogEntry = null;
             existingEvent.EncodedEntry = null;
             return existingEvent;

@@ -11,12 +11,12 @@ using Raft.Server.Data;
 
 namespace Raft
 {
-    internal class RaftApi : IRaft
+    internal class RaftApp : IRaft
     {
-        private readonly IPublishToBuffer<CommandScheduled> _commandPublisher;
-        private readonly IRaftNode _node;
+        private readonly IPublishToBuffer<CommandScheduled, CommandExecutionResult> _commandPublisher;
+        private readonly INode _node;
 
-        public RaftApi(IPublishToBuffer<CommandScheduled> commandPublisher, IRaftNode node)
+        public RaftApp(IPublishToBuffer<CommandScheduled, CommandExecutionResult> commandPublisher, INode node)
         {
             _commandPublisher = commandPublisher;
             _node = node;
@@ -27,12 +27,7 @@ namespace Raft
             if (_node.CurrentState != NodeState.Leader)
                 throw new NotClusterLeaderException();
 
-            var taskCompletionSource = new TaskCompletionSource<CommandExecutionResult>();
-            var translator = new CommandScheduledTranslator(command, taskCompletionSource);
-
-            _commandPublisher.PublishEvent(translator.Translate);
-
-            return taskCompletionSource.Task;
+            return _commandPublisher.PublishEvent(new CommandScheduledTranslator(command));
         }
 
         public string GetClusterLeader()

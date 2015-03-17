@@ -63,6 +63,10 @@
     <Compile Include="CommandRegister.cs" />
     <Compile Include="Data\CommandExecutionResult.cs" />
     <Compile Include="Data\LogEntry.cs" />
+    <Compile Include="Handlers\Core\NodeCommandExecutor.cs" />
+    <Compile Include="Data\NodeCommandResult.cs" />
+    <Compile Include="BufferEvents\Translators\NodeCommandTranslator.cs" />
+    <Compile Include="BufferEvents\NodeCommandScheduled.cs" />
     <Compile Include="Handlers\Follower\RpcCommandApplier.cs" />
     <Compile Include="Handlers\Follower\RpcLogWriter.cs" />
     <Compile Include="Handlers\Leader\CommandFinalizer.cs" />
@@ -77,6 +81,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Raft.Core.Commands\Raft.Core.Commands.csproj">
+      <Project>{9a3f7c7b-6b55-4a42-869c-b5d71c75a2dc}</Project>
+      <Name>Raft.Core.Commands</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Raft.Core.Events\Raft.Core.Events.csproj">
       <Project>{7e1ad8d9-1f82-4167-a1dc-62c25b0cfe02}</Project>
       <Name>Raft.Core.Events</Name>

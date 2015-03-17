@@ -1,37 +1,46 @@
 ﻿using Disruptor;
 using Microsoft.Practices.ServiceLocation;
+using Raft.Core.Commands;
 using Raft.Core.StateMachine;
+using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Extensions;
 using Raft.Server.BufferEvents;
+using Raft.Server.BufferEvents.Translators;
+using Raft.Server.Data;
+using Raft.Server.Handlers.Core;
 
 namespace Raft.Server.Handlers.Follower
 {
     public class RpcCommandApplier : IEventHandler<ApplyCommandRequested>
     {
-        private readonly IRaftNode _raftNode;
+        private readonly INode _node;
         private readonly CommandRegister _commandRegister;
         private readonly IServiceLocator _serviceLocator;
+        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
 
-        public RpcCommandApplier(IRaftNode raftNode, CommandRegister commandRegister, IServiceLocator serviceLocator)
+        public RpcCommandApplier(INode node, CommandRegister commandRegister, IServiceLocator serviceLocator,
+            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher)
         {
-            _raftNode = raftNode;
+            _node = node;
             _commandRegister = commandRegister;
             _serviceLocator = serviceLocator;
+            _nodePublisher = nodePublisher;
         }
 
         public void OnNext(ApplyCommandRequested data, long sequence, bool endOfBatch)
         {
-            var appliedDifference = data.LogIdx-_raftNode.LastApplied;
-            var logsToApply = EnumerableUtilities.Range(_raftNode.LastApplied + 1, (int)appliedDifference);
+            var appliedDifference = data.LogIdx-_node.Data.LastApplied;
+            var logsToApply = EnumerableUtilities.Range(_node.Data.LastApplied + 1, (int)appliedDifference);
             foreach (var logIdx in logsToApply)
             {
-                var command = _commandRegister.Get(_raftNode.CurrentTerm, logIdx);
+                var command = _commandRegister.Get(_node.Data.CurrentTerm, logIdx);
 
                 // The term may have been increased before the command was applied. In which case, rely on log matching to fix.
                 if (command == null) continue;
 
                 command.Execute(_serviceLocator);
-                _raftNode.ApplyCommand(logIdx);
+                _nodePublisher.PublishEvent(new NodeCommandTranslator(
+                    new ApplyEntry {EntryIdx = logIdx})).Wait();
             }
         }
     }

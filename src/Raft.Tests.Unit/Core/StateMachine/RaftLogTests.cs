@@ -1,8 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
-using Raft.Core.Log;
+using Raft.Core.StateMachine.Data;
 
-namespace Raft.Tests.Unit.Core.Log
+namespace Raft.Tests.Unit.Core.StateMachine
 {
     [TestFixture]
     public class RaftLogTests

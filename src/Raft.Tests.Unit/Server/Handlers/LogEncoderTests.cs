@@ -5,6 +5,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.StateMachine;
+using Raft.Core.StateMachine.Data;
 using Raft.Server.Data;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
@@ -30,9 +31,12 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Arrange
             var @event = TestEventFactory.GetCommandEvent();
 
-            var raftNode = Substitute.For<IRaftNode>();
-            raftNode.CurrentTerm.Returns(1);
-            raftNode.CommitIndex.Returns(0);
+            var nodeData = new NodeData
+            {
+                CurrentTerm = 1
+            };
+            var raftNode = Substitute.For<INode>();
+            raftNode.Data.Returns(nodeData);
 
             var handler = new LogEncoder(raftNode);
 
@@ -56,9 +60,13 @@ namespace Raft.Tests.Unit.Server.Handlers
                 Command = @event.Command
             };
 
-            var raftNode = Substitute.For<IRaftNode>();
-            raftNode.CurrentTerm.Returns(expectedLogEntry.Term);
-            raftNode.CommitIndex.Returns(expectedLogEntry.Index-1);
+            var nodeData = new NodeData
+            {
+                CurrentTerm = expectedLogEntry.Term,
+                CommitIndex = expectedLogEntry.Index - 1
+            };
+            var raftNode = Substitute.For<INode>();
+            raftNode.Data.Returns(nodeData);
 
             var handler = new LogEncoder(raftNode);
 
@@ -79,9 +87,13 @@ namespace Raft.Tests.Unit.Server.Handlers
             // Arrange
             var @event = TestEventFactory.GetCommandEvent();
 
-            var raftNode = Substitute.For<IRaftNode>();
-            raftNode.CurrentTerm.Returns(1);
-            raftNode.CommitIndex.Returns(0);
+            var nodeData = new NodeData
+            {
+                CurrentTerm = 1
+            };
+            var raftNode = Substitute.For<INode>();
+            raftNode.Data.Returns(nodeData);
+
             var handler = new LogEncoder(raftNode);
 
             // Act

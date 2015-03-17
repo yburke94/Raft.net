@@ -14,7 +14,7 @@ namespace Raft.LightInject
 
         public void Publish<TEvent>(TEvent @event)
         {
-            _factory.GetAllInstances<ISubscribe<TEvent>>().ToList()
+            _factory.GetAllInstances<IHandle<TEvent>>().ToList()
                 .ForEach(x => x.Handle(@event));
         }
     }

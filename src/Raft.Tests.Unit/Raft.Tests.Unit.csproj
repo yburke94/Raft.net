@@ -75,8 +75,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RaftApiTests.cs" />
-    <Compile Include="Core\Log\RaftLogTests.cs" />
+    <Compile Include="RaftAppTests.cs" />
+    <Compile Include="Core\StateMachine\RaftLogTests.cs" />
     <Compile Include="Core\StateMachine\RaftNodeTests.cs" />
     <Compile Include="Server\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -88,6 +88,7 @@
     <Compile Include="TestData\Commands\TestCommand.cs" />
     <Compile Include="TestData\Commands\TestEventFactory.cs" />
     <Compile Include="TestData\Commands\TestExecutableCommand.cs" />
+    <Compile Include="TestHelpers\TestBufferPublisher.cs" />
     <Compile Include="TestHelpers\TestTask.cs" />
   </ItemGroup>
   <ItemGroup>

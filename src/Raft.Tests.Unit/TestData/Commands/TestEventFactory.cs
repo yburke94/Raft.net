@@ -11,16 +11,14 @@ namespace Raft.Tests.Unit.TestData.Commands
         public static CommandScheduled GetCommandEvent()
         {
             return new CommandScheduledTranslator(
-                new TestCommand(),
-                new TaskCompletionSource<CommandExecutionResult>())
+                new TestCommand())
                 .Translate(new CommandScheduled(), 1L);
         }
 
         public static CommandScheduled GetCommandEvent(long logIdx, byte[] data)
         {
             var @event =  new CommandScheduledTranslator(
-                new TestCommand(),
-                new TaskCompletionSource<CommandExecutionResult>())
+                new TestCommand())
                 .Translate(new CommandScheduled(), 1L);
             @event.SetLogEntry(new LogEntry { Index = logIdx }, data);
 
@@ -30,8 +28,7 @@ namespace Raft.Tests.Unit.TestData.Commands
         public static CommandScheduled GetCommandEvent(long logIdx, byte[] data, Action executeAction)
         {
             var @event =  new CommandScheduledTranslator(
-                new TestExecutableCommand(executeAction),
-                new TaskCompletionSource<CommandExecutionResult>())
+                new TestExecutableCommand(executeAction))
                 .Translate(new CommandScheduled(), 1L);
             @event.SetLogEntry(new LogEntry { Index = logIdx }, data);
             return @event;
