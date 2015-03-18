@@ -13,19 +13,17 @@ namespace Raft.Service
     internal class RaftService : IRaftService
     {
         private readonly IPublishToBuffer<CommitCommandRequested> _commitPublisher;
-        private readonly IPublishToBuffer<ApplyCommandRequested> _applyPublisher;
+        
         private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
         private readonly INodeTimer _timer;
         private readonly INode _node;
 
         public RaftService(
             IPublishToBuffer<CommitCommandRequested> commitPublisher,
-            IPublishToBuffer<ApplyCommandRequested> applyPublisher,
             IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher,
             INodeTimer timer, INode node)
         {
             _commitPublisher = commitPublisher;
-            _applyPublisher = applyPublisher;
             _nodePublisher = nodePublisher;
 
             _timer = timer;
@@ -56,17 +54,15 @@ namespace Raft.Service
 
         public AppendEntriesResponse AppendEntries(AppendEntriesRequest entriesRequest)
         {
-            _timer.ResetTimer();
-
-            if (_node.Data.CurrentTerm > entriesRequest.Term ||
-                _node.Data.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
-            {
+            // If the node term is greater, return before updating timer. Eventually an election will trigger.
+            if (_node.Data.CurrentTerm > entriesRequest.Term)
                 return new AppendEntriesResponse
                 {
                     Term = _node.Data.CurrentTerm,
                     Success = false
                 };
-            }
+
+            _timer.ResetTimer();
 
             if (_node.Data.CurrentTerm < entriesRequest.Term)
             {
@@ -88,9 +84,19 @@ namespace Raft.Service
             }
 
             if (_node.CurrentState != NodeState.Follower)
-                throw new FaultException<MultipleLeadersForTermFault>(new MultipleLeadersForTermFault {
+                throw new FaultException<MultipleLeadersForTermFault>(new MultipleLeadersForTermFault
+                {
                     Id = _node.Data.NodeId
                 });
+
+            if (_node.Data.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
+            {
+                return new AppendEntriesResponse
+                {
+                    Term = _node.Data.CurrentTerm,
+                    Success = false
+                };
+            }
 
             _nodePublisher.PublishEvent(
                 new NodeCommandScheduled {
@@ -100,9 +106,14 @@ namespace Raft.Service
                     }
                 });
 
-            // TODO: Log Truncating
-            // TODO: Log Writing
-            // TODO: Log Applying
+            // TODO: Buffer will be responsible for Log Truncating, Log Writing, Log Applying
+            _commitPublisher.PublishEvent(new CommitCommandRequested
+            {
+                PreviousLogIndex = entriesRequest.PreviousLogIndex,
+                PreviousLogTerm = entriesRequest.PreviousLogTerm,
+                LeaderCommit = entriesRequest.LeaderCommit,
+                Entries = entriesRequest.Entries
+            });
 
             return new AppendEntriesResponse
             {

@@ -3,6 +3,7 @@ using Raft.Infrastructure.Disruptor;
 
 namespace Raft.Server.BufferEvents
 {
+    [Obsolete]
     internal class ApplyCommandRequested : IEventTranslator<ApplyCommandRequested>
     {
         public long? LogIdx { get; set; }

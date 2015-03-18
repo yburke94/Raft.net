@@ -25,6 +25,7 @@ namespace Raft.Server.Handlers.Follower
             _nodePublisher = nodePublisher;
         }
 
+        // TODO: Make this use same buffer and event as RpcLogWriter.
         public void OnNext(ApplyCommandRequested data, long sequence, bool endOfBatch)
         {
             var appliedDifference = data.LogIdx-_node.Data.LastApplied;

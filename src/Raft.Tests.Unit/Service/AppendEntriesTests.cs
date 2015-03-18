@@ -32,10 +32,9 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             // Act
             service.AppendEntries(message);
@@ -54,10 +53,9 @@ namespace Raft.Tests.Unit.Service
             var raftNode = Substitute.For<INode>();
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             raftNode.Data.Returns(new NodeData
             {
@@ -92,10 +90,9 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             // Act
             var response = service.AppendEntries(message);
@@ -117,12 +114,13 @@ namespace Raft.Tests.Unit.Service
             };
 
             var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Follower);
+
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             var raftLog = new NodeLog();
             raftLog.SetLogEntry(1, 2L);
@@ -154,10 +152,9 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             var nodeData = new NodeData
             {
@@ -192,11 +189,10 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
             nodePublisher.OnPublish(() => raftNode.CurrentState.Returns(NodeState.Follower));
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             // Act
             service.AppendEntries(message);
@@ -223,10 +219,9 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             // Act
             service.AppendEntries(message);
@@ -253,16 +248,58 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             // Act
             var actAction = new Action(() => service.AppendEntries(message));
 
             // Assert
             actAction.ShouldThrow<FaultException<MultipleLeadersForTermFault>>();
+        }
+
+        [Test]
+        public void PublishesToBufferAfterSafetyChecks()
+        {
+            // Arrange
+            var message = new AppendEntriesRequest
+            {
+                Term = 11,
+                PreviousLogIndex = 2,
+                PreviousLogTerm = 13,
+                LeaderCommit = 12,
+                Entries = new []
+                {
+                    BitConverter.GetBytes(100),
+                    BitConverter.GetBytes(200)
+                }
+            };
+
+            var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Follower);
+
+            var nodeData = new NodeData {Log = new NodeLog()};
+            nodeData.Log.SetLogEntry(message.PreviousLogIndex, message.PreviousLogTerm);
+
+            raftNode.Data.Returns(nodeData);
+
+            var timer = Substitute.For<INodeTimer>();
+            var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
+            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
+
+            // Act
+            service.AppendEntries(message);
+
+            // Assert
+            commitPublisher.Received()
+                .PublishEvent(Arg.Is<CommitCommandRequested>(requested =>
+                    requested.PreviousLogIndex == message.PreviousLogIndex &&
+                    requested.PreviousLogTerm == message.PreviousLogTerm &&
+                    requested.LeaderCommit == message.LeaderCommit &&
+                    requested.Entries == message.Entries));
         }
     }
 }

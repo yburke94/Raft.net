@@ -29,10 +29,9 @@ namespace Raft.Tests.Unit.Service
             var raftNode = Substitute.For<INode>();
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
-            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
 
-            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(commitPublisher, nodePublisher, timer, raftNode);
 
             raftNode.Data.Returns(new NodeData());
 
