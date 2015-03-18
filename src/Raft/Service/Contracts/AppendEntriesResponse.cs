@@ -1,4 +1,4 @@
-namespace Raft.Service.Contracts.Messages.AppendEntries
+namespace Raft.Service.Contracts
 {
     public class AppendEntriesResponse
     {

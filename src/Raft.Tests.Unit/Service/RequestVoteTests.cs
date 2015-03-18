@@ -1,0 +1,47 @@
+﻿using FluentAssertions;
+using NSubstitute;
+using NUnit.Framework;
+using Raft.Core.Commands;
+using Raft.Core.StateMachine;
+using Raft.Core.StateMachine.Data;
+using Raft.Core.Timer;
+using Raft.Infrastructure.Disruptor;
+using Raft.Server.BufferEvents;
+using Raft.Server.Data;
+using Raft.Service;
+using Raft.Service.Contracts;
+using Raft.Tests.Unit.TestHelpers;
+
+namespace Raft.Tests.Unit.Service
+{
+    [TestFixture]
+    public class RequestVoteTests
+    {
+        [Test]
+        public void RequestVoteAmendsTermOnRaftNodeWhenTermIsGreaterThanCurrentTerm()
+        {
+            // Arrange
+            var message = new RequestVoteRequest
+            {
+                Term = 1
+            };
+
+            var raftNode = Substitute.For<INode>();
+            var timer = Substitute.For<INodeTimer>();
+            var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
+            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
+            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+
+            raftNode.Data.Returns(new NodeData());
+
+            // Act
+            service.RequestVote(message);
+
+            // Assert
+            nodePublisher.Events.Should().HaveCount(1);
+            nodePublisher.Events[0].Command.Should().BeOfType<SetNewTerm>();
+        }
+    }
+}

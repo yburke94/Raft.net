@@ -6,7 +6,6 @@ using NUnit.Framework;
 using Raft.Core.Cluster;
 using Raft.Server.Handlers.Leader;
 using Raft.Service.Contracts;
-using Raft.Service.Contracts.Messages.AppendEntries;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Server.Handlers

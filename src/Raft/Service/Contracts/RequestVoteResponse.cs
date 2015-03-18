@@ -1,4 +1,4 @@
-﻿namespace Raft.Service.Contracts.Messages.RequestVote
+﻿namespace Raft.Service.Contracts
 {
     public class RequestVoteResponse
     {

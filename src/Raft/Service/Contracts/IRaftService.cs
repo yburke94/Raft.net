@@ -1,7 +1,5 @@
 ﻿using System.ServiceModel;
 using ProtoBuf;
-using Raft.Service.Contracts.Messages.AppendEntries;
-using Raft.Service.Contracts.Messages.RequestVote;
 
 namespace Raft.Service.Contracts
 {
@@ -12,6 +10,7 @@ namespace Raft.Service.Contracts
         RequestVoteResponse RequestVote(RequestVoteRequest voteRequest);
 
         [OperationContract]
+        [FaultContract(typeof(MultipleLeadersForTermFault))]
         AppendEntriesResponse AppendEntries(AppendEntriesRequest entriesRequest);
     }
 }

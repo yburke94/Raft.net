@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Raft.Service.Contracts.Messages.AppendEntries
+namespace Raft.Service.Contracts
 {
     /// <summary>
     /// Invoked by leader to replicate log entries; also used as heartbeat.

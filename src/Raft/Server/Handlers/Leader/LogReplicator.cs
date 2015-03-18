@@ -2,7 +2,6 @@
 using Raft.Core.Cluster;
 using Raft.Server.BufferEvents;
 using Raft.Service.Contracts;
-using Raft.Service.Contracts.Messages.AppendEntries;
 
 namespace Raft.Server.Handlers.Leader
 {

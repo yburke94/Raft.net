@@ -1,23 +1,24 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.ServiceModel;
+using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Data;
+using Raft.Core.StateMachine.Enums;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
-using Raft.Server.Handlers.Core;
 using Raft.Service;
-using Raft.Service.Contracts.Messages.AppendEntries;
-using Raft.Service.Contracts.Messages.RequestVote;
+using Raft.Service.Contracts;
 using Raft.Tests.Unit.TestHelpers;
 
 namespace Raft.Tests.Unit.Service
 {
     [TestFixture]
-    public class RaftServiceTests
+    public class AppendEntriesTests
     {
         [Test]
         public void AppendEntriesResetsTimer()
@@ -26,6 +27,7 @@ namespace Raft.Tests.Unit.Service
             var message = new AppendEntriesRequest();
 
             var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Follower);
             raftNode.Data.Returns(new NodeData { Log = new NodeLog() });
 
             var timer = Substitute.For<INodeTimer>();
@@ -148,6 +150,8 @@ namespace Raft.Tests.Unit.Service
             };
 
             var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Follower);
+
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
             var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
@@ -167,20 +171,56 @@ namespace Raft.Tests.Unit.Service
             service.AppendEntries(message);
 
             // Assert
-            nodePublisher.Events.Should().HaveCount(1);
+            nodePublisher.Events.Should().HaveCount(2);
             nodePublisher.Events[0].Command.Should().BeOfType<SetNewTerm>();
         }
 
         [Test]
-        public void RequestVoteAmendsTermOnRaftNodeWhenTermIsGreaterThanCurrentTerm()
+        public void CancelElectionIfCandidateAndReceiveAppendEntries()
         {
             // Arrange
-            var message = new RequestVoteRequest
+            var message = new AppendEntriesRequest
             {
-                Term = 1
+                Term = 0,
+                PreviousLogIndex = 0,
+                PreviousLogTerm = 0
             };
 
             var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Candidate);
+            raftNode.Data.Returns(new NodeData());
+
+            var timer = Substitute.For<INodeTimer>();
+            var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
+            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
+            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            nodePublisher.OnPublish(() => raftNode.CurrentState.Returns(NodeState.Follower));
+
+            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+
+            // Act
+            service.AppendEntries(message);
+
+            // Assert
+            nodePublisher.Events.Should().HaveCount(2);
+            nodePublisher.Events[0].Command.Should().BeOfType<CancelElection>();
+        }
+
+        [Test]
+        public void SetLeaderIdWhenFollowerAndAppendEntriesRecieved()
+        {
+            // Arrange
+            var message = new AppendEntriesRequest
+            {
+                Term = 0,
+                PreviousLogIndex = 0,
+                PreviousLogTerm = 0
+            };
+
+            var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Follower);
+            raftNode.Data.Returns(new NodeData());
+
             var timer = Substitute.For<INodeTimer>();
             var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
             var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
@@ -188,14 +228,41 @@ namespace Raft.Tests.Unit.Service
 
             var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
 
-            raftNode.Data.Returns(new NodeData());
-
             // Act
-            service.RequestVote(message);
+            service.AppendEntries(message);
 
             // Assert
             nodePublisher.Events.Should().HaveCount(1);
-            nodePublisher.Events[0].Command.Should().BeOfType<SetNewTerm>();
+            nodePublisher.Events[0].Command.Should().BeOfType<SetLeaderInformation>();
+        }
+
+        [Test]
+        public void ThrowsWhenAppendEntriesReceivedAndNodeWillNotBeTransitionedToFollower()
+        {
+            // Arrange
+            var message = new AppendEntriesRequest
+            {
+                Term = 24,
+                PreviousLogIndex = 0,
+                PreviousLogTerm = 0
+            };
+
+            var raftNode = Substitute.For<INode>();
+            raftNode.CurrentState.Returns(NodeState.Leader);
+            raftNode.Data.Returns(new NodeData {CurrentTerm = 24});
+
+            var timer = Substitute.For<INodeTimer>();
+            var commitPublisher = Substitute.For<IPublishToBuffer<CommitCommandRequested>>();
+            var applyPublisher = Substitute.For<IPublishToBuffer<ApplyCommandRequested>>();
+            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+
+            var service = new RaftService(commitPublisher, applyPublisher, nodePublisher, timer, raftNode);
+
+            // Act
+            var actAction = new Action(() => service.AppendEntries(message));
+
+            // Assert
+            actAction.ShouldThrow<FaultException<MultipleLeadersForTermFault>>();
         }
     }
 }

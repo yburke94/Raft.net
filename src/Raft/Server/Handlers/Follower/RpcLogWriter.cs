@@ -5,7 +5,6 @@ using Raft.Core.Commands;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
-using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Follower
@@ -36,11 +35,14 @@ namespace Raft.Server.Handlers.Follower
 
                 // TODO: Generate checksum and compare?.
                 _writeDataBlocks.WriteBlock(data.Entry);
-                _nodePublisher.PublishEvent(new NodeCommandTranslator(new CommitEntry
+                _nodePublisher.PublishEvent(new NodeCommandScheduled
                 {
-                    EntryIdx = decodedEntry.Index,
-                    EntryTerm = decodedEntry.Term
-                })).Wait();
+                    Command = new CommitEntry
+                    {
+                        EntryIdx = decodedEntry.Index,
+                        EntryTerm = decodedEntry.Term
+                    }
+                }).Wait();
 
                 _commandRegister.Add(decodedEntry.Term, decodedEntry.Index, decodedEntry.Command);
             }

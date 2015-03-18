@@ -5,7 +5,6 @@ using Raft.Core.StateMachine;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Extensions;
 using Raft.Server.BufferEvents;
-using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Follower
@@ -38,8 +37,13 @@ namespace Raft.Server.Handlers.Follower
                 if (command == null) continue;
 
                 command.Execute(_serviceLocator);
-                _nodePublisher.PublishEvent(new NodeCommandTranslator(
-                    new ApplyEntry {EntryIdx = logIdx})).Wait();
+                _nodePublisher.PublishEvent(new NodeCommandScheduled
+                {
+                    Command = new ApplyEntry
+                    {
+                        EntryIdx = logIdx
+                    }
+                }).Wait();
             }
         }
     }

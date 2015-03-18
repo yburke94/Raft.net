@@ -4,10 +4,7 @@ using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Enums;
 using Raft.Exceptions;
 using Raft.Infrastructure.Disruptor;
-using Raft.Server;
 using Raft.Server.BufferEvents;
-using Raft.Server.BufferEvents.Translators;
-using Raft.Server.Data;
 
 namespace Raft
 {
@@ -27,7 +24,11 @@ namespace Raft
             if (_node.CurrentState != NodeState.Leader)
                 throw new NotClusterLeaderException();
 
-            return _commandPublisher.PublishEvent(new CommandScheduledTranslator(command));
+            return _commandPublisher.PublishEvent(
+                new CommandScheduled
+                {
+                    Command = command
+                });
         }
 
         public string GetClusterLeader()

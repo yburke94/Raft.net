@@ -6,14 +6,14 @@ using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents
 {
-    internal class CommandScheduled : IFutureEvent<CommandExecutionResult>
+    internal class CommandScheduled : IFutureEvent<CommandExecutionResult>, IEventTranslator<CommandScheduled>
     {
-        public Guid Id { get; internal set; }
+        public Guid Id { get; private set; }
 
-        public IRaftCommand Command { get; internal set; }
+        public IRaftCommand Command { get; set; }
 
-        public LogEntry LogEntry { get; internal set; }
-        public byte[] EncodedEntry { get; internal set; }
+        public LogEntry LogEntry { get; private set; }
+        public byte[] EncodedEntry { get; private set; }
 
         public TaskCompletionSource<CommandExecutionResult> CompletionSource { get; internal set; }
 
@@ -31,6 +31,19 @@ namespace Raft.Server.BufferEvents
         {
             LogEntry = entry;
             EncodedEntry = encodedEntry;
+        }
+
+        public CommandScheduled Translate(CommandScheduled existingEvent, long sequence)
+        {
+            if (Command == null)
+                throw new InvalidOperationException("RaftCommand must be set when translating existing event.");
+
+            existingEvent.Id = Guid.NewGuid();
+            existingEvent.Command = Command;
+            existingEvent.CompletionSource = new TaskCompletionSource<CommandExecutionResult>();
+            existingEvent.LogEntry = null;
+            existingEvent.EncodedEntry = null;
+            return existingEvent;
         }
     }
 }

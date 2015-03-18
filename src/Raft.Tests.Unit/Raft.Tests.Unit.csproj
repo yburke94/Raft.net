@@ -68,6 +68,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -84,7 +85,8 @@
     <Compile Include="Server\Handlers\LogEncoderTests.cs" />
     <Compile Include="Server\Handlers\LogReplicatorTests.cs" />
     <Compile Include="Server\Handlers\LogWriterTests.cs" />
-    <Compile Include="Service\RaftServiceTests.cs" />
+    <Compile Include="Service\AppendEntriesTests.cs" />
+    <Compile Include="Service\RequestVoteTests.cs" />
     <Compile Include="TestData\Commands\TestCommand.cs" />
     <Compile Include="TestData\Commands\TestEventFactory.cs" />
     <Compile Include="TestData\Commands\TestExecutableCommand.cs" />

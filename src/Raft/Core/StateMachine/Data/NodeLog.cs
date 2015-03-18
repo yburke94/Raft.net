@@ -13,10 +13,10 @@ namespace Raft.Core.StateMachine.Data
             get
             {
                 if (commitIndex == 0)
-                    return null;
+                    return 0;
 
                 var logEntry = _log[commitIndex - 1];
-                return logEntry.Set ? (long?) logEntry.Term : null;
+                return logEntry.Set ? (long?)logEntry.Term : null;
             }
         }
 

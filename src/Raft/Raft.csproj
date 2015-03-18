@@ -53,6 +53,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -63,10 +64,12 @@
   <ItemGroup>
     <Compile Include="Core\Cluster\PeerNode.cs" />
     <Compile Include="Core\Commands\ApplyEntry.cs" />
+    <Compile Include="Core\Commands\CancelElection.cs" />
     <Compile Include="Core\Commands\CommitEntry.cs" />
     <Compile Include="Core\Commands\CreateCluster.cs" />
     <Compile Include="Core\Commands\INodeCommand.cs" />
     <Compile Include="Core\Commands\JoinCluster.cs" />
+    <Compile Include="Core\Commands\SetLeaderInformation.cs" />
     <Compile Include="Core\Commands\SetNewTerm.cs" />
     <Compile Include="Core\Commands\TimeoutLeaderHeartbeat.cs" />
     <Compile Include="Core\Commands\WinCandidateElection.cs" />
@@ -100,10 +103,6 @@
     <Compile Include="Server\BufferEvents\CommandScheduled.cs" />
     <Compile Include="Server\BufferEvents\CommitCommandRequested.cs" />
     <Compile Include="Server\BufferEvents\NodeCommandScheduled.cs" />
-    <Compile Include="Server\BufferEvents\Translators\ApplyCommandRequestedTranslator.cs" />
-    <Compile Include="Server\BufferEvents\Translators\CommandScheduledTranslator.cs" />
-    <Compile Include="Server\BufferEvents\Translators\CommitCommandRequestedTranslator.cs" />
-    <Compile Include="Server\BufferEvents\Translators\NodeCommandTranslator.cs" />
     <Compile Include="Server\CommandRegister.cs" />
     <Compile Include="Server\Data\LogEntry.cs" />
     <Compile Include="Server\Data\NodeCommandResult.cs" />
@@ -116,10 +115,11 @@
     <Compile Include="Server\Handlers\Leader\LogReplicator.cs" />
     <Compile Include="Server\Handlers\Leader\LogWriter.cs" />
     <Compile Include="Service\Contracts\IRaftService.cs" />
-    <Compile Include="Service\Contracts\Messages\AppendEntries\AppendEntriesRequest.cs" />
-    <Compile Include="Service\Contracts\Messages\AppendEntries\AppendEntriesResponse.cs" />
-    <Compile Include="Service\Contracts\Messages\RequestVote\RequestVoteRequest.cs" />
-    <Compile Include="Service\Contracts\Messages\RequestVote\RequestVoteResponse.cs" />
+    <Compile Include="Service\Contracts\AppendEntriesRequest.cs" />
+    <Compile Include="Service\Contracts\AppendEntriesResponse.cs" />
+    <Compile Include="Service\Contracts\MultipleLeadersForTermFault.cs" />
+    <Compile Include="Service\Contracts\RequestVoteRequest.cs" />
+    <Compile Include="Service\Contracts\RequestVoteResponse.cs" />
     <Compile Include="Service\RaftService.cs" />
   </ItemGroup>
   <ItemGroup>

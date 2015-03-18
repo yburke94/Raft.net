@@ -3,7 +3,6 @@ using Raft.Contracts;
 using Raft.Core.Commands;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Leader
@@ -31,18 +30,23 @@ namespace Raft.Server.Handlers.Leader
         public override void Handle(CommandScheduled @event)
         {
             // An entry is considered committed once it has been written to persistant storage and replicated.
-            _nodePublisher.PublishEvent(new NodeCommandTranslator(new CommitEntry
+            _nodePublisher.PublishEvent(new NodeCommandScheduled
             {
-                EntryIdx = @event.LogEntry.Index,
-                EntryTerm = @event.LogEntry.Term
-            })).Wait();
-
+                Command = new CommitEntry
+                {
+                    EntryIdx = @event.LogEntry.Index,
+                    EntryTerm = @event.LogEntry.Term
+                }
+            }).Wait();
 
             @event.Command.Execute(_serviceLocator);
-            _nodePublisher.PublishEvent(new NodeCommandTranslator(new ApplyEntry
+            _nodePublisher.PublishEvent(new NodeCommandScheduled
             {
-                EntryIdx = @event.LogEntry.Index
-            })).Wait();
+                Command = new ApplyEntry
+                {
+                    EntryIdx = @event.LogEntry.Index
+                }
+            }).Wait();
 
             if (@event.CompletionSource != null)
                 @event.CompletionSource.SetResult(new CommandExecutionResult(true));

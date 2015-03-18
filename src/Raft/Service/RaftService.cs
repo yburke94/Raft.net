@@ -1,13 +1,12 @@
-﻿using Raft.Core.Commands;
+﻿using System.ServiceModel;
+using Raft.Core.Commands;
 using Raft.Core.StateMachine;
+using Raft.Core.StateMachine.Enums;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
 using Raft.Service.Contracts;
-using Raft.Service.Contracts.Messages.AppendEntries;
-using Raft.Service.Contracts.Messages.RequestVote;
 
 namespace Raft.Service
 {
@@ -19,7 +18,8 @@ namespace Raft.Service
         private readonly INodeTimer _timer;
         private readonly INode _node;
 
-        public RaftService(IPublishToBuffer<CommitCommandRequested> commitPublisher,
+        public RaftService(
+            IPublishToBuffer<CommitCommandRequested> commitPublisher,
             IPublishToBuffer<ApplyCommandRequested> applyPublisher,
             IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher,
             INodeTimer timer, INode node)
@@ -42,13 +42,14 @@ namespace Raft.Service
                     VoteGranted = false
                 };
             }
-            else
+
+            _nodePublisher.PublishEvent(new NodeCommandScheduled
             {
-                _nodePublisher.PublishEvent(new NodeCommandTranslator(new SetNewTerm
+                Command = new SetNewTerm
                 {
                     Term = voteRequest.Term
-                })).Wait();
-            }
+                }
+            }).Wait();
 
             return null;
         }
@@ -69,11 +70,39 @@ namespace Raft.Service
 
             if (_node.Data.CurrentTerm < entriesRequest.Term)
             {
-                _nodePublisher.PublishEvent(new NodeCommandTranslator(new SetNewTerm
+                _nodePublisher.PublishEvent(new NodeCommandScheduled
                 {
-                    Term = entriesRequest.Term
-                })).Wait();
+                    Command = new SetNewTerm
+                    {
+                        Term = entriesRequest.Term
+                    }
+                }).Wait();
             }
+
+            if (_node.CurrentState == NodeState.Candidate)
+            {
+                _nodePublisher.PublishEvent(new NodeCommandScheduled
+                {
+                    Command = new CancelElection()
+                }).Wait();
+            }
+
+            if (_node.CurrentState != NodeState.Follower)
+                throw new FaultException<MultipleLeadersForTermFault>(new MultipleLeadersForTermFault {
+                    Id = _node.Data.NodeId
+                });
+
+            _nodePublisher.PublishEvent(
+                new NodeCommandScheduled {
+                    Command = new SetLeaderInformation
+                    {
+                        LeaderId = entriesRequest.LeaderId
+                    }
+                });
+
+            // TODO: Log Truncating
+            // TODO: Log Writing
+            // TODO: Log Applying
 
             return new AppendEntriesResponse
             {

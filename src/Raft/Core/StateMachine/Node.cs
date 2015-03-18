@@ -17,19 +17,20 @@ namespace Raft.Core.StateMachine
         IHandle<ApplyEntry>,
         IHandle<WinCandidateElection>,
         IHandle<SetNewTerm>,
-        IHandle<TimeoutLeaderHeartbeat>
+        IHandle<TimeoutLeaderHeartbeat>,
+        IHandle<SetLeaderInformation>
     {
         private readonly IEventDispatcher _eventDispatcher;
         private readonly StateMachine<NodeState, Type> _stateMachine;
 
         public Node(IEventDispatcher eventDispatcher)
         {
-            _eventDispatcher = eventDispatcher;
-            
-            _stateMachine = new StateMachine<NodeState, Type>(NodeState.Initial);
-            _stateMachine.ApplyRaftRulesToStateMachine();
-
             Data = new NodeData();
+
+            _eventDispatcher = eventDispatcher;
+            _stateMachine = new StateMachine<NodeState, Type>(NodeState.Initial);
+
+            _stateMachine.ApplyRaftRulesToStateMachine(Data);
         }
 
         public NodeState CurrentState {
@@ -89,6 +90,11 @@ namespace Raft.Core.StateMachine
         {
             Data.CurrentTerm++;
             _eventDispatcher.Publish(new TermChanged(Data.CurrentTerm));
+        }
+
+        public void Handle(SetLeaderInformation @event)
+        {
+            Data.LeaderId = @event.LeaderId;
         }
     }
 }

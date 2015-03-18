@@ -1,6 +1,5 @@
 ﻿using System;
 using Raft.Server.BufferEvents;
-using Raft.Server.BufferEvents.Translators;
 using Raft.Server.Data;
 
 namespace Raft.Tests.Unit.TestData.Commands
@@ -9,16 +8,19 @@ namespace Raft.Tests.Unit.TestData.Commands
     {
         public static CommandScheduled GetCommandEvent()
         {
-            return new CommandScheduledTranslator(
-                new TestCommand())
-                .Translate(new CommandScheduled(), 1L);
+            return new CommandScheduled
+            {
+                Command = new TestCommand()
+            }.Translate(new CommandScheduled(), 1L);
         }
 
         public static CommandScheduled GetCommandEvent(long logIdx, byte[] data)
         {
-            var @event =  new CommandScheduledTranslator(
-                new TestCommand())
-                .Translate(new CommandScheduled(), 1L);
+            var @event = new CommandScheduled
+            {
+                Command = new TestCommand()
+            }.Translate(new CommandScheduled(), 1L);
+
             @event.SetLogEntry(new LogEntry { Index = logIdx }, data);
 
             return @event;
@@ -26,10 +28,13 @@ namespace Raft.Tests.Unit.TestData.Commands
 
         public static CommandScheduled GetCommandEvent(long logIdx, byte[] data, Action executeAction)
         {
-            var @event =  new CommandScheduledTranslator(
-                new TestExecutableCommand(executeAction))
-                .Translate(new CommandScheduled(), 1L);
+            var @event = new CommandScheduled
+            {
+                Command = new TestExecutableCommand(executeAction)
+            }.Translate(new CommandScheduled(), 1L);
+
             @event.SetLogEntry(new LogEntry { Index = logIdx }, data);
+
             return @event;
         }
     }

@@ -42,6 +42,15 @@ namespace Raft.Core.StateMachine.Data
         public Guid? VotedFor { get; set; }
 
         /// <summary>
+        /// The current leader of the cluster.
+        /// </summary>
+        /// <remarks>
+        /// Volatile state.
+        /// Will be empty when the node is not a follower.
+        /// </remarks>
+        public Guid LeaderId { get; set; }
+
+        /// <summary>
         /// Index of highest log entry known to be committed.
         /// A log entry is committed once the leader that created the entry has replicated it on a majority of the servers.
         /// </summary>

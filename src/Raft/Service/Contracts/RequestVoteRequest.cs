@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Raft.Service.Contracts.Messages.RequestVote
+namespace Raft.Service.Contracts
 {
     /// <summary>
     /// Invoked by candidates to gather votes.
