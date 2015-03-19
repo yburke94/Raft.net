@@ -3,16 +3,14 @@ using Microsoft.Practices.ServiceLocation;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.Commands;
-using Raft.Core.StateMachine;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
-using Raft.Server.Handlers.Core;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
 using Raft.Tests.Unit.TestHelpers;
 
-namespace Raft.Tests.Unit.Server.Handlers
+namespace Raft.Tests.Unit.Server.Handlers.Leader
 {
     [TestFixture]
     public class CommandFinalizerTests

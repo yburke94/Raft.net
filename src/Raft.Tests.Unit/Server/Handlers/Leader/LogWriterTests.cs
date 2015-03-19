@@ -7,7 +7,7 @@ using Raft.Infrastructure.Journaler;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
 
-namespace Raft.Tests.Unit.Server.Handlers
+namespace Raft.Tests.Unit.Server.Handlers.Leader
 {
     [TestFixture]
     public class LogWriterTests

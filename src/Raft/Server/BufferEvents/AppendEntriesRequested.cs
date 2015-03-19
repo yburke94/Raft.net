@@ -3,7 +3,7 @@ using Raft.Infrastructure.Disruptor;
 
 namespace Raft.Server.BufferEvents
 {
-    internal class CommitCommandRequested : IEventTranslator<CommitCommandRequested>
+    internal class AppendEntriesRequested : IEventTranslator<AppendEntriesRequested>
     {
         public long? PreviousLogIndex { get; set; }
 
@@ -13,7 +13,7 @@ namespace Raft.Server.BufferEvents
 
         public byte[][] Entries { get; set; }
 
-        public CommitCommandRequested Translate(CommitCommandRequested existingEvent, long sequence)
+        public AppendEntriesRequested Translate(AppendEntriesRequested existingEvent, long sequence)
         {
             if (PreviousLogIndex == null)
                 throw new InvalidOperationException("PreviousLogIndex must be set in order to translate event.");

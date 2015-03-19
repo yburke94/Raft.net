@@ -12,18 +12,18 @@ namespace Raft.Service
 {
     internal class RaftService : IRaftService
     {
-        private readonly IPublishToBuffer<CommitCommandRequested> _commitPublisher;
+        private readonly IPublishToBuffer<AppendEntriesRequested> _appendEntriesPublisher;
         
         private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
         private readonly INodeTimer _timer;
         private readonly INode _node;
 
         public RaftService(
-            IPublishToBuffer<CommitCommandRequested> commitPublisher,
+            IPublishToBuffer<AppendEntriesRequested> appendEntriesPublisher,
             IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher,
             INodeTimer timer, INode node)
         {
-            _commitPublisher = commitPublisher;
+            _appendEntriesPublisher = appendEntriesPublisher;
             _nodePublisher = nodePublisher;
 
             _timer = timer;
@@ -107,7 +107,7 @@ namespace Raft.Service
                 });
 
             // TODO: Buffer will be responsible for Log Truncating, Log Writing, Log Applying
-            _commitPublisher.PublishEvent(new CommitCommandRequested
+            _appendEntriesPublisher.PublishEvent(new AppendEntriesRequested
             {
                 PreviousLogIndex = entriesRequest.PreviousLogIndex,
                 PreviousLogTerm = entriesRequest.PreviousLogTerm,

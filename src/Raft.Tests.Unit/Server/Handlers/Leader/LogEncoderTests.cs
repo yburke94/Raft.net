@@ -10,7 +10,7 @@ using Raft.Server.Data;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
 
-namespace Raft.Tests.Unit.Server.Handlers
+namespace Raft.Tests.Unit.Server.Handlers.Leader
 {
     [TestFixture]
     public class LogEncoderTests

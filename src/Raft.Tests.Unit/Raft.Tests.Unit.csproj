@@ -81,10 +81,11 @@
     <Compile Include="Core\StateMachine\RaftNodeTests.cs" />
     <Compile Include="Server\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\Handlers\CommandFinalizerTests.cs" />
-    <Compile Include="Server\Handlers\LogEncoderTests.cs" />
-    <Compile Include="Server\Handlers\LogReplicatorTests.cs" />
-    <Compile Include="Server\Handlers\LogWriterTests.cs" />
+    <Compile Include="Server\Handlers\Follower\RpcLogTruncatorTests.cs" />
+    <Compile Include="Server\Handlers\Leader\CommandFinalizerTests.cs" />
+    <Compile Include="Server\Handlers\Leader\LogEncoderTests.cs" />
+    <Compile Include="Server\Handlers\Leader\LogReplicatorTests.cs" />
+    <Compile Include="Server\Handlers\Leader\LogWriterTests.cs" />
     <Compile Include="Service\AppendEntriesTests.cs" />
     <Compile Include="Service\RequestVoteTests.cs" />
     <Compile Include="TestData\Commands\TestCommand.cs" />

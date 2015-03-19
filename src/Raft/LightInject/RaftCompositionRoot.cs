@@ -61,7 +61,7 @@ namespace Raft.LightInject
                 PublishToBuffer<CommandScheduled, CommandExecutionResult>>();
 
             // Create Follower commit ring buffer
-            serviceRegistry.Register(x => new RingBufferBuilder<CommitCommandRequested>()
+            serviceRegistry.Register(x => new RingBufferBuilder<AppendEntriesRequested>()
                 .UseBufferSize(2<<6) // 128
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
@@ -69,8 +69,8 @@ namespace Raft.LightInject
                 .AddEventHandler(x.GetInstance<RpcLogWriter>())
                 .Build());
 
-            serviceRegistry.Register<IPublishToBuffer<CommitCommandRequested>,
-                PublishToBuffer<CommitCommandRequested>>();
+            serviceRegistry.Register<IPublishToBuffer<AppendEntriesRequested>,
+                PublishToBuffer<AppendEntriesRequested>>();
 
             // Create core ring buffer
             serviceRegistry.Register(x => new RingBufferBuilder<NodeCommandScheduled>()

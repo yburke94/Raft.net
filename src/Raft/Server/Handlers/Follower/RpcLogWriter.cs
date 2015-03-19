@@ -9,7 +9,7 @@ using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Follower
 {
-    internal class RpcLogWriter : IEventHandler<CommitCommandRequested>
+    internal class RpcLogWriter : IEventHandler<AppendEntriesRequested>
     {
         private readonly IWriteDataBlocks _writeDataBlocks;
         private readonly CommandRegister _commandRegister;
@@ -23,7 +23,7 @@ namespace Raft.Server.Handlers.Follower
             _nodePublisher = nodePublisher;
         }
 
-        public void OnNext(CommitCommandRequested data, long sequence, bool endOfBatch)
+        public void OnNext(AppendEntriesRequested data, long sequence, bool endOfBatch)
         {
             try
             {

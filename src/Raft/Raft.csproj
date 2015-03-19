@@ -72,6 +72,7 @@
     <Compile Include="Core\Commands\SetLeaderInformation.cs" />
     <Compile Include="Core\Commands\SetNewTerm.cs" />
     <Compile Include="Core\Commands\TimeoutLeaderHeartbeat.cs" />
+    <Compile Include="Core\Commands\TruncateLog.cs" />
     <Compile Include="Core\Commands\WinCandidateElection.cs" />
     <Compile Include="Core\Events\TermChanged.cs" />
     <Compile Include="Core\StateMachine\Data\NodeData.cs" />
@@ -101,13 +102,15 @@
     <Compile Include="RaftApp.cs" />
     <Compile Include="Server\BufferEvents\ApplyCommandRequested.cs" />
     <Compile Include="Server\BufferEvents\CommandScheduled.cs" />
-    <Compile Include="Server\BufferEvents\CommitCommandRequested.cs" />
+    <Compile Include="Server\BufferEvents\AppendEntriesRequested.cs" />
     <Compile Include="Server\BufferEvents\NodeCommandScheduled.cs" />
     <Compile Include="Server\CommandRegister.cs" />
     <Compile Include="Server\Data\LogEntry.cs" />
     <Compile Include="Server\Data\NodeCommandResult.cs" />
+    <Compile Include="Server\Data\TruncateLogCommandEntry.cs" />
     <Compile Include="Server\Handlers\Core\NodeCommandExecutor.cs" />
     <Compile Include="Server\Handlers\Follower\RpcCommandApplier.cs" />
+    <Compile Include="Server\Handlers\Follower\RpcLogTruncator.cs" />
     <Compile Include="Server\Handlers\Follower\RpcLogWriter.cs" />
     <Compile Include="Server\Handlers\Leader\CommandFinalizer.cs" />
     <Compile Include="Server\Handlers\Leader\LeaderEventHandler.cs" />
