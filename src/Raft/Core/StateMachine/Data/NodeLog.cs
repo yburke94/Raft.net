@@ -20,7 +20,7 @@ namespace Raft.Core.StateMachine.Data
             }
         }
 
-        internal void SetLogEntry(long commitIndex, long term)
+        public void SetLogEntry(long commitIndex, long term)
         {
             if (commitIndex < 1)
                 throw new IndexOutOfRangeException("Commit index for log must start from 1.");
@@ -33,6 +33,12 @@ namespace Raft.Core.StateMachine.Data
             }
 
             _log[commitIndex - 1] = new RaftLogEntry(term);
+        }
+
+        public void TruncateLog(long truncateFromIndex)
+        {
+            for (var i = truncateFromIndex; i < _log.Length; i++)
+                _log[i] = default(RaftLogEntry);
         }
 
         private struct RaftLogEntry

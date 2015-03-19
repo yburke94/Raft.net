@@ -35,7 +35,8 @@ namespace Raft.Core.StateMachine
                 .Ignore(typeof(SetNewTerm))
                 .Ignore(typeof(CommitEntry))
                 .Ignore(typeof(ApplyEntry))
-                .Ignore(typeof(SetLeaderInformation));
+                .Ignore(typeof(SetLeaderInformation))
+                .Ignore(typeof(TruncateLog));
         }
     }
 }

@@ -18,7 +18,8 @@ namespace Raft.Core.StateMachine
         IHandle<WinCandidateElection>,
         IHandle<SetNewTerm>,
         IHandle<TimeoutLeaderHeartbeat>,
-        IHandle<SetLeaderInformation>
+        IHandle<SetLeaderInformation>,
+        IHandle<TruncateLog>
     {
         private readonly IEventDispatcher _eventDispatcher;
         private readonly StateMachine<NodeState, Type> _stateMachine;
@@ -95,6 +96,17 @@ namespace Raft.Core.StateMachine
         public void Handle(SetLeaderInformation @event)
         {
             Data.LeaderId = @event.LeaderId;
+        }
+
+        public void Handle(TruncateLog @event)
+        {
+            if (@event.TruncateFromIndex > Data.CommitIndex)
+                throw new InvalidOperationException("Cannot truncate from the specified index as it is greater than the nodes current commit index.");
+
+            Data.CommitIndex = @event.TruncateFromIndex;
+            Data.LastApplied = @event.TruncateFromIndex;
+
+            Data.Log.TruncateLog(@event.TruncateFromIndex);
         }
     }
 }

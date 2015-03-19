@@ -77,8 +77,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RaftAppTests.cs" />
-    <Compile Include="Core\StateMachine\RaftLogTests.cs" />
-    <Compile Include="Core\StateMachine\RaftNodeTests.cs" />
+    <Compile Include="Core\StateMachine\NodeLogTests.cs" />
+    <Compile Include="Core\StateMachine\NodeTests.cs" />
     <Compile Include="Server\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\Handlers\Follower\RpcLogTruncatorTests.cs" />

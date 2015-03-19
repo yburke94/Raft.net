@@ -5,13 +5,14 @@ using NUnit.Framework;
 using Raft.Core.Commands;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
+using Raft.Core.StateMachine.Data;
 using Raft.Core.StateMachine.Enums;
 using Raft.Infrastructure;
 
 namespace Raft.Tests.Unit.Core.StateMachine
 {
     [TestFixture]
-    public class RaftNodeTests
+    public class NodeTests
     {
         [Test]
         public void CanTransitionToLeaderHandlingCreateClusterCmd()
@@ -419,6 +420,114 @@ namespace Raft.Tests.Unit.Core.StateMachine
 
             // Assert
             raftNode.Data.LeaderId.Should().BeEmpty();
+        }
+
+        [TestCase(NodeState.Leader)]
+        [TestCase(NodeState.Candidate)]
+        [TestCase(NodeState.Follower, ExpectedException = typeof(AssertionException))]
+        public void OnlyAllowLogTruncateWhenStateIsFollower(NodeState state)
+        {
+            // Arrange
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new Node(eventDispatcher);
+            TransitionNodeFromInitialState(raftNode, state);
+
+            // Act
+            var actAction = new Action(() => raftNode.FireAtStateMachine<TruncateLog>());
+
+            // Assert
+            actAction.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public void ThrowsIfTruncatingLogAndCommitIndexIsLessThanIndexToTruncateFrom()
+        {
+            // Arrange
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new Node(eventDispatcher)
+            {
+                Data = {CommitIndex = 10}
+            };
+
+            TransitionNodeFromInitialState(raftNode, NodeState.Follower);
+            raftNode.FireAtStateMachine<TruncateLog>();
+
+            // Act
+            var actAction = new Action(() => raftNode.Handle(
+                new TruncateLog
+                {
+                    TruncateFromIndex = raftNode.Data.CommitIndex + 5
+                }));
+
+            // Assert
+            actAction.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Test]
+        public void TruncatingLogSetsCommitAndApplyIndexToIndexToTruncateFrom()
+        {
+            // Arrange
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new Node(eventDispatcher)
+            {
+                Data =
+                {
+                    CommitIndex = 10,
+                    LastApplied = 10
+                }
+            };
+
+            var cmd = new TruncateLog
+            {
+                TruncateFromIndex = raftNode.Data.CommitIndex - 5
+            };
+
+            TransitionNodeFromInitialState(raftNode, NodeState.Follower);
+            raftNode.FireAtStateMachine<TruncateLog>();
+
+            // Act
+            raftNode.Handle(cmd);
+
+            // Assert
+            raftNode.Data.CommitIndex.Should().Be(cmd.TruncateFromIndex);
+            raftNode.Data.LastApplied.Should().Be(cmd.TruncateFromIndex);
+        }
+
+        [Test]
+        public void TruncatingCallsTruncateLogOnNodeLog()
+        {
+            // Arrange
+            const long logTerm = 34;
+            const long initialIdx = 10;
+            const long truncateFromIdx = initialIdx/2;
+
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new Node(eventDispatcher)
+            {
+                Data =
+                {
+                    CommitIndex = initialIdx,
+                    CurrentTerm = logTerm
+                }
+            };
+
+            for (var i = 0; i < initialIdx; i++)
+                raftNode.Data.Log.SetLogEntry(i+1, logTerm);
+
+            raftNode.Data.Log[truncateFromIdx].Should().Be(logTerm);
+            raftNode.Data.Log[truncateFromIdx+1].Should().Be(logTerm);
+
+            var cmd = new TruncateLog { TruncateFromIndex = truncateFromIdx };
+
+            TransitionNodeFromInitialState(raftNode, NodeState.Follower);
+            raftNode.FireAtStateMachine<TruncateLog>();
+
+            // Act
+            raftNode.Handle(cmd);
+
+            // Assert
+            raftNode.Data.Log[truncateFromIdx].Should().Be(logTerm);
+            raftNode.Data.Log[truncateFromIdx + 1].Should().NotHaveValue();
         }
 
         private static void TransitionNodeFromInitialState(Node node, NodeState state)
