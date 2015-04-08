@@ -11,7 +11,7 @@ namespace Raft.Server.BufferEvents
 
         public long? LeaderCommit { get; set; }
 
-        public byte[][] Entries { get; set; }
+        public byte[,] Entries { get; set; }
 
         public AppendEntriesRequested Translate(AppendEntriesRequested existingEvent, long sequence)
         {

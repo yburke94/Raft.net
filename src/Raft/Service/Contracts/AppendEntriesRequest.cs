@@ -40,7 +40,7 @@ namespace Raft.Service.Contracts
         /// <remarks>
         /// Log entries are sent already encoded via proto-buf.
         /// </remarks>
-        public byte[][] Entries { get; set; }
+        public byte[,] Entries { get; set; }
 
         /// <summary>
         /// Leader’s commitIndex.

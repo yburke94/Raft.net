@@ -16,7 +16,6 @@ namespace Raft.Infrastructure.Journaler.Readers
         private int _currentJournalIndex;
         private long _currentJournalEntryIndex;
 
-
         public JournalReader(JournalConfiguration configuration, bool validateJournalSequence)
         {
             _journalIndexPathMap = GetJournalFileIndexMap(configuration, validateJournalSequence);
