@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Disruptor;
 using ProtoBuf;
+using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure.Disruptor;
@@ -46,7 +48,14 @@ namespace Raft.Server.Handlers.Follower
             using (var ms = new MemoryStream())
             {
                 Serializer.SerializeWithLengthPrefix(ms, truncateCommandEntry, PrefixStyle.Base128);
-                _writeDataBlocks.WriteBlock(ms.ToArray());
+                _writeDataBlocks.WriteBlock(new DataBlock
+                {
+                    Data = ms.ToArray(),
+                    Metadata = new Dictionary<string, string>
+                    {
+                        {"BodyType", typeof (TruncateLogCommandEntry).AssemblyQualifiedName}
+                    }
+                });
             }
 
             _nodePublisher.PublishEvent(

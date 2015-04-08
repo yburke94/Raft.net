@@ -5,6 +5,7 @@ using NSubstitute;
 using NSubstitute.Exceptions;
 using NUnit.Framework;
 using ProtoBuf;
+using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Data;
@@ -36,12 +37,12 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
                 CurrentTerm = 2
             };
 
-            byte[] blockWritten = null;
+            DataBlock blockWritten = null;
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             writeDataBlocks
-                .When(x => x.WriteBlock(Arg.Any<byte[]>()))
-                .Do(x => blockWritten = x.Arg<byte[]>());
+                .When(x => x.WriteBlock(Arg.Any<DataBlock>()))
+                .Do(x => blockWritten = x.Arg<DataBlock>());
 
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
             var raftNode = Substitute.For<INode>();
@@ -53,9 +54,9 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             handler.OnNext(@event, 0L, false);
 
             // Assert
-            writeDataBlocks.Received().WriteBlock(Arg.Any<byte[]>());
+            writeDataBlocks.Received().WriteBlock(Arg.Any<DataBlock>());
             blockWritten.Should().NotBeNull();
-            using (var ms = new MemoryStream(blockWritten))
+            using (var ms = new MemoryStream(blockWritten.Data))
             {
                 Serializer.DeserializeWithLengthPrefix<TruncateLogCommandEntry>(ms, PrefixStyle.Base128)
                     .TruncateFromIndex.Should().Be(@event.PreviousLogIndex);
@@ -82,7 +83,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             handler.OnNext(@event, 0L, false);
 
             // Assert
-            writeDataBlocks.DidNotReceive().WriteBlock(Arg.Any<byte[]>());
+            writeDataBlocks.DidNotReceive().WriteBlock(Arg.Any<DataBlock>());
         }
 
         [TestCase(35, ExpectedException = typeof(InvalidOperationException))]
@@ -114,7 +115,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             handler.OnNext(@event, 0L, false);
 
             // Assert
-            writeDataBlocks.DidNotReceive().WriteBlock(Arg.Any<byte[]>());
+            writeDataBlocks.DidNotReceive().WriteBlock(Arg.Any<DataBlock>());
         }
 
         [Test]
@@ -175,7 +176,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             handler.OnNext(@event, 0L, false);
 
             // Assert
-            writeDataBlocks.Received().WriteBlock(Arg.Any<byte[]>());
+            writeDataBlocks.Received().WriteBlock(Arg.Any<DataBlock>());
             nodePublisher.Events.Should().HaveCount(1);
             nodePublisher.Events[0].Command.Should().BeOfType<TruncateLog>();
             ((TruncateLog)nodePublisher.Events[0].Command).TruncateFromIndex.Should().Be(@event.PreviousLogIndex);

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Disruptor;
 using ProtoBuf;
+using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;

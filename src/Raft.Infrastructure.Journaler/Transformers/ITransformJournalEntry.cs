@@ -1,7 +1,9 @@
-﻿namespace Raft.Infrastructure.Journaler.Transformers
+﻿using System.Collections.Generic;
+
+namespace Raft.Infrastructure.Journaler.Transformers
 {
     internal interface ITransformJournalEntry
     {
-        byte[] Transform(byte[] block);
+        byte[] Transform(byte[] entryBytes, IDictionary<string, string> entryMetadata);
     }
 }

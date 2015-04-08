@@ -1,5 +1,6 @@
 ﻿using Raft.Configuration;
 using Raft.Contracts;
+using Raft.Contracts.Persistance;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Disruptor;

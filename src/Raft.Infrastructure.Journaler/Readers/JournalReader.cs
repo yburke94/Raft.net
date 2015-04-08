@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using Raft.Infrastructure.Journaler.Extensions;
 
 namespace Raft.Infrastructure.Journaler.Readers
 {
@@ -20,6 +22,14 @@ namespace Raft.Infrastructure.Journaler.Readers
             _journalIndexPathMap = GetJournalFileIndexMap(configuration, validateJournalSequence);
         }
 
+        /// <summary>
+        /// Journal Layout for a single Entry:
+        /// |Data Length(int)               |
+        /// |MetadataLength(int)(0 if null) |
+        /// |Metadata(string)(optional)     |
+        /// |Data                           |
+        /// |Padding(optional)              |
+        /// </summary>
         private IEnumerable<JournalReadResult> ReadEntries()
         {
             foreach (var journalIdxPath in _journalIndexPathMap)
@@ -32,11 +42,21 @@ namespace Raft.Infrastructure.Journaler.Readers
                 {
                     using (var binaryReader = new BinaryReader(_fileStream))
                     {
+                        var metadata = new Dictionary<string, string>();
                         byte[] entry;
+
                         try
                         {
                             var entryLength = binaryReader.ReadInt32();
                             if (entryLength == 0) break;
+
+                            var metadataLength = binaryReader.ReadInt32();
+                            if (metadataLength != 0)
+                            {
+                                var metadataBytes = binaryReader.ReadBytes(metadataLength);
+                                var metadataString = Encoding.Default.GetString(metadataBytes);
+                                metadata.PopulateFrom(metadataString);
+                            }
 
                             entry = binaryReader.ReadBytes(entryLength);
                         }

@@ -8,7 +8,6 @@ using Stateless;
 
 namespace Raft.Core.StateMachine
 {
-    // TODO: This is shared state which i don't like! Have the state machine managed by a seperate thread which is sent messages.
     // TODO: Handle server state that must be persisted.
     internal class Node : INode,
         IHandle<CreateCluster>,

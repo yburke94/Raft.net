@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Raft.Contracts.Persistance;
 using Raft.Infrastructure.Journaler.Transformers;
 using Raft.Infrastructure.Journaler.Writers;
 
@@ -23,12 +24,12 @@ namespace Raft.Infrastructure.Journaler
             _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex, _journalOffsetManager.NextJournalEntryOffset);
         }
 
-        public void WriteBlock(byte[] block)
+        public void WriteBlock(DataBlock block)
         {
             WriteBlock(block, true);
         }
 
-        public void WriteBlocks(byte[][] blocks)
+        public void WriteBlocks(DataBlock[] blocks)
         {
             for (var i = 0; i < blocks.Length; i++)
             {
@@ -36,19 +37,21 @@ namespace Raft.Infrastructure.Journaler
             }
         }
 
-        private void WriteBlock(byte[] block, bool flush)
+        private void WriteBlock(DataBlock block, bool flush)
         {
-            _entryTransformers.ToList()
-                .ForEach(x => block = x.Transform(block));
+            var bytes = block.Data;
 
-            if ((_journalOffsetManager.NextJournalEntryOffset + block.Length) > _journalConfiguration.LengthInBytes)
+            _entryTransformers.ToList()
+                .ForEach(x => bytes = x.Transform(bytes, block.Metadata));
+
+            if ((_journalOffsetManager.NextJournalEntryOffset + bytes.Length) > _journalConfiguration.LengthInBytes)
             {
                 _journalOffsetManager.IncrementJournalIndex();
                 _journalFileWriter.SetJournal(_journalOffsetManager.CurrentJournalIndex, _journalOffsetManager.NextJournalEntryOffset);
             }
 
-            _journalOffsetManager.UpdateJournalOffset(block.Length);
-            _journalFileWriter.WriteJournalEntry(block);
+            _journalOffsetManager.UpdateJournalOffset(bytes.Length);
+            _journalFileWriter.WriteJournalEntry(bytes);
 
             if (flush)
                 _journalFileWriter.Flush();

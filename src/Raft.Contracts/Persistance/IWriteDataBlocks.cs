@@ -1,9 +1,9 @@
-﻿namespace Raft.Infrastructure.Journaler
+﻿namespace Raft.Contracts.Persistance
 {
     public interface IWriteDataBlocks
     {
-        void WriteBlock(byte[] block);
+        void WriteBlock(DataBlock block);
 
-        void WriteBlocks(byte[][] blocks);
+        void WriteBlocks(DataBlock[] blocks);
     }
 }

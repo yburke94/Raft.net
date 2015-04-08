@@ -1,4 +1,4 @@
-﻿
+﻿using System.Collections.Generic;
 using Raft.Infrastructure.Journaler.Extensions;
 using Raft.Infrastructure.Journaler.Kernel;
 
@@ -16,14 +16,25 @@ namespace Raft.Infrastructure.Journaler.Transformers
             _journalConfiguration = journalConfiguration;
         }
 
-        public byte[] Transform(byte[] block)
+        /// <summary>
+        /// Journal Layout for a single Entry:
+        /// |Data Length(int)               |
+        /// |MetadataLength(int)(0 if null) |
+        /// |Metadata(string)(optional)     |
+        /// |Data                           |
+        /// |Padding(optional)              |
+        /// </summary>
+        /// <remarks>
+        /// Metadata is done by the <see cref="AddJournalMetadata"/> object.
+        /// </remarks>
+        public byte[] Transform(byte[] entryBytes, IDictionary<string, string> entryMetadata)
         {
             var sectorSize = SectorSize.Get(_journalConfiguration.JournalDirectory);
-            var amountToPad = sectorSize - (block.Length % sectorSize);
+            var amountToPad = sectorSize - (entryBytes.Length % sectorSize);
 
             return amountToPad == sectorSize
-                ? block
-                : block.AppendBytes(new byte[amountToPad]);
+                ? entryBytes
+                : entryBytes.AppendBytes(new byte[amountToPad]);
         }
     }
 }

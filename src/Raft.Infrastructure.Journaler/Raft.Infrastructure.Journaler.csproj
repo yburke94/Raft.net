@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Readers\JournalReadResult.cs" />
     <Compile Include="Writers\BufferedJournalFileWriter.cs" />
     <Compile Include="Extensions\ByteArrayExtensions.cs" />

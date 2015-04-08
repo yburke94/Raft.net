@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using NSubstitute;
 using NUnit.Framework;
+using Raft.Contracts.Persistance;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
@@ -23,7 +24,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
 
             var handler = new LogWriter(journaler);
 
-            Expression<Predicate<byte[]>> match = x => x.SequenceEqual(data);
+            Expression<Predicate<DataBlock>> match = x => x.Data.SequenceEqual(data);
 
             // Act
             handler.OnNext(@event, 0, true);

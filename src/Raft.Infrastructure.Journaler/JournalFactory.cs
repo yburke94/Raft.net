@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Raft.Contracts.Persistance;
 using Raft.Infrastructure.Journaler.Transformers;
 using Raft.Infrastructure.Journaler.Writers;
 

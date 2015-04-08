@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using Raft.Contracts.Persistance;
 using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
+using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Leader
 {
@@ -26,7 +30,14 @@ namespace Raft.Server.Handlers.Leader
             if (@event.LogEntry == null || @event.EncodedEntry == null)
                 throw new InvalidOperationException("Must set EncodedEntry on event before executing this step.");
 
-            _writeDataBlocks.WriteBlock(@event.EncodedEntry);
+            _writeDataBlocks.WriteBlock(new DataBlock
+            {
+                Data = @event.EncodedEntry,
+                Metadata = new Dictionary<string, string>
+                {
+                    {"BodyType", typeof (LogEntry).AssemblyQualifiedName}
+                }
+            });
         }
     }
 }
