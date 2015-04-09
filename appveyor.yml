@@ -1,0 +1,13 @@
+version: 1.0.{build}
+before_build:
+- nuget restore
+build:
+  verbosity: normal
+notifications:
+- provider: Slack
+  auth_token:
+    secure: nOZLCL0DRVT/H2LnkecCvlxBmDx2y7krgV7fV9mR8zsq9PESZJs6BiQNqIR7gXTS
+  channel: raft-builds
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
