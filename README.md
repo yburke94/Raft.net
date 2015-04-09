@@ -1,5 +1,7 @@
-Raft.NET
-=========
+# Raft.NET
+
+[![Build status](https://ci.appveyor.com/api/projects/status/r0gwlmoak9ymqivf/branch/master?svg=true)](https://ci.appveyor.com/project/yburke94/raft-net/branch/master)
+
 A .Net implementation of the RAFT consensus algorithm.
 
 WORK IN PROGRESS
