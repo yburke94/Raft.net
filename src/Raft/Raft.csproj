@@ -47,6 +47,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
+    <Reference Include="Serilog">
+      <HintPath>..\..\packages\Serilog.1.5.1\lib\net40\Serilog.dll</HintPath>
+    </Reference>
+    <Reference Include="Serilog.FullNetFx">
+      <HintPath>..\..\packages\Serilog.1.5.1\lib\net40\Serilog.FullNetFx.dll</HintPath>
+    </Reference>
     <Reference Include="Stateless, Version=2.4.0.1, Culture=neutral, PublicKeyToken=93038f0927583c9a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Stateless.2.4.0\lib\Stateless.dll</HintPath>
@@ -89,6 +95,7 @@
     <Compile Include="Infrastructure\Disruptor\IFutureEvent.cs" />
     <Compile Include="Infrastructure\Disruptor\IPublishToBuffer.cs" />
     <Compile Include="Infrastructure\Disruptor\IEventTranslator.cs" />
+    <Compile Include="Infrastructure\Disruptor\LoggingHandler.cs" />
     <Compile Include="Infrastructure\Disruptor\PublishToBuffer.cs" />
     <Compile Include="Infrastructure\Disruptor\RingBufferBuilder.cs" />
     <Compile Include="Infrastructure\Extensions\EnumerableUtilities.cs" />

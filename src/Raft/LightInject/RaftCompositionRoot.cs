@@ -42,6 +42,7 @@ namespace Raft.LightInject
             serviceRegistry.Register<NodeCommandExecutor>();
 
             // TODO: Create binding for IRaftConfiguration...
+            // TODO: Configure Serilog
             // TODO: Make Buffer size configurable...
 
             // TODO: Bind IServiceLocator to the locator passed in by config!
@@ -52,10 +53,10 @@ namespace Raft.LightInject
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
                 .UseSpinAndYieldWaitStrategy()
-                .AddEventHandler(x.GetInstance<LogEncoder>())
-                .AddEventHandler(x.GetInstance<LogWriter>())
-                .AddEventHandler(x.GetInstance<LogReplicator>())
-                .AddEventHandler(x.GetInstance<CommandFinalizer>())
+                .AddEventHandler(new LoggingHandler<CommandScheduled>(x.GetInstance<LogEncoder>()))
+                .AddEventHandler(new LoggingHandler<CommandScheduled>(x.GetInstance<LogWriter>()))
+                .AddEventHandler(new LoggingHandler<CommandScheduled>(x.GetInstance<LogReplicator>()))
+                .AddEventHandler(new LoggingHandler<CommandScheduled>(x.GetInstance<CommandFinalizer>()))
                 .Build());
 
             serviceRegistry.Register<IPublishToBuffer<CommandScheduled, CommandExecutionResult>,
@@ -67,7 +68,9 @@ namespace Raft.LightInject
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
                 .UseSpinAndYieldWaitStrategy()
-                .AddEventHandler(x.GetInstance<RpcLogWriter>())
+                .AddEventHandler(new LoggingHandler<AppendEntriesRequested>(x.GetInstance<RpcLogTruncator>()))
+                .AddEventHandler(new LoggingHandler<AppendEntriesRequested>(x.GetInstance<RpcLogWriter>()))
+                .AddEventHandler(new LoggingHandler<AppendEntriesRequested>(x.GetInstance<RpcCommandApplier>()))
                 .Build());
 
             serviceRegistry.Register<IPublishToBuffer<AppendEntriesRequested>,
@@ -79,7 +82,7 @@ namespace Raft.LightInject
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
                 .UseSpinAndYieldWaitStrategy()
-                .AddEventHandler(x.GetInstance<NodeCommandExecutor>())
+                .AddEventHandler(new LoggingHandler<NodeCommandScheduled>(x.GetInstance<NodeCommandExecutor>()))
                 .Build());
 
             serviceRegistry.Register<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>,
