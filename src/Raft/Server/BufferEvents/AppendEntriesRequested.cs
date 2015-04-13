@@ -1,5 +1,6 @@
 using System;
 using Raft.Infrastructure.Disruptor;
+using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents
 {
@@ -12,6 +13,8 @@ namespace Raft.Server.BufferEvents
         public long? LeaderCommit { get; set; }
 
         public byte[][] Entries { get; set; }
+
+        public LogEntry[] EntriesDeserialized { get; set; }
 
         public AppendEntriesRequested Translate(AppendEntriesRequested existingEvent, long sequence)
         {
@@ -31,6 +34,9 @@ namespace Raft.Server.BufferEvents
             existingEvent.PreviousLogTerm = PreviousLogTerm;
             existingEvent.LeaderCommit = LeaderCommit;
             existingEvent.Entries = Entries;
+
+            existingEvent.EntriesDeserialized = null;
+
             return existingEvent;
         }
     }

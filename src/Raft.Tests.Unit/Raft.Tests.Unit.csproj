@@ -82,6 +82,7 @@
     <Compile Include="Server\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\Handlers\Follower\RpcLogTruncatorTests.cs" />
+    <Compile Include="Server\Handlers\Follower\RpcLogWriterTests.cs" />
     <Compile Include="Server\Handlers\Leader\CommandFinalizerTests.cs" />
     <Compile Include="Server\Handlers\Leader\LogEncoderTests.cs" />
     <Compile Include="Server\Handlers\Leader\LogReplicatorTests.cs" />

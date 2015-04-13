@@ -7,7 +7,6 @@ using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure.Disruptor;
-using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 
