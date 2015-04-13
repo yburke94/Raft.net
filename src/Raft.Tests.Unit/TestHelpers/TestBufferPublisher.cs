@@ -26,7 +26,6 @@ namespace Raft.Tests.Unit.TestHelpers
             if (_publishAction != null)
             {
                 _publishAction();
-                _publishAction = null;
             }
 
             return taskCompletionSource.Task;
@@ -37,9 +36,14 @@ namespace Raft.Tests.Unit.TestHelpers
             return PublishEvent(translator);
         }
 
-        public void OnPublish(Action action)
+        public void OnPublish(Action action, bool deleteAfterUse = true)
         {
-            _publishAction = action;
+            _publishAction = deleteAfterUse
+                ? () => {
+                    action();
+                    _publishAction = null;
+                }
+                : action;
         }
     }
 }

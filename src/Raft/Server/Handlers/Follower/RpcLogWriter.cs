@@ -76,7 +76,7 @@ namespace Raft.Server.Handlers.Follower
                         EntryIdx = entry.DeserializedEntry.Index,
                         EntryTerm = entry.DeserializedEntry.Term
                     }
-                }));
+                }).Wait());
         }
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.Practices.ServiceLocation;
 using ProtoBuf;
 using Raft.Contracts;
-using Raft.Server;
 
 namespace Raft.Tests.Unit.TestData.Commands
 {

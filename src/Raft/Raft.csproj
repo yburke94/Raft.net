@@ -100,7 +100,6 @@
     <Compile Include="LightInject\RaftCompositionRoot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaftApp.cs" />
-    <Compile Include="Server\BufferEvents\ApplyCommandRequested.cs" />
     <Compile Include="Server\BufferEvents\CommandScheduled.cs" />
     <Compile Include="Server\BufferEvents\AppendEntriesRequested.cs" />
     <Compile Include="Server\BufferEvents\NodeCommandScheduled.cs" />
