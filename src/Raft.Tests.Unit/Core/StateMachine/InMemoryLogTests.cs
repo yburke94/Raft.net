@@ -6,13 +6,13 @@ using Raft.Core.StateMachine.Data;
 namespace Raft.Tests.Unit.Core.StateMachine
 {
     [TestFixture]
-    public class NodeLogTests
+    public class InMemoryLogTests
     {
         [Test]
         public void ThrowsErrorIfCommitIndexIsLessThanOne()
         {
             // Arrange
-            var raftLog = new NodeLog();
+            var raftLog = new InMemoryLog();
 
             // Act, Assert
             Assert.Throws<IndexOutOfRangeException>(() => raftLog.SetLogEntry(0, 10));
@@ -25,7 +25,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             const int initialCount = 10;
             const int truncateFromIndex = 5;
 
-            var nodeLog = new NodeLog();
+            var nodeLog = new InMemoryLog();
             for (var i = 0; i < initialCount; i++)
                 nodeLog.SetLogEntry(i+1, 1);
 

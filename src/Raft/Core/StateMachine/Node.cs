@@ -25,19 +25,22 @@ namespace Raft.Core.StateMachine
 
         public Node(IEventDispatcher eventDispatcher)
         {
-            Data = new NodeData();
+            Properties = new NodeProperties();
+            Log = new InMemoryLog();
 
             _eventDispatcher = eventDispatcher;
             _stateMachine = new StateMachine<NodeState, Type>(NodeState.Initial);
 
-            _stateMachine.ApplyRaftRulesToStateMachine(Data);
+            _stateMachine.ApplyRaftRulesToStateMachine(Properties);
         }
 
         public NodeState CurrentState {
             get { return _stateMachine.State; }
         }
 
-        public NodeData Data { get; private set; }
+        public NodeProperties Properties { get; private set; }
+
+        public InMemoryLog Log { get; private set; }
 
         public void FireAtStateMachine<T>() where T : INodeCommand
         {
@@ -56,17 +59,17 @@ namespace Raft.Core.StateMachine
 
         public void Handle(CommitEntry @event)
         {
-            if (@event.EntryTerm > Data.CurrentTerm)
+            if (@event.EntryTerm > Properties.CurrentTerm)
                 throw new InvalidOperationException("Cannot commit a log entry against a term greater than the current term.");
 
-            Data.CommitIndex = Math.Max(Data.CommitIndex, @event.EntryIdx);
+            Properties.CommitIndex = Math.Max(Properties.CommitIndex, @event.EntryIdx);
 
-            Data.Log.SetLogEntry(@event.EntryIdx, @event.EntryTerm);
+            Log.SetLogEntry(@event.EntryIdx, @event.EntryTerm);
         }
 
         public void Handle(ApplyEntry @event)
         {
-            Data.LastApplied = Math.Max(Data.LastApplied, @event.EntryIdx);
+            Properties.LastApplied = Math.Max(Properties.LastApplied, @event.EntryIdx);
         }
 
         public void Handle(WinCandidateElection @event)
@@ -76,36 +79,36 @@ namespace Raft.Core.StateMachine
 
         public void Handle(SetNewTerm @event)
         {
-            if (@event.Term < Data.CurrentTerm)
+            if (@event.Term < Properties.CurrentTerm)
                 throw new InvalidOperationException(string.Format(
                     "The current term for this node was: {0}." +
                     "An attempt was made to set the term for this node to: {1}." +
-                    "The node must only ever increment their term.", Data.CurrentTerm, @event.Term));
+                    "The node must only ever increment their term.", Properties.CurrentTerm, @event.Term));
 
-            Data.CurrentTerm = @event.Term;
-            _eventDispatcher.Publish(new TermChanged(Data.CurrentTerm));
+            Properties.CurrentTerm = @event.Term;
+            _eventDispatcher.Publish(new TermChanged(Properties.CurrentTerm));
         }
 
         public void Handle(TimeoutLeaderHeartbeat @event)
         {
-            Data.CurrentTerm++;
-            _eventDispatcher.Publish(new TermChanged(Data.CurrentTerm));
+            Properties.CurrentTerm++;
+            _eventDispatcher.Publish(new TermChanged(Properties.CurrentTerm));
         }
 
         public void Handle(SetLeaderInformation @event)
         {
-            Data.LeaderId = @event.LeaderId;
+            Properties.LeaderId = @event.LeaderId;
         }
 
         public void Handle(TruncateLog @event)
         {
-            if (@event.TruncateFromIndex > Data.CommitIndex)
+            if (@event.TruncateFromIndex > Properties.CommitIndex)
                 throw new InvalidOperationException("Cannot truncate from the specified index as it is greater than the nodes current commit index.");
 
-            Data.CommitIndex = @event.TruncateFromIndex;
-            Data.LastApplied = @event.TruncateFromIndex;
+            Properties.CommitIndex = @event.TruncateFromIndex;
+            Properties.LastApplied = @event.TruncateFromIndex;
 
-            Data.Log.TruncateLog(@event.TruncateFromIndex);
+            Log.TruncateLog(@event.TruncateFromIndex);
         }
     }
 }

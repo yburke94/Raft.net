@@ -41,7 +41,7 @@ namespace Raft.Server.Handlers.Follower
                     AddUncommittedCommandsToRegister(data.EntriesDeserialized, data.LeaderCommit.Value);
             }
 
-            if (_node.Data.LastApplied == data.LeaderCommit) return;
+            if (_node.Properties.LastApplied == data.LeaderCommit) return;
 
             ApplyCommandsFromPreviousRequests(data.LeaderCommit.Value);
         }
@@ -79,17 +79,17 @@ namespace Raft.Server.Handlers.Follower
                 .Where(x => x.Index > leaderCommit)
                 .OrderBy(x => x.Index)
                 .ToList().ForEach(entry => {
-                    _register.Add(_node.Data.CurrentTerm, entry.Index, entry.Command);
+                    _register.Add(_node.Properties.CurrentTerm, entry.Index, entry.Command);
                 });
         }
 
         private void ApplyCommandsFromPreviousRequests(long leaderCommit)
         {
-            var appliedDifference = leaderCommit - _node.Data.LastApplied;
-            var logsToApply = EnumerableUtilities.Range(_node.Data.LastApplied + 1, (int)appliedDifference);
+            var appliedDifference = leaderCommit - _node.Properties.LastApplied;
+            var logsToApply = EnumerableUtilities.Range(_node.Properties.LastApplied + 1, (int)appliedDifference);
             foreach (var logIdx in logsToApply)
             {
-                var command = _register.Get(_node.Data.CurrentTerm, logIdx);
+                var command = _register.Get(_node.Properties.CurrentTerm, logIdx);
                 if (command == null)
                     throw new InvalidOperationException(string.Format(
                             "Error applying log entries from command register. " +

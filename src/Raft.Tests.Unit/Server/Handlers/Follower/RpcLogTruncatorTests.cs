@@ -31,7 +31,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
                 PreviousLogIndex = 5
             };
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CommitIndex = 20,
                 CurrentTerm = 2
@@ -46,7 +46,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
 
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new RpcLogTruncator(raftNode, writeDataBlocks, nodePublisher);
 
@@ -98,7 +98,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
                 PreviousLogIndex = prevIdx
             };
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CommitIndex = 30,
                 CurrentTerm = 2
@@ -107,7 +107,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new RpcLogTruncator(raftNode, writeDataBlocks, nodePublisher);
 
@@ -128,7 +128,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
                 PreviousLogIndex = 5
             };
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CommitIndex = 20,
                 CurrentTerm = 2
@@ -137,7 +137,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new RpcLogTruncator(raftNode, writeDataBlocks, nodePublisher);
 
@@ -158,7 +158,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
                 PreviousLogIndex = 5
             };
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CommitIndex = 20,
                 CurrentTerm = 2
@@ -168,7 +168,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
 
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new RpcLogTruncator(raftNode, writeDataBlocks, nodePublisher);
 

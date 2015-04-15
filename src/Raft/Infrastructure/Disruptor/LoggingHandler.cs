@@ -18,13 +18,15 @@ namespace Raft.Infrastructure.Disruptor
             try
             {
                 _handler.OnNext(data, sequence, endOfBatch);
-                Log.Debug("Handler '{handler}' successfully handled event '{eventType}'",
-                    _handler.GetType(), data.GetType());
+                Log.ForContext("BufferHandler", _handler.GetType().AssemblyQualifiedName)
+                    .Debug("Handler successfully handled event '{eventType}'",
+                    data.GetType().AssemblyQualifiedName);
             }
             catch (Exception exc)
             {
-                Log.Error(exc, "An error occurred handling event '{eventType}' with handler '{handler}'.",
-                    data.GetType(), _handler.GetType());
+                Log.ForContext("BufferHandler", _handler.GetType().AssemblyQualifiedName)
+                    .Error(exc, "An error occurred handling event '{eventType}'.",
+                    data.GetType().AssemblyQualifiedName);
             }
         }
     }

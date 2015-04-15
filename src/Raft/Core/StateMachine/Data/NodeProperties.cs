@@ -2,12 +2,14 @@
 
 namespace Raft.Core.StateMachine.Data
 {
-    internal class NodeData
+    /// <summary>
+    /// Contains both persisted and volatile properties of the node.
+    /// </summary>
+    internal class NodeProperties
     {
-        public NodeData()
+        public NodeProperties()
         {
             NodeId = Guid.NewGuid();
-            Log = new NodeLog();
 
             CurrentTerm = 0;
             VotedFor = null;
@@ -68,14 +70,5 @@ namespace Raft.Core.StateMachine.Data
         /// Initialized to 0, increases monotonically.
         /// </remarks>
         public long LastApplied { get; set; }
-
-        /// <summary>
-        /// In memory representation of the committed log.
-        /// </summary>
-        /// <remarks>
-        /// The log itself is persisted via the Journaler.
-        /// This in-memory representation is constructed on startup by reading the journals.
-        /// </remarks>
-        public NodeLog Log { get; set; }
     }
 }

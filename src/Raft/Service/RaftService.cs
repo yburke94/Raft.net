@@ -32,11 +32,11 @@ namespace Raft.Service
 
         public RequestVoteResponse RequestVote(RequestVoteRequest voteRequest)
         {
-            if (voteRequest.Term <= _node.Data.CurrentTerm)
+            if (voteRequest.Term <= _node.Properties.CurrentTerm)
             {
                 return new RequestVoteResponse
                 {
-                    Term = _node.Data.CurrentTerm,
+                    Term = _node.Properties.CurrentTerm,
                     VoteGranted = false
                 };
             }
@@ -55,16 +55,16 @@ namespace Raft.Service
         public AppendEntriesResponse AppendEntries(AppendEntriesRequest entriesRequest)
         {
             // If the node term is greater, return before updating timer. Eventually an election will trigger.
-            if (_node.Data.CurrentTerm > entriesRequest.Term)
+            if (_node.Properties.CurrentTerm > entriesRequest.Term)
                 return new AppendEntriesResponse
                 {
-                    Term = _node.Data.CurrentTerm,
+                    Term = _node.Properties.CurrentTerm,
                     Success = false
                 };
 
             _timer.ResetTimer();
 
-            if (_node.Data.CurrentTerm < entriesRequest.Term)
+            if (_node.Properties.CurrentTerm < entriesRequest.Term)
             {
                 _nodePublisher.PublishEvent(new NodeCommandScheduled
                 {
@@ -86,14 +86,14 @@ namespace Raft.Service
             if (_node.CurrentState != NodeState.Follower)
                 throw new FaultException<MultipleLeadersForTermFault>(new MultipleLeadersForTermFault
                 {
-                    Id = _node.Data.NodeId
+                    Id = _node.Properties.NodeId
                 });
 
-            if (_node.Data.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
+            if (_node.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
             {
                 return new AppendEntriesResponse
                 {
-                    Term = _node.Data.CurrentTerm,
+                    Term = _node.Properties.CurrentTerm,
                     Success = false
                 };
             }
@@ -117,7 +117,7 @@ namespace Raft.Service
 
             return new AppendEntriesResponse
             {
-                Term = _node.Data.CurrentTerm
+                Term = _node.Properties.CurrentTerm
             };
         }
     }

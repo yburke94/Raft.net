@@ -31,12 +31,12 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             // Arrange
             var @event = TestEventFactory.GetCommandEvent();
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CurrentTerm = 1
             };
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new LogEncoder(raftNode);
 
@@ -60,13 +60,13 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
                 Command = @event.Command
             };
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CurrentTerm = expectedLogEntry.Term,
                 CommitIndex = expectedLogEntry.Index - 1
             };
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new LogEncoder(raftNode);
 
@@ -87,12 +87,12 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             // Arrange
             var @event = TestEventFactory.GetCommandEvent();
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CurrentTerm = 1
             };
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
 
             var handler = new LogEncoder(raftNode);
 

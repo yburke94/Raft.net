@@ -27,7 +27,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
         {
             // Arrange
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(new NodeData());
+            raftNode.Properties.Returns(new NodeProperties());
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -58,7 +58,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
         {
             // Arrange
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(new NodeData());
+            raftNode.Properties.Returns(new NodeProperties());
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -135,7 +135,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
         {
             // Arrange
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(new NodeData { CommitIndex = 5L });
+            raftNode.Properties.Returns(new NodeProperties { CommitIndex = 5L });
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -172,7 +172,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
         {
             // Arrange
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(new NodeData {CommitIndex = 7L});
+            raftNode.Properties.Returns(new NodeProperties {CommitIndex = 7L});
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -202,7 +202,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
         {
             // Arrange
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(new NodeData());
+            raftNode.Properties.Returns(new NodeProperties());
 
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();

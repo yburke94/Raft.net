@@ -43,7 +43,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { LastApplied = request.LeaderCommit.Value });
+            node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -80,7 +80,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { LastApplied = request.LeaderCommit.Value });
+            node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -115,7 +115,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { LastApplied = request.LeaderCommit.Value });
+            node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
             var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
@@ -150,7 +150,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { LastApplied = request.LeaderCommit.Value });
+            node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
@@ -198,7 +198,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { CurrentTerm = 3L, LastApplied = request.LeaderCommit.Value });
+            node.Properties.Returns(new NodeProperties { CurrentTerm = 3L, LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
@@ -241,14 +241,14 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { CurrentTerm = term });
+            node.Properties.Returns(new NodeProperties { CurrentTerm = term });
 
             var commandRegister = new CommandRegister();
             commandRegister.Add(term, 3L, new TestExecutableCommand(() => executedFromRegister++));
             commandRegister.Add(term, 4L, new TestExecutableCommand(() => executedFromRegister++));
 
             var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
-            nodePublisher.OnPublish(() => node.Data.LastApplied++, false);
+            nodePublisher.OnPublish(() => node.Properties.LastApplied++, false);
 
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
@@ -276,7 +276,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { CurrentTerm = term, LastApplied = 2L });
+            node.Properties.Returns(new NodeProperties { CurrentTerm = term, LastApplied = 2L });
 
             var commandRegister = new CommandRegister();
             commandRegister.Add(term, 3L, new TestExecutableCommand(() => executedFromRegister++));
@@ -306,7 +306,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { CurrentTerm = term, LastApplied = 2L });
+            node.Properties.Returns(new NodeProperties { CurrentTerm = term, LastApplied = 2L });
 
             var commandRegister = new CommandRegister();
             commandRegister.Add(term, 3L, new TestCommand());
@@ -342,7 +342,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             };
 
             var node = Substitute.For<INode>();
-            node.Data.Returns(new NodeData { CurrentTerm = term, LastApplied = 2L });
+            node.Properties.Returns(new NodeProperties { CurrentTerm = term, LastApplied = 2L });
 
             var commandRegister = new CommandRegister();
             commandRegister.Add(term, 3L, new TestCommand());

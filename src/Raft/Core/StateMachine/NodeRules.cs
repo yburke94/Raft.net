@@ -8,7 +8,7 @@ namespace Raft.Core.StateMachine
 {
     internal static class NodeRules
     {
-        public static void ApplyRaftRulesToStateMachine(this StateMachine<NodeState, Type> machine, NodeData nodeData)
+        public static void ApplyRaftRulesToStateMachine(this StateMachine<NodeState, Type> machine, NodeProperties nodeProperties)
         {
             // Initial State Rules
             machine.Configure(NodeState.Initial)
@@ -17,14 +17,14 @@ namespace Raft.Core.StateMachine
 
             // Leader State Rules
             machine.Configure(NodeState.Leader)
-                .OnEntry(() => nodeData.LeaderId = Guid.Empty)
+                .OnEntry(() => nodeProperties.LeaderId = Guid.Empty)
                 .Permit(typeof(SetNewTerm), NodeState.Follower)
                 .Ignore(typeof(CommitEntry))
                 .Ignore(typeof(ApplyEntry));
 
             // Candidate State Rules
             machine.Configure(NodeState.Candidate)
-                .OnEntry(() => nodeData.LeaderId = Guid.Empty)
+                .OnEntry(() => nodeProperties.LeaderId = Guid.Empty)
                 .Permit(typeof(WinCandidateElection), NodeState.Leader)
                 .Permit(typeof(SetNewTerm), NodeState.Follower)
                 .Permit(typeof(CancelElection), NodeState.Follower);

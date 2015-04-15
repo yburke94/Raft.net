@@ -31,11 +31,11 @@ namespace Raft.Server.Handlers.Follower
             if (!data.PreviousLogIndex.HasValue || !data.PreviousLogTerm.HasValue)
                 return;
 
-            if (data.PreviousLogIndex.Equals(_node.Data.CommitIndex))
+            if (data.PreviousLogIndex.Equals(_node.Properties.CommitIndex))
                 return;
 
-            if (data.PreviousLogIndex > _node.Data.CommitIndex
-                || data.PreviousLogTerm > _node.Data.CurrentTerm)
+            if (data.PreviousLogIndex > _node.Properties.CommitIndex
+                || data.PreviousLogTerm > _node.Properties.CurrentTerm)
                 throw new InvalidOperationException(
                     "This command is invalid and should not be published to the buffer.");
 

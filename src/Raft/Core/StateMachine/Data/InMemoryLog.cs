@@ -1,8 +1,16 @@
 ﻿using System;
+using Raft.Contracts.Persistance;
 
 namespace Raft.Core.StateMachine.Data
 {
-    internal class NodeLog
+    /// <summary>
+    /// In memory representation of the committed log.
+    /// </summary>
+    /// <remarks>
+    /// The log itself is persisted via the configured <see cref="IWriteDataBlocks" /> object.
+    /// This in-memory representation should be constructed on startup by reading all previous entries in the persisted log.
+    /// </remarks>
+    internal class InMemoryLog
     {
         private const int LogIncrementSize = 64;
 

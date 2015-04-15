@@ -13,6 +13,7 @@ using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 using Raft.Service;
 using Raft.Service.Contracts;
+using Raft.Tests.Unit.Core.StateMachine;
 using Raft.Tests.Unit.TestHelpers;
 
 namespace Raft.Tests.Unit.Service
@@ -28,7 +29,8 @@ namespace Raft.Tests.Unit.Service
 
             var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(NodeState.Follower);
-            raftNode.Data.Returns(new NodeData { Log = new NodeLog() });
+            raftNode.Properties.Returns(new NodeProperties());
+            raftNode.Log.Returns(new InMemoryLog());
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
@@ -57,11 +59,10 @@ namespace Raft.Tests.Unit.Service
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
-            raftNode.Data.Returns(new NodeData
-            {
-                Log = new NodeLog(),
+            raftNode.Properties.Returns(new NodeProperties {
                 CurrentTerm = expectedTerm
             });
+            raftNode.Log.Returns(new InMemoryLog());
 
             // Act
             var response = service.AppendEntries(message);
@@ -79,14 +80,14 @@ namespace Raft.Tests.Unit.Service
                 Term = 234
             };
 
-            var nodeData = new NodeData
+            var nodeData = new NodeProperties
             {
                 CurrentTerm = message.Term + 10,
-                Log = new NodeLog()
             };
 
             var raftNode = Substitute.For<INode>();
-            raftNode.Data.Returns(nodeData);
+            raftNode.Properties.Returns(nodeData);
+            raftNode.Log.Returns(new InMemoryLog());
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
@@ -122,11 +123,11 @@ namespace Raft.Tests.Unit.Service
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
-            var raftLog = new NodeLog();
+            var raftLog = new InMemoryLog();
             raftLog.SetLogEntry(1, 2L);
 
-            raftNode.Data.Returns(new NodeData { Log = raftLog });
-
+            raftNode.Properties.Returns(new NodeProperties());
+            raftNode.Log.Returns(new InMemoryLog());
             // Act
             var response = service.AppendEntries(message);
 
@@ -156,13 +157,12 @@ namespace Raft.Tests.Unit.Service
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
-            var nodeData = new NodeData
-            {
-                Log = new NodeLog()
-            };
-            
-            nodeData.Log.SetLogEntry(1, 0);
-            raftNode.Data.Returns(nodeData);
+            var nodeData = new NodeProperties();
+            var nodeLog = new InMemoryLog();
+
+            nodeLog.SetLogEntry(1, 0);
+            raftNode.Properties.Returns(nodeData);
+            raftNode.Log.Returns(nodeLog);
 
             // Act
             service.AppendEntries(message);
@@ -185,7 +185,8 @@ namespace Raft.Tests.Unit.Service
 
             var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(NodeState.Candidate);
-            raftNode.Data.Returns(new NodeData());
+            raftNode.Properties.Returns(new NodeProperties());
+            raftNode.Log.Returns(new InMemoryLog());
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
@@ -215,7 +216,8 @@ namespace Raft.Tests.Unit.Service
 
             var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(NodeState.Follower);
-            raftNode.Data.Returns(new NodeData());
+            raftNode.Properties.Returns(new NodeProperties());
+            raftNode.Log.Returns(new InMemoryLog());
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
@@ -244,7 +246,7 @@ namespace Raft.Tests.Unit.Service
 
             var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(NodeState.Leader);
-            raftNode.Data.Returns(new NodeData {CurrentTerm = 24});
+            raftNode.Properties.Returns(new NodeProperties {CurrentTerm = 24});
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
@@ -279,10 +281,13 @@ namespace Raft.Tests.Unit.Service
             var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(NodeState.Follower);
 
-            var nodeData = new NodeData {Log = new NodeLog()};
-            nodeData.Log.SetLogEntry(message.PreviousLogIndex, message.PreviousLogTerm);
+            var nodeData = new NodeProperties();
+            var nodeLog = new InMemoryLog();
 
-            raftNode.Data.Returns(nodeData);
+            nodeLog.SetLogEntry(message.PreviousLogIndex, message.PreviousLogTerm);
+
+            raftNode.Properties.Returns(nodeData);
+            raftNode.Log.Returns(nodeLog);
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();

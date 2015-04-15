@@ -5,7 +5,6 @@ using NUnit.Framework;
 using Raft.Core.Commands;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Data;
 using Raft.Core.StateMachine.Enums;
 using Raft.Infrastructure;
 
@@ -34,7 +33,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             // Arrange
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher);
-            var logIdx = raftNode.Data.CommitIndex + 1;
+            var logIdx = raftNode.Properties.CommitIndex + 1;
 
             TransitionNodeFromInitialState(raftNode, NodeState.Leader);
 
@@ -46,7 +45,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             });
 
             // Assert
-            raftNode.Data.CommitIndex.ShouldBeEquivalentTo(logIdx);
+            raftNode.Properties.CommitIndex.ShouldBeEquivalentTo(logIdx);
         }
 
         [Test]
@@ -55,8 +54,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             // Arrange
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher);
-            var logIdx = raftNode.Data.CommitIndex + 1;
-            var commitIdx = raftNode.Data.CommitIndex + 2;
+            var logIdx = raftNode.Properties.CommitIndex + 1;
+            var commitIdx = raftNode.Properties.CommitIndex + 2;
 
             TransitionNodeFromInitialState(raftNode, NodeState.Leader);
             raftNode.Handle(new CommitEntry
@@ -65,7 +64,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
                 EntryTerm = 0L
             });
 
-            raftNode.Data.CommitIndex.Should().Be(commitIdx);
+            raftNode.Properties.CommitIndex.Should().Be(commitIdx);
 
             // Act
             raftNode.Handle(new CommitEntry
@@ -75,7 +74,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             });
 
             // Assert
-            raftNode.Data.CommitIndex.Should().Be(commitIdx);
+            raftNode.Properties.CommitIndex.Should().Be(commitIdx);
         }
 
         [Test]
@@ -101,7 +100,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             });
 
             // Assert
-            raftNode.Data.Log[raftNode.Data.CommitIndex]
+            raftNode.Log[raftNode.Properties.CommitIndex]
                 .ShouldBeEquivalentTo(term -1);
         }
 
@@ -116,7 +115,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var raftNode = new Node(eventDispatcher);
             TransitionNodeFromInitialState(raftNode, NodeState.Leader);
 
-            raftNode.Data.CurrentTerm.Should().Be(default(long));
+            raftNode.Properties.CurrentTerm.Should().Be(default(long));
 
             // Act, Assert
             new Action(() => raftNode.Handle(
@@ -133,7 +132,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             // Arrange
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher);
-            var logIdx = raftNode.Data.LastApplied + 1;
+            var logIdx = raftNode.Properties.LastApplied + 1;
             TransitionNodeFromInitialState(raftNode, NodeState.Leader);
 
             // Act
@@ -143,7 +142,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             });
 
             // Assert
-            raftNode.Data.LastApplied.Should().Be(logIdx);
+            raftNode.Properties.LastApplied.Should().Be(logIdx);
         }
 
         [Test]
@@ -152,8 +151,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             // Arrange
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher);
-            var lastApplied = raftNode.Data.LastApplied + 2;
-            var logIdx = raftNode.Data.LastApplied + 1;
+            var lastApplied = raftNode.Properties.LastApplied + 2;
+            var logIdx = raftNode.Properties.LastApplied + 1;
 
             TransitionNodeFromInitialState(raftNode, NodeState.Leader);
             raftNode.Handle(new ApplyEntry
@@ -161,7 +160,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
                 EntryIdx = lastApplied
             });
 
-            raftNode.Data.LastApplied.Should().Be(lastApplied);
+            raftNode.Properties.LastApplied.Should().Be(lastApplied);
 
             // Act
             raftNode.Handle(new ApplyEntry
@@ -170,7 +169,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             });
 
             // Assert
-            raftNode.Data.LastApplied.Should().Be(lastApplied);
+            raftNode.Properties.LastApplied.Should().Be(lastApplied);
         }
 
         [TestCase(NodeState.Leader)]
@@ -197,7 +196,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher);
             TransitionNodeFromInitialState(raftNode, NodeState.Follower);
-            raftNode.Data.CurrentTerm.Should().Be(0);
+            raftNode.Properties.CurrentTerm.Should().Be(0);
 
             // Act
             raftNode.Handle(new SetNewTerm
@@ -206,7 +205,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             });
 
             // Assert
-            raftNode.Data.CurrentTerm.Should().Be(2);
+            raftNode.Properties.CurrentTerm.Should().Be(2);
         }
 
         [Test]
@@ -285,13 +284,13 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var raftNode = new Node(eventDispatcher);
 
             TransitionNodeFromInitialState(raftNode, NodeState.Follower);
-            raftNode.Data.CurrentTerm.Should().Be(0);
+            raftNode.Properties.CurrentTerm.Should().Be(0);
 
             // Act
             raftNode.Handle(new TimeoutLeaderHeartbeat());
 
             // Assert
-            raftNode.Data.CurrentTerm.Should().Be(1);
+            raftNode.Properties.CurrentTerm.Should().Be(1);
         }
 
         [Test]
@@ -302,7 +301,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var raftNode = new Node(eventDispatcher);
 
             TransitionNodeFromInitialState(raftNode, NodeState.Follower);
-            raftNode.Data.CurrentTerm.Should().Be(0);
+            raftNode.Properties.CurrentTerm.Should().Be(0);
 
             // Act
             raftNode.Handle(new TimeoutLeaderHeartbeat());;
@@ -380,7 +379,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher);
             TransitionNodeFromInitialState(raftNode, NodeState.Candidate);
-            raftNode.Data.LeaderId.Should().BeEmpty();
+            raftNode.Properties.LeaderId.Should().BeEmpty();
 
             var command = new SetLeaderInformation
             {
@@ -391,7 +390,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(command);
 
             // Assert
-            raftNode.Data.LeaderId.Should().Be(command.LeaderId);
+            raftNode.Properties.LeaderId.Should().Be(command.LeaderId);
         }
 
         [TestCase(NodeState.Leader)]
@@ -403,7 +402,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var raftNode = new Node(eventDispatcher);
             TransitionNodeFromInitialState(raftNode, NodeState.Follower);
             raftNode.Handle(new SetLeaderInformation {LeaderId = Guid.NewGuid()});
-            raftNode.Data.LeaderId.Should().NotBeEmpty();
+            raftNode.Properties.LeaderId.Should().NotBeEmpty();
 
             // Act
             if (newState == NodeState.Leader)
@@ -419,7 +418,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.CurrentState.Should().Be(newState);
 
             // Assert
-            raftNode.Data.LeaderId.Should().BeEmpty();
+            raftNode.Properties.LeaderId.Should().BeEmpty();
         }
 
         [TestCase(NodeState.Leader)]
@@ -446,7 +445,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher)
             {
-                Data = {CommitIndex = 10}
+                Properties = {CommitIndex = 10}
             };
 
             TransitionNodeFromInitialState(raftNode, NodeState.Follower);
@@ -456,7 +455,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var actAction = new Action(() => raftNode.Handle(
                 new TruncateLog
                 {
-                    TruncateFromIndex = raftNode.Data.CommitIndex + 5
+                    TruncateFromIndex = raftNode.Properties.CommitIndex + 5
                 }));
 
             // Assert
@@ -470,7 +469,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher)
             {
-                Data =
+                Properties =
                 {
                     CommitIndex = 10,
                     LastApplied = 10
@@ -479,7 +478,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
 
             var cmd = new TruncateLog
             {
-                TruncateFromIndex = raftNode.Data.CommitIndex - 5
+                TruncateFromIndex = raftNode.Properties.CommitIndex - 5
             };
 
             TransitionNodeFromInitialState(raftNode, NodeState.Follower);
@@ -489,8 +488,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(cmd);
 
             // Assert
-            raftNode.Data.CommitIndex.Should().Be(cmd.TruncateFromIndex);
-            raftNode.Data.LastApplied.Should().Be(cmd.TruncateFromIndex);
+            raftNode.Properties.CommitIndex.Should().Be(cmd.TruncateFromIndex);
+            raftNode.Properties.LastApplied.Should().Be(cmd.TruncateFromIndex);
         }
 
         [Test]
@@ -504,7 +503,7 @@ namespace Raft.Tests.Unit.Core.StateMachine
             var eventDispatcher = Substitute.For<IEventDispatcher>();
             var raftNode = new Node(eventDispatcher)
             {
-                Data =
+                Properties =
                 {
                     CommitIndex = initialIdx,
                     CurrentTerm = logTerm
@@ -512,10 +511,10 @@ namespace Raft.Tests.Unit.Core.StateMachine
             };
 
             for (var i = 0; i < initialIdx; i++)
-                raftNode.Data.Log.SetLogEntry(i+1, logTerm);
+                raftNode.Log.SetLogEntry(i+1, logTerm);
 
-            raftNode.Data.Log[truncateFromIdx].Should().Be(logTerm);
-            raftNode.Data.Log[truncateFromIdx+1].Should().Be(logTerm);
+            raftNode.Log[truncateFromIdx].Should().Be(logTerm);
+            raftNode.Log[truncateFromIdx+1].Should().Be(logTerm);
 
             var cmd = new TruncateLog { TruncateFromIndex = truncateFromIdx };
 
@@ -526,8 +525,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(cmd);
 
             // Assert
-            raftNode.Data.Log[truncateFromIdx].Should().Be(logTerm);
-            raftNode.Data.Log[truncateFromIdx + 1].Should().NotHaveValue();
+            raftNode.Log[truncateFromIdx].Should().Be(logTerm);
+            raftNode.Log[truncateFromIdx + 1].Should().NotHaveValue();
         }
 
         private static void TransitionNodeFromInitialState(Node node, NodeState state)

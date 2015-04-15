@@ -48,11 +48,11 @@ namespace Raft.Server.Handlers.Follower
                 .ToList();
             
             var lowestIdx = entries.First().DeserializedEntry.Index;
-            if (lowestIdx != _node.Data.CommitIndex+1)
+            if (lowestIdx != _node.Properties.CommitIndex+1)
                 throw new InvalidOperationException(string.Format(
                     "The request sent was invalid. The current commit index for the node is '{0}'. " +
                     "The lowest log entry index was expected to be '{1}' but was '{2}'.",
-                    _node.Data.CommitIndex, _node.Data.CommitIndex+1, lowestIdx));
+                    _node.Properties.CommitIndex, _node.Properties.CommitIndex+1, lowestIdx));
 
             data.EntriesDeserialized = entries.Select(x => x.DeserializedEntry).ToArray();
 

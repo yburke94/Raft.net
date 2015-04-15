@@ -81,8 +81,8 @@
     <Compile Include="Core\Commands\TruncateLog.cs" />
     <Compile Include="Core\Commands\WinCandidateElection.cs" />
     <Compile Include="Core\Events\TermChanged.cs" />
-    <Compile Include="Core\StateMachine\Data\NodeData.cs" />
-    <Compile Include="Core\StateMachine\Data\NodeLog.cs" />
+    <Compile Include="Core\StateMachine\Data\NodeProperties.cs" />
+    <Compile Include="Core\StateMachine\Data\InMemoryLog.cs" />
     <Compile Include="Core\StateMachine\Enums\NodeState.cs" />
     <Compile Include="Core\StateMachine\INode.cs" />
     <Compile Include="Core\StateMachine\Node.cs" />

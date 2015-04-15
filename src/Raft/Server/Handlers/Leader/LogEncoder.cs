@@ -24,14 +24,14 @@ namespace Raft.Server.Handlers.Leader
         {
             _node = node;
 
-            _lastLogId = _node.Data.CommitIndex;
+            _lastLogId = _node.Properties.CommitIndex;
         }
 
         // TODO: Should add checksum for validation when sourcing from log... http://stackoverflow.com/questions/10335203/is-there-any-very-rapid-checksum-generation-algorithm
         public override void Handle(CommandScheduled @event)
         {
             var logEntry = new LogEntry {
-                Term = _node.Data.CurrentTerm,
+                Term = _node.Properties.CurrentTerm,
                 Index = _lastLogId + 1,
                 CommandType = @event.Command.GetType().AssemblyQualifiedName,
                 Command = @event.Command

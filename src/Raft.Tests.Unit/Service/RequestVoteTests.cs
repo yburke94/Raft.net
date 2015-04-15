@@ -33,7 +33,7 @@ namespace Raft.Tests.Unit.Service
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
-            raftNode.Data.Returns(new NodeData());
+            raftNode.Properties.Returns(new NodeProperties());
 
             // Act
             service.RequestVote(message);
