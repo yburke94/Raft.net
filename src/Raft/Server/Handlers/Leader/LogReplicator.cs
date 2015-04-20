@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
-using Raft.Core.Cluster;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Raft.Server.BufferEvents;
 using Raft.Service.Contracts;
 
@@ -15,32 +17,54 @@ namespace Raft.Server.Handlers.Leader
     /// </summary>
     internal class LogReplicator : LeaderEventHandler
     {
-        private readonly IList<PeerNode> _peers;
+        private readonly IInternalPeerService _peerService;
 
-        public LogReplicator(IList<PeerNode> peers)
+        public LogReplicator(IInternalPeerService peerService)
         {
-            _peers = peers;
+            _peerService = peerService;
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            var request = new AppendEntriesRequest {
-                Entries = new[] {
-                    @event.EncodedEntry
-                }
-            };
-
-            foreach (var peerNode in _peers)
+            var peers = _peerService.GetPeersInCluster();
+            foreach (var peer in peers)
             {
-                GetChannel(peerNode).AppendEntries(request);
+                var replicationRequest = new ReplicationRequest
+                {
+                    NodeId = peer.NodeId,
+                    EndpointAddress = peer.Address,
+                    Entry = @event.EncodedEntry
+                };
+
+                Task.Factory.StartNew(() => ReplicateToNode(replicationRequest),
+                    CancellationToken.None,
+                    TaskCreationOptions.None,
+                    TaskScheduler.Default);
             }
         }
 
-        // TODO: Get service channel from peer node.
-        private IRaftService GetChannel(PeerNode node)
+        public ReplicationResult ReplicateToNode(ReplicationRequest request)
         {
-            return default(IRaftService);
+            return new ReplicationResult
+            {
+                NodeId = request.NodeId,
+                Success = true
+            };
         }
 
+        public class ReplicationRequest
+        {
+            public Guid NodeId { get; set; }
+
+            public string EndpointAddress { get; set; }
+
+            public byte[] Entry { get; set; }
+        }
+
+        public class ReplicationResult
+        {
+            public Guid NodeId { get; set; }
+            public bool Success { get; set; }
+        }
     }
 }

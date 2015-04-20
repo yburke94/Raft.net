@@ -68,7 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Cluster\PeerNode.cs" />
+    <Compile Include="Core\Cluster\Peer.cs" />
     <Compile Include="Core\Commands\ApplyEntry.cs" />
     <Compile Include="Core\Commands\CancelElection.cs" />
     <Compile Include="Core\Commands\CommitEntry.cs" />
@@ -123,12 +123,14 @@
     <Compile Include="Server\Handlers\Leader\LogEncoder.cs" />
     <Compile Include="Server\Handlers\Leader\LogReplicator.cs" />
     <Compile Include="Server\Handlers\Leader\LogWriter.cs" />
+    <Compile Include="Service\Contracts\IPeerService.cs" />
     <Compile Include="Service\Contracts\IRaftService.cs" />
     <Compile Include="Service\Contracts\AppendEntriesRequest.cs" />
     <Compile Include="Service\Contracts\AppendEntriesResponse.cs" />
     <Compile Include="Service\Contracts\MultipleLeadersForTermFault.cs" />
     <Compile Include="Service\Contracts\RequestVoteRequest.cs" />
     <Compile Include="Service\Contracts\RequestVoteResponse.cs" />
+    <Compile Include="Service\PeerService.cs" />
     <Compile Include="Service\RaftService.cs" />
   </ItemGroup>
   <ItemGroup>

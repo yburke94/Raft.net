@@ -89,12 +89,14 @@
     <Compile Include="Server\Handlers\Leader\LogReplicatorTests.cs" />
     <Compile Include="Server\Handlers\Leader\LogWriterTests.cs" />
     <Compile Include="Service\AppendEntriesTests.cs" />
+    <Compile Include="Service\PeerServiceTests.cs" />
     <Compile Include="Service\RequestVoteTests.cs" />
     <Compile Include="TestData\Commands\TestCommand.cs" />
     <Compile Include="TestData\Commands\TestEventFactory.cs" />
     <Compile Include="TestData\Commands\TestExecutableCommand.cs" />
     <Compile Include="TestHelpers\TestBufferPublisher.cs" />
     <Compile Include="TestHelpers\TestTask.cs" />
+    <Compile Include="TestHelpers\TestTaskScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

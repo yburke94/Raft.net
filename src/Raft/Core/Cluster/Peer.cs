@@ -2,8 +2,11 @@
 
 namespace Raft.Core.Cluster
 {
-    internal class PeerNode
+    internal class Peer
     {
         public Guid NodeId { get; set; }
+
+        public string Address { get; set; }
+
     }
 }
