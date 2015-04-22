@@ -38,7 +38,7 @@ namespace Raft.Infrastructure.Journaler.Writers
         {
             AssertStreamIsSet();
 
-            CurrentStream.FlushProperly();
+            CurrentStream.Flush(true);
         }
 
         private void AssertStreamIsSet()
