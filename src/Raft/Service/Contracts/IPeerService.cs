@@ -10,10 +10,4 @@ namespace Raft.Service.Contracts
     public interface IPeerService
     {
     }
-
-    // Internal Contract
-    internal interface IInternalPeerService
-    {
-        IList<Peer> GetPeersInCluster();
-    }
 }

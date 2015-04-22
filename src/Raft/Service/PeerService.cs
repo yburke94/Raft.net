@@ -1,20 +1,11 @@
-﻿using System.Collections.Generic;
-using Raft.Core.Cluster;
-using Raft.Service.Contracts;
+﻿using Raft.Service.Contracts;
 
 namespace Raft.Service
 {
-    internal class PeerService : IPeerService, IInternalPeerService
+    internal class PeerService : IPeerService
     {
-        // TODO: Impl
-        public IList<Peer> GetPeersInCluster()
-        {
-            return new List<Peer>
-            {
-                new Peer(),
-                new Peer(),
-                new Peer()
-            };
-        }
+        /* TODO: Respond to new peers joining cluster.
+                 Publish PeerJoinedCluster event.
+         */
     }
 }

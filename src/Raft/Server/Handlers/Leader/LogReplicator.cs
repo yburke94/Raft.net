@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading.Tasks.Dataflow;
+using Raft.Core.Cluster;
+using Raft.Infrastructure;
 using Raft.Server.BufferEvents;
-using Raft.Service.Contracts;
 
 namespace Raft.Server.Handlers.Leader
 {
@@ -15,56 +16,48 @@ namespace Raft.Server.Handlers.Leader
     ///     LogReplicator*
     ///     CommandFinalizer
     /// </summary>
-    internal class LogReplicator : LeaderEventHandler
+    internal class LogReplicator : LeaderEventHandler , IHandle<PeerJoinedCluster>, IDisposable
     {
-        private readonly IInternalPeerService _peerService;
+        private volatile bool _disposing;
 
-        public LogReplicator(IInternalPeerService peerService)
+        private readonly BroadcastBlock<byte[]> _entryBroadcastBlock;
+        private readonly ConcurrentDictionary<Guid, PeerActor> _peerNodeActors;
+
+        public LogReplicator()
         {
-            _peerService = peerService;
+            _entryBroadcastBlock = new BroadcastBlock<byte[]>(x => (byte[])x.Clone());
+            _peerNodeActors = new ConcurrentDictionary<Guid, PeerActor>();
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            var peers = _peerService.GetPeersInCluster();
-            foreach (var peer in peers)
-            {
-                var replicationRequest = new ReplicationRequest
-                {
-                    NodeId = peer.NodeId,
-                    EndpointAddress = peer.Address,
-                    Entry = @event.EncodedEntry
-                };
+            _entryBroadcastBlock.Post(@event.EncodedEntry);
 
-                Task.Factory.StartNew(() => ReplicateToNode(replicationRequest),
-                    CancellationToken.None,
-                    TaskCreationOptions.None,
-                    TaskScheduler.Default);
-            }
+            // TODO: Wait for (clusterSize/2) results to return successful.
         }
 
-        public ReplicationResult ReplicateToNode(ReplicationRequest request)
+        public void Handle(PeerJoinedCluster @event)
         {
-            return new ReplicationResult
-            {
-                NodeId = request.NodeId,
-                Success = true
-            };
+            if (_peerNodeActors.ContainsKey(@event.PeerInfo.NodeId) || _disposing)
+                return;
+
+            var actor = new PeerActor(@event.PeerInfo);
+            actor.AddSourceLink(_entryBroadcastBlock);
+
+            _peerNodeActors.AddOrUpdate(@event.PeerInfo.NodeId, actor, (k,v) => actor);
         }
 
-        public class ReplicationRequest
+        public void Dispose()
         {
-            public Guid NodeId { get; set; }
+            if (_disposing)
+                throw new ObjectDisposedException(GetType().Name);
 
-            public string EndpointAddress { get; set; }
+            _disposing = true;
 
-            public byte[] Entry { get; set; }
-        }
+            _peerNodeActors.Values.ToList()
+                .ForEach(actor => actor.Dispose());
 
-        public class ReplicationResult
-        {
-            public Guid NodeId { get; set; }
-            public bool Success { get; set; }
+            _peerNodeActors.Clear();
         }
     }
 }

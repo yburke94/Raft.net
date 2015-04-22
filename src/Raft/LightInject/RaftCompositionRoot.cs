@@ -1,10 +1,11 @@
 ﻿using Raft.Configuration;
 using Raft.Contracts;
-using Raft.Contracts.Persistance;
+using Raft.Core.Events;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
+using Raft.Server;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 using Raft.Server.Handlers.Core;
@@ -21,24 +22,29 @@ namespace Raft.LightInject
             serviceRegistry.Register<IEventDispatcher, LightInjectEventDispatcher>();
 
             // TODO: make this configurable!!!!!!
-            serviceRegistry.Register<IWriteDataBlocks>(factory => new JournalFactory()
-                .CreateJournaler(factory.GetInstance<IRaftConfiguration>().JournalConfiguration));
+            serviceRegistry.Register(x => new JournalFactory()
+                .CreateJournaler(x.GetInstance<IRaftConfiguration>().JournalConfiguration));
+
+            serviceRegistry.Register<CommandRegister>(new PerContainerLifetime());
 
             // State machine
             serviceRegistry.Register<Node>(new PerContainerLifetime());
-            serviceRegistry.Register<INode>(factory => factory.GetInstance<Node>());
+            serviceRegistry.Register<INode>(x => x.GetInstance<Node>());
 
-            // Leader event handlers
+            // Event handlers
+            serviceRegistry.Register<IHandle<TermChanged>>(x => x.GetInstance<CommandRegister>());
+
+            // Leader buffer event handlers
             serviceRegistry.Register<LogEncoder>();
             serviceRegistry.Register<LogWriter>();
             serviceRegistry.Register<LogReplicator>();
             serviceRegistry.Register<CommandFinalizer>();
 
-            // Follower event handlers
+            // Follower buffer event handlers
             serviceRegistry.Register<RpcCommandApplier>();
             serviceRegistry.Register<RpcLogWriter>();
 
-            // Core event handlers
+            // Core buffer event handlers
             serviceRegistry.Register<NodeCommandExecutor>();
 
             // TODO: Create binding for IRaftConfiguration...
