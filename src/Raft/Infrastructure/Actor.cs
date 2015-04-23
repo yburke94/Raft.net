@@ -4,7 +4,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace Raft.Infrastructure
 {
-    internal abstract class Actor<TMessage>
+    internal abstract class Actor<TMessage> : IHandle<TMessage>
     {
         private readonly List<IDisposable> _sourceLinks;
         protected readonly ActionBlock<TMessage> MessagePipeline;

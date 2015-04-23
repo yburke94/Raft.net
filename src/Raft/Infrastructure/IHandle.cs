@@ -1,7 +1,7 @@
 ﻿namespace Raft.Infrastructure
 {
     /// <summary>
-    /// Subscribe to events dispatched via the  <see cref="IEventDispatcher" /> dispatcher.
+    /// Subscribe to an event of type <see cref="TEvent"/>>.
     /// </summary>
     internal interface IHandle<in TEvent>
     {
