@@ -20,20 +20,26 @@ namespace Raft.Server.Handlers.Leader
     {
         private volatile bool _disposing;
 
-        private readonly BroadcastBlock<byte[]> _entryBroadcastBlock;
+        private readonly BroadcastBlock<ReplicateRequest> _entryBroadcastBlock;
         private readonly ConcurrentDictionary<Guid, PeerActor> _peerNodeActors;
 
         public LogReplicator()
         {
-            _entryBroadcastBlock = new BroadcastBlock<byte[]>(x => (byte[])x.Clone());
+            _entryBroadcastBlock = new BroadcastBlock<ReplicateRequest>(x => x.Clone());
             _peerNodeActors = new ConcurrentDictionary<Guid, PeerActor>();
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            _entryBroadcastBlock.Post(@event.EncodedEntry);
+            var peerCount = _peerNodeActors.Count;
+            var replicatedCounter = new WaitableCounter(peerCount/2);
 
-            // TODO: Wait for (clusterSize/2) results to return successful.
+            var replicationRequest = new ReplicateRequest(
+                @event.EncodedEntry, () => replicatedCounter.Increment());
+
+            _entryBroadcastBlock.Post(replicationRequest);
+
+            replicatedCounter.Wait();
         }
 
         public void Handle(PeerJoinedCluster @event)
@@ -49,14 +55,14 @@ namespace Raft.Server.Handlers.Leader
 
         public void Dispose()
         {
-            if (_disposing)
-                throw new ObjectDisposedException(GetType().Name);
+            if (_disposing) return;
 
             _disposing = true;
 
-            _peerNodeActors.Values.ToList()
-                .ForEach(actor => actor.Dispose());
+            _entryBroadcastBlock.Complete();
+            _entryBroadcastBlock.Completion.Wait();
 
+            _peerNodeActors.Values.ToList().ForEach(actor => actor.Dispose());
             _peerNodeActors.Clear();
         }
     }

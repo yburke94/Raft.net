@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Disruptor;
 
 namespace Raft.Infrastructure.Disruptor
 {
+    // TODO: Test these classes!!!
     internal class PublishToBuffer<T> : IPublishToBuffer<T> where T : class
     {
         private readonly EventPublisher<T> _eventPublisher;
@@ -46,7 +46,6 @@ namespace Raft.Infrastructure.Disruptor
                 return newEvent;
             });
 
-            SpinWait.SpinUntil(() => task != null);
             return task;
         }
 
@@ -60,7 +59,6 @@ namespace Raft.Infrastructure.Disruptor
                 return newEvent;
             }, timeout);
 
-            SpinWait.SpinUntil(() => task != null);
             return task;
         }
     }

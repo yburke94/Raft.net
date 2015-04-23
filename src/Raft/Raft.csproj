@@ -80,7 +80,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Cluster\PeerActor.cs" />
     <Compile Include="Core\Cluster\PeerInfo.cs" />
+    <Compile Include="Core\Cluster\ReplicateRequest.cs" />
+    <Compile Include="Core\Events\PeerJoinedCluster.cs" />
     <Compile Include="Core\Commands\ApplyEntry.cs" />
     <Compile Include="Core\Commands\CancelElection.cs" />
     <Compile Include="Core\Commands\CommitEntry.cs" />
@@ -104,6 +107,7 @@
     <Compile Include="IConfigureRaft.cs" />
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
+    <Compile Include="Infrastructure\Actor.cs" />
     <Compile Include="Infrastructure\Disruptor\IFutureEvent.cs" />
     <Compile Include="Infrastructure\Disruptor\IPublishToBuffer.cs" />
     <Compile Include="Infrastructure\Disruptor\IEventTranslator.cs" />
@@ -114,6 +118,7 @@
     <Compile Include="Infrastructure\IBootstrapTask.cs" />
     <Compile Include="Infrastructure\IEventDispatcher.cs" />
     <Compile Include="Infrastructure\IHandle.cs" />
+    <Compile Include="Infrastructure\WaitableCounter.cs" />
     <Compile Include="LightInject\LightInject.cs" />
     <Compile Include="LightInject\LightInjectEventDispatcher.cs" />
     <Compile Include="LightInject\RaftCompositionRoot.cs" />
