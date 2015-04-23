@@ -21,17 +21,21 @@ namespace Raft.Server.Handlers.Leader
         private volatile bool _disposing;
 
         private readonly BroadcastBlock<ReplicateRequest> _entryBroadcastBlock;
-        private readonly ConcurrentDictionary<Guid, PeerActor> _peerNodeActors;
+        private readonly ConcurrentDictionary<Guid, Actor<ReplicateRequest>> _replicationActors;
 
         public LogReplicator()
         {
             _entryBroadcastBlock = new BroadcastBlock<ReplicateRequest>(x => x.Clone());
-            _peerNodeActors = new ConcurrentDictionary<Guid, PeerActor>();
+            _replicationActors = new ConcurrentDictionary<Guid, Actor<ReplicateRequest>>();
         }
 
         public override void Handle(CommandScheduled @event)
         {
-            var peerCount = _peerNodeActors.Count;
+            var peerCount = _replicationActors.Count;
+            if (peerCount < 1)
+                throw new InvalidOperationException(
+                    "Attempted to replicate message with no peers in the cluster.");
+
             var replicatedCounter = new WaitableCounter(peerCount/2);
 
             var replicationRequest = new ReplicateRequest(
@@ -44,13 +48,13 @@ namespace Raft.Server.Handlers.Leader
 
         public void Handle(PeerJoinedCluster @event)
         {
-            if (_peerNodeActors.ContainsKey(@event.PeerInfo.NodeId) || _disposing)
+            if (_replicationActors.ContainsKey(@event.PeerInfo.NodeId) || _disposing)
                 return;
 
             var actor = new PeerActor(@event.PeerInfo);
             actor.AddSourceLink(_entryBroadcastBlock);
 
-            _peerNodeActors.AddOrUpdate(@event.PeerInfo.NodeId, actor, (k,v) => actor);
+            _replicationActors.AddOrUpdate(@event.PeerInfo.NodeId, actor, (k,v) => actor);
         }
 
         public void Dispose()
@@ -62,8 +66,14 @@ namespace Raft.Server.Handlers.Leader
             _entryBroadcastBlock.Complete();
             _entryBroadcastBlock.Completion.Wait();
 
-            _peerNodeActors.Values.ToList().ForEach(actor => actor.Dispose());
-            _peerNodeActors.Clear();
+            _replicationActors.Values.ToList()
+                .ForEach(actor => {
+                    var disposable = actor as IDisposable;
+                    if (disposable != null)
+                        disposable.Dispose();
+                });
+
+            _replicationActors.Clear();
         }
     }
 }
