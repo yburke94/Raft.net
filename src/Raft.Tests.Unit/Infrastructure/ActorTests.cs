@@ -45,6 +45,4 @@ namespace Raft.Tests.Unit.Infrastructure
             }
         }
     }
-
-    
 }

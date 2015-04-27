@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Raft.Contracts.Persistance;
-using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 
