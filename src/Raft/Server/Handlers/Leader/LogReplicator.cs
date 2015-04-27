@@ -20,11 +20,14 @@ namespace Raft.Server.Handlers.Leader
     {
         private volatile bool _disposing;
 
+        private readonly IPeerActorFactory _peerActorFactory;
+
         private readonly BroadcastBlock<ReplicateRequest> _entryBroadcastBlock;
         private readonly ConcurrentDictionary<Guid, Actor<ReplicateRequest>> _replicationActors;
 
-        public LogReplicator()
+        public LogReplicator(IPeerActorFactory peerActorFactory)
         {
+            _peerActorFactory = peerActorFactory;
             _entryBroadcastBlock = new BroadcastBlock<ReplicateRequest>(x => x.Clone());
             _replicationActors = new ConcurrentDictionary<Guid, Actor<ReplicateRequest>>();
         }
@@ -36,7 +39,7 @@ namespace Raft.Server.Handlers.Leader
                 throw new InvalidOperationException(
                     "Attempted to replicate message with no peers in the cluster.");
 
-            var replicatedCounter = new WaitableCounter(peerCount/2);
+            var replicatedCounter = new WaitableCounter((int)Math.Ceiling((decimal)peerCount/2));
 
             var replicationRequest = new ReplicateRequest(
                 @event.EncodedEntry, () => replicatedCounter.Increment());
@@ -51,7 +54,7 @@ namespace Raft.Server.Handlers.Leader
             if (_replicationActors.ContainsKey(@event.PeerInfo.NodeId) || _disposing)
                 return;
 
-            var actor = new PeerActor(@event.PeerInfo);
+            var actor = _peerActorFactory.Create(@event.PeerInfo);
             actor.AddSourceLink(_entryBroadcastBlock);
 
             _replicationActors.AddOrUpdate(@event.PeerInfo.NodeId, actor, (k,v) => actor);

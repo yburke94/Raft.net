@@ -90,9 +90,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Cluster\PeerActorTests.cs" />
     <Compile Include="Infrastructure\ActorTests.cs" />
     <Compile Include="Infrastructure\WaitableCounterTests.cs" />
-    <Compile Include="Infrastructure\Wcf\ServiceClientFactoryTests.cs" />
+    <Compile Include="Infrastructure\Wcf\ServiceProxyFactoryTests.cs" />
     <Compile Include="RaftAppTests.cs" />
     <Compile Include="Core\StateMachine\InMemoryLogTests.cs" />
     <Compile Include="Core\StateMachine\NodeTests.cs" />

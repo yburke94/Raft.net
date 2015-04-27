@@ -4,7 +4,7 @@ using Serilog;
 
 namespace Raft.Infrastructure.Wcf
 {
-    internal class ServiceClientFactory<TService> : IServiceClientFactory<TService>
+    internal class ServiceProxyFactory<TService> : IServiceProxyFactory<TService>
     {
         private readonly ILogger _logger;
         private readonly ChannelFactory<TService> _serviceChannelFactory;
@@ -12,7 +12,7 @@ namespace Raft.Infrastructure.Wcf
         public EndpointAddress Address { get; private set; }
         public Binding Binding { get; private set; }
 
-        public ServiceClientFactory(string endpointAddress, Binding endpointBinding, ILogger logger)
+        public ServiceProxyFactory(string endpointAddress, Binding endpointBinding, ILogger logger)
         {
             Address = new EndpointAddress(endpointAddress);
             Binding = endpointBinding;
@@ -24,7 +24,7 @@ namespace Raft.Infrastructure.Wcf
                 Binding, Address);
         }
 
-        public TService GetServiceClient()
+        public TService GetProxy()
         {
             return (TService)new ServiceClientProxy<TService>(
                 _serviceChannelFactory.CreateChannel(), _logger)

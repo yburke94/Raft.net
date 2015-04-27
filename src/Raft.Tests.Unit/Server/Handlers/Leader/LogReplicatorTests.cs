@@ -5,8 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks.Dataflow;
 using FluentAssertions;
+using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.Cluster;
+using Raft.Core.StateMachine;
+using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
@@ -20,8 +23,15 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
         public void HandlingPeerJoinedClusterEventCreatesActorForPeer()
         {
             // Arrange
-            var handler = new LogReplicator();
-            var actorDictionary = GetActorDictionary(handler);
+            var node = Substitute.For<INode>();
+            node.Properties.Returns(new NodeProperties());
+            var actor = new PeerActor(node, null);
+
+            var peerActorFactory = Substitute.For<IPeerActorFactory>();
+            peerActorFactory.Create(Arg.Any<PeerInfo>())
+                .Returns(actor);
+
+            var handler = new LogReplicator(peerActorFactory);
 
             var @event = new PeerJoinedCluster
             {
@@ -32,16 +42,15 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             handler.Handle(@event);
 
             // Assert
-            actorDictionary.Count.Should().Be(1);
-            actorDictionary.ContainsKey(@event.PeerInfo.NodeId).Should().BeTrue();
-            actorDictionary[@event.PeerInfo.NodeId].Should().NotBeNull();
+            peerActorFactory.Received(1).Create(Arg.Is(@event.PeerInfo));
         }
 
         [Test]
         public void HandlingCommandScheduledEventWithNoPeersThrowsException()
         {
             // Arrange
-            var handler = new LogReplicator();
+            var peerActorFactory = Substitute.For<IPeerActorFactory>();
+            var handler = new LogReplicator(peerActorFactory);
 
             var @event = TestEventFactory.GetCommandEvent();
 
@@ -63,7 +72,8 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
                     {Guid.NewGuid(), new TestActor()}
                 });
 
-            var handler = new LogReplicator();
+            var peerActorFactory = Substitute.For<IPeerActorFactory>();
+            var handler = new LogReplicator(peerActorFactory);
             SetActorDictionary(handler, actors);
 
             var broadcastBlock = GetBroadcastBlock(handler);
@@ -84,22 +94,6 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
 
         // They say regions just hide ugly code :)
         #region Horrible Reflection Mess
-        private ConcurrentDictionary<Guid, Actor<ReplicateRequest>> GetActorDictionary(LogReplicator logReplicator)
-        {
-            var field = logReplicator.GetType()
-                .GetField("_replicationActors",
-                BindingFlags.NonPublic |
-                BindingFlags.GetField |
-                BindingFlags.Instance);
-
-            if (field == null)
-                throw new MemberAccessException(
-                    "Failed to access field '_replicationActors'. " +
-                    "If the name has been changed, the reflection in this test must be changed too.");
-
-            return (ConcurrentDictionary<Guid, Actor<ReplicateRequest>>)field.GetValue(logReplicator);
-        }
-
         private void SetActorDictionary(LogReplicator logReplicator, ConcurrentDictionary<Guid, Actor<ReplicateRequest>> dict)
         {
             var field = logReplicator.GetType()

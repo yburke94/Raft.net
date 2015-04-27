@@ -10,6 +10,6 @@ namespace Raft.Service.Contracts
         /// <summary>
         /// true if follower contained entry matching prevLogIndex and prevLogTerm
         /// </summary>
-        public bool? Success { get; set; }
+        public bool Success { get; set; }
     }
 }

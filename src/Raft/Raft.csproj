@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Cluster\PeerActor.cs" />
+    <Compile Include="Core\Cluster\PeerActorFactory.cs" />
     <Compile Include="Core\Cluster\PeerInfo.cs" />
     <Compile Include="Core\Cluster\ReplicateRequest.cs" />
     <Compile Include="Core\Events\PeerJoinedCluster.cs" />
@@ -119,8 +120,8 @@
     <Compile Include="Infrastructure\IEventDispatcher.cs" />
     <Compile Include="Infrastructure\IHandle.cs" />
     <Compile Include="Infrastructure\WaitableCounter.cs" />
-    <Compile Include="Infrastructure\Wcf\IServiceClientFactory.cs" />
-    <Compile Include="Infrastructure\Wcf\ServiceClientFactory.cs" />
+    <Compile Include="Infrastructure\Wcf\IServiceProxyFactory.cs" />
+    <Compile Include="Infrastructure\Wcf\ServiceProxyFactory.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceClientProxy.cs" />
     <Compile Include="LightInject\LightInject.cs" />
     <Compile Include="LightInject\LightInjectEventDispatcher.cs" />

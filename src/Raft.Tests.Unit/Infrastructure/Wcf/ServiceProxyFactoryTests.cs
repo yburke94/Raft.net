@@ -11,7 +11,7 @@ namespace Raft.Tests.Unit.Infrastructure.Wcf
 {
     // TODO: These should be integration tests.
     [TestFixture]
-    public class ServiceClientFactoryTests
+    public class ServiceProxyFactoryTests
     {
         [Test]
         public void CanCreateChannelGivenEndpointBindingAndContract()
@@ -20,14 +20,14 @@ namespace Raft.Tests.Unit.Infrastructure.Wcf
             using (var svcHost = new TestServiceHost())
             {
                 var logger = Substitute.For<ILogger>();
-                var serviceClientFactory = new ServiceClientFactory<ITestService>(
+                var proxyFactory = new ServiceProxyFactory<ITestService>(
                     svcHost.EndpointAddress, svcHost.EndpointBinding, logger);
 
                 // Act
-                var serviceClientProxy = serviceClientFactory.GetServiceClient();
+                var proxy = proxyFactory.GetProxy();
 
                 // Assert
-                serviceClientProxy.Should().NotBeNull();
+                proxy.Should().NotBeNull();
             }
         }
 
@@ -43,13 +43,13 @@ namespace Raft.Tests.Unit.Infrastructure.Wcf
                 logger.ForContext(Arg.Any<string>(), Arg.Any<object>())
                     .Returns(logger);
 
-                var serviceClientFactory = new ServiceClientFactory<ITestService>(
+                var proxyFactory = new ServiceProxyFactory<ITestService>(
                     svcHost.EndpointAddress, svcHost.EndpointBinding, logger);
 
-                var serviceClientProxy = serviceClientFactory.GetServiceClient();
+                var proxy = proxyFactory.GetProxy();
 
                 // Act
-                serviceClientProxy.DoSomething(TestServiceAction.Nothing);
+                proxy.DoSomething(TestServiceAction.Nothing);
 
                 // Assert
                 logger.Received(1).Debug(Arg.Any<string>(), Arg.Any<object[]>());
@@ -68,13 +68,13 @@ namespace Raft.Tests.Unit.Infrastructure.Wcf
                 logger.ForContext(Arg.Any<string>(), Arg.Any<object>())
                     .Returns(logger);
 
-                var serviceClientFactory = new ServiceClientFactory<ITestService>(
+                var proxyFactory = new ServiceProxyFactory<ITestService>(
                     svcHost.EndpointAddress, svcHost.EndpointBinding, logger);
 
-                var serviceClientProxy = serviceClientFactory.GetServiceClient();
+                var proxy = proxyFactory.GetProxy();
 
                 // Act
-                Action actAction = () => serviceClientProxy.DoSomething(TestServiceAction.ThrowCommunicationError);
+                Action actAction = () => proxy.DoSomething(TestServiceAction.ThrowCommunicationError);
 
                 // Assert
                 actAction.ShouldThrow<FaultException>();
@@ -94,14 +94,14 @@ namespace Raft.Tests.Unit.Infrastructure.Wcf
                 logger.ForContext(Arg.Any<string>(), Arg.Any<object>())
                     .Returns(logger);
 
-                var serviceClientFactory = new ServiceClientFactory<ITestService>(
+                var proxyFactory = new ServiceProxyFactory<ITestService>(
                     svcHost.EndpointAddress, svcHost.EndpointBinding, logger);
 
-                var serviceClientProxy = serviceClientFactory.GetServiceClient();
-                serviceClientProxy.DoSomething(TestServiceAction.Nothing);
+                var proxy = proxyFactory.GetProxy();
+                proxy.DoSomething(TestServiceAction.Nothing);
 
                 // Act
-                Action actAction = () => serviceClientProxy.DoSomething(TestServiceAction.Nothing);
+                Action actAction = () => proxy.DoSomething(TestServiceAction.Nothing);
 
                 // Assert
                 actAction.ShouldThrow<ObjectDisposedException>();

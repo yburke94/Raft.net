@@ -1,5 +1,6 @@
 ﻿using Raft.Configuration;
 using Raft.Contracts;
+using Raft.Core.Cluster;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
@@ -26,6 +27,8 @@ namespace Raft.LightInject
                 .CreateJournaler(x.GetInstance<IRaftConfiguration>().JournalConfiguration));
 
             serviceRegistry.Register<CommandRegister>(new PerContainerLifetime());
+
+            serviceRegistry.Register<IPeerActorFactory, PeerActorFactory>(new PerRequestLifeTime());
 
             // State machine
             serviceRegistry.Register<Node>(new PerContainerLifetime());

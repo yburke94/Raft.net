@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using System;
+using System.ServiceModel;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Enums;
@@ -56,11 +57,7 @@ namespace Raft.Service
         {
             // If the node term is greater, return before updating timer. Eventually an election will trigger.
             if (_node.Properties.CurrentTerm > entriesRequest.Term)
-                return new AppendEntriesResponse
-                {
-                    Term = _node.Properties.CurrentTerm,
-                    Success = false
-                };
+                return AppendEntriesResponse(false);
 
             _timer.ResetTimer();
 
@@ -91,11 +88,7 @@ namespace Raft.Service
 
             if (_node.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
             {
-                return new AppendEntriesResponse
-                {
-                    Term = _node.Properties.CurrentTerm,
-                    Success = false
-                };
+                return AppendEntriesResponse(false);
             }
 
             _nodePublisher.PublishEvent(
@@ -106,18 +99,23 @@ namespace Raft.Service
                     }
                 });
 
-            // TODO: Buffer will be responsible for Log Truncating, Log Writing, Log Applying
             _appendEntriesPublisher.PublishEvent(new AppendEntriesRequested
             {
                 PreviousLogIndex = entriesRequest.PreviousLogIndex,
                 PreviousLogTerm = entriesRequest.PreviousLogTerm,
                 LeaderCommit = entriesRequest.LeaderCommit,
                 Entries = entriesRequest.Entries
-            });
+            }); // TODO: Wait!!!!!!
 
+            return AppendEntriesResponse(true);
+        }
+
+        private AppendEntriesResponse AppendEntriesResponse(bool success)
+        {
             return new AppendEntriesResponse
             {
-                Term = _node.Properties.CurrentTerm
+                Term = _node.Properties.CurrentTerm,
+                Success = success
             };
         }
     }
