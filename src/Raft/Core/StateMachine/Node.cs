@@ -8,8 +8,7 @@ using Stateless;
 
 namespace Raft.Core.StateMachine
 {
-    // TODO: Handle server state that must be persisted.
-    internal class Node : INode,
+    internal sealed class Node : INode,
         IHandle<CreateCluster>,
         IHandle<JoinCluster>,
         IHandle<CommitEntry>,
@@ -18,7 +17,8 @@ namespace Raft.Core.StateMachine
         IHandle<SetNewTerm>,
         IHandle<TimeoutLeaderHeartbeat>,
         IHandle<SetLeaderInformation>,
-        IHandle<TruncateLog>
+        IHandle<TruncateLog>,
+        IHandle<CancelElection>
     {
         private readonly IEventDispatcher _eventDispatcher;
         private readonly StateMachine<NodeState, Type> _stateMachine;
@@ -75,6 +75,10 @@ namespace Raft.Core.StateMachine
         public void Handle(WinCandidateElection @event)
         {
             // TODO
+        }
+
+        public void Handle(CancelElection @event)
+        {
         }
 
         public void Handle(SetNewTerm @event)

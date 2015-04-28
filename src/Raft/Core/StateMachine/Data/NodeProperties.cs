@@ -5,6 +5,7 @@ namespace Raft.Core.StateMachine.Data
     /// <summary>
     /// Contains both persisted and volatile properties of the node.
     /// </summary>
+    //TODO: Handle persisted state...
     internal class NodeProperties
     {
         public NodeProperties()
