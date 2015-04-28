@@ -1,14 +1,13 @@
-﻿using System;
-using Disruptor;
-using Raft.Core.Commands;
+﻿using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Core
 {
-    internal class NodeCommandExecutor : IEventHandler<NodeCommandScheduled>
+    // TODO: Test
+    internal class NodeCommandExecutor : BufferEventHandler<InternalCommandScheduled>
     {
         private readonly Node _node;
 
@@ -17,21 +16,10 @@ namespace Raft.Server.Handlers.Core
             _node = node;
         }
 
-        public void OnNext(NodeCommandScheduled data, long sequence, bool endOfBatch)
+        public override void Handle(InternalCommandScheduled @event)
         {
-            try
-            {
-                Handle(data.Command);
-            }
-            catch (Exception e)
-            {
-                data.CompletionSource.SetException(e);
-            }
-            finally
-            {
-                data.CompletionSource.SetResult(new NodeCommandResult(true));
-            }
-            
+            Handle(@event.Command);
+            @event.CompleteEvent();
         }
 
         private void Handle<T>(T cmd) where T : INodeCommand

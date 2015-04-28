@@ -46,7 +46,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -83,7 +83,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -118,7 +118,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -153,7 +153,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             node.Properties.Returns(new NodeProperties { LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -201,7 +201,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             node.Properties.Returns(new NodeProperties { CurrentTerm = 3L, LastApplied = request.LeaderCommit.Value });
 
             var commandRegister = new CommandRegister();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -247,7 +247,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             commandRegister.Add(term, 3L, new TestExecutableCommand(() => executedFromRegister++));
             commandRegister.Add(term, 4L, new TestExecutableCommand(() => executedFromRegister++));
 
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             nodePublisher.OnPublish(() => node.Properties.LastApplied++, false);
 
             var serviceLocator = Substitute.For<IServiceLocator>();
@@ -282,7 +282,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             commandRegister.Add(term, 3L, new TestExecutableCommand(() => executedFromRegister++));
             commandRegister.Add(term, 4L, new TestExecutableCommand(() => executedFromRegister++));
 
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -312,7 +312,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             commandRegister.Add(term, 3L, new TestCommand());
             commandRegister.Add(term, 4L, new TestCommand());
 
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 
@@ -327,6 +327,36 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
                 ev.Command.Should().BeOfType<ApplyEntry>();
                 ((ApplyEntry)ev.Command).EntryIdx.Should().Be(++startIdx);
             });
+        }
+
+        [Test]
+        public void DoesCompleteTaskSuccessfullyInTaskCompletionSourceAfterApplyingEntries()
+        {
+            // Arrange
+            const long term = 3L;
+
+            var request = new AppendEntriesRequested
+            {
+                LeaderCommit = 4L,
+                EntriesDeserialized = null
+            };
+
+            var node = Substitute.For<INode>();
+            node.Properties.Returns(new NodeProperties { CurrentTerm = term, LastApplied = 2L });
+
+            var commandRegister = new CommandRegister();
+            commandRegister.Add(term, 3L, new TestCommand());
+            commandRegister.Add(term, 4L, new TestCommand());
+
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
+            var serviceLocator = Substitute.For<IServiceLocator>();
+            var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
+
+            // Act
+            handler.OnNext(request, 0L, true);
+
+            // Assert
+            request.IsCompletedSuccessfully().Should().BeTrue();
         }
 
         [Test]
@@ -348,7 +378,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             commandRegister.Add(term, 3L, new TestCommand());
             commandRegister.Add(term, 5L, new TestCommand());
 
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var serviceLocator = Substitute.For<IServiceLocator>();
             var handler = new RpcCommandApplier(serviceLocator, node, commandRegister, nodePublisher);
 

@@ -5,7 +5,6 @@ using NUnit.Framework;
 using Raft.Core.Commands;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.Data;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
 using Raft.Tests.Unit.TestHelpers;
@@ -26,7 +25,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             @event.LogEntry.Term = term;
 
             var serviceLocator = Substitute.For<IServiceLocator>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
 
             var handler = new CommandFinalizer(serviceLocator, nodePublisher);
 
@@ -41,12 +40,12 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
         }
 
         [Test]
-        public void DoesCompleteTaskInTaskCompletionSource()
+        public void DoesCompleteTaskSuccessfullyInTaskCompletionSource()
         {
             // Arrange
             var @event = TestEventFactory.GetCommandEvent(1L, new byte[8]);
 
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
             var handler = new CommandFinalizer(serviceLocator, nodePublisher);
@@ -55,29 +54,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             handler.Handle(@event);
 
             // Assert
-            @event.CompletionSource.Task.IsCompleted
-                .Should().BeTrue();
-        }
-
-        [Test]
-        public void DoesSetTaskResultWithSuccessfulLogResult()
-        {
-            // Arrange
-            var @event = TestEventFactory.GetCommandEvent(1L, new byte[8]);
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
-            var serviceLocator = Substitute.For<IServiceLocator>();
-
-            var handler = new CommandFinalizer(serviceLocator, nodePublisher);
-
-            // Act
-            handler.Handle(@event);
-
-            // Assert
-            @event.CompletionSource.Task.Result
-                .Should().NotBeNull();
-
-            @event.CompletionSource.Task.Result.Successful
-                .Should().BeTrue();
+            @event.IsCompletedSuccessfully().Should().BeTrue();
         }
 
         [Test]
@@ -90,7 +67,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
                 1L, new byte[4],
                 () => shouldEqualTrueWhenCommandExecutes = true);
 
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
             var handler = new CommandFinalizer(serviceLocator, nodePublisher);
@@ -110,7 +87,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             const long logIdx = 3L;
             var @event = TestEventFactory.GetCommandEvent(logIdx, new byte[8]);
 
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var serviceLocator = Substitute.For<IServiceLocator>();
 
             var handler = new CommandFinalizer(serviceLocator, nodePublisher);

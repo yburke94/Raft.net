@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Disruptor;
 using Microsoft.Practices.ServiceLocation;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
@@ -11,15 +10,15 @@ using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Follower
 {
-    internal class RpcCommandApplier : IEventHandler<AppendEntriesRequested>
+    internal class RpcCommandApplier : BufferEventHandler<AppendEntriesRequested>
     {
         private readonly IServiceLocator _serviceLocator;
         private readonly INode _node;
         private readonly CommandRegister _register;
-        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
+        private readonly IPublishToBuffer<InternalCommandScheduled> _nodePublisher;
 
         public RpcCommandApplier(IServiceLocator serviceLocator, INode node, CommandRegister register,
-            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher)
+            IPublishToBuffer<InternalCommandScheduled> nodePublisher)
         {
             _serviceLocator = serviceLocator;
             _node = node;
@@ -27,23 +26,25 @@ namespace Raft.Server.Handlers.Follower
             _nodePublisher = nodePublisher;
         }
 
-        public void OnNext(AppendEntriesRequested data, long sequence, bool endOfBatch)
+        public override void Handle(AppendEntriesRequested @event)
         {
-            if (!data.LeaderCommit.HasValue)
+            if (!@event.LeaderCommit.HasValue)
                 throw new InvalidOperationException("The event data is invalid. LeaderCommit must have a value set.");
 
-            if (data.EntriesDeserialized != null)
+            if (@event.EntriesDeserialized != null)
             {
-                if (data.EntriesDeserialized.Any(x => x.Index <= data.LeaderCommit))
-                    ApplyLogMatchingCommands(data.EntriesDeserialized, data.LeaderCommit.Value);
+                if (@event.EntriesDeserialized.Any(x => x.Index <= @event.LeaderCommit))
+                    ApplyLogMatchingCommands(@event.EntriesDeserialized, @event.LeaderCommit.Value);
 
-                if (data.EntriesDeserialized.Any(x => x.Index > data.LeaderCommit))
-                    AddUncommittedCommandsToRegister(data.EntriesDeserialized, data.LeaderCommit.Value);
+                if (@event.EntriesDeserialized.Any(x => x.Index > @event.LeaderCommit))
+                    AddUncommittedCommandsToRegister(@event.EntriesDeserialized, @event.LeaderCommit.Value);
             }
 
-            if (_node.Properties.LastApplied == data.LeaderCommit) return;
+            if (_node.Properties.LastApplied == @event.LeaderCommit) return;
 
-            ApplyCommandsFromPreviousRequests(data.LeaderCommit.Value);
+            ApplyCommandsFromPreviousRequests(@event.LeaderCommit.Value);
+
+            @event.CompleteEvent();
         }
 
         private void ApplyLogMatchingCommands(LogEntry[] entries, long leaderCommit)
@@ -102,7 +103,7 @@ namespace Raft.Server.Handlers.Follower
 
         private void ApplyEntryToNode(long entryIdx)
         {
-            _nodePublisher.PublishEvent(new NodeCommandScheduled
+            _nodePublisher.PublishEvent(new InternalCommandScheduled
             {
                 Command = new ApplyEntry { EntryIdx = entryIdx }
             }).Wait();

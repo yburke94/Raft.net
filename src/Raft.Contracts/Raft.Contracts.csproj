@@ -46,7 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandExecutionResult.cs" />
     <Compile Include="IRaft.cs" />
     <Compile Include="IRaftCommand.cs" />
     <Compile Include="Persistance\DataBlock.cs" />

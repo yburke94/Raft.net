@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks.Dataflow;
 using Raft.Core.Cluster;
 using Raft.Infrastructure;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 
 namespace Raft.Server.Handlers.Leader
@@ -16,7 +17,7 @@ namespace Raft.Server.Handlers.Leader
     ///     LogReplicator*
     ///     CommandFinalizer
     /// </summary>
-    internal class LogReplicator : LeaderEventHandler , IHandle<PeerJoinedCluster>, IDisposable
+    internal class LogReplicator : BufferEventHandler<CommandScheduled>, IHandle<PeerJoinedCluster>, IDisposable
     {
         private volatile bool _disposing;
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Disruptor;
 using ProtoBuf;
 using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
@@ -12,36 +11,36 @@ using Raft.Server.Data;
 
 namespace Raft.Server.Handlers.Follower
 {
-    internal class RpcLogTruncator : IEventHandler<AppendEntriesRequested>
+    internal class RpcLogTruncator : BufferEventHandler<AppendEntriesRequested>
     {
         private readonly INode _node;
         private readonly IWriteDataBlocks _writeDataBlocks;
-        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
+        private readonly IPublishToBuffer<InternalCommandScheduled> _nodePublisher;
 
         public RpcLogTruncator(INode node, IWriteDataBlocks writeDataBlocks,
-            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher)
+            IPublishToBuffer<InternalCommandScheduled> nodePublisher)
         {
             _node = node;
             _writeDataBlocks = writeDataBlocks;
             _nodePublisher = nodePublisher;
         }
 
-        public void OnNext(AppendEntriesRequested data, long sequence, bool endOfBatch)
+        public override void Handle(AppendEntriesRequested @event)
         {
-            if (!data.PreviousLogIndex.HasValue || !data.PreviousLogTerm.HasValue)
+            if (!@event.PreviousLogIndex.HasValue || !@event.PreviousLogTerm.HasValue)
                 return;
 
-            if (data.PreviousLogIndex.Equals(_node.Properties.CommitIndex))
+            if (@event.PreviousLogIndex.Equals(_node.Properties.CommitIndex))
                 return;
 
-            if (data.PreviousLogIndex > _node.Properties.CommitIndex
-                || data.PreviousLogTerm > _node.Properties.CurrentTerm)
+            if (@event.PreviousLogIndex > _node.Properties.CommitIndex
+                || @event.PreviousLogTerm > _node.Properties.CurrentTerm)
                 throw new InvalidOperationException(
                     "This command is invalid and should not be published to the buffer.");
 
             var truncateCommandEntry = new TruncateLogCommandEntry
             {
-                TruncateFromIndex = data.PreviousLogIndex.Value
+                TruncateFromIndex = @event.PreviousLogIndex.Value
             };
 
             using (var ms = new MemoryStream())
@@ -58,11 +57,11 @@ namespace Raft.Server.Handlers.Follower
             }
 
             _nodePublisher.PublishEvent(
-                new NodeCommandScheduled
+                new InternalCommandScheduled
                 {
                     Command = new TruncateLog
                     {
-                        TruncateFromIndex = data.PreviousLogIndex.Value
+                        TruncateFromIndex = @event.PreviousLogIndex.Value
                     }
                 });
         }

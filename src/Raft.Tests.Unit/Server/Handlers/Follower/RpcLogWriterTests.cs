@@ -30,7 +30,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             raftNode.Properties.Returns(new NodeProperties());
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
             var @event = new AppendEntriesRequested
             {
                 Entries = new[] {
@@ -61,7 +61,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             raftNode.Properties.Returns(new NodeProperties());
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var @event = new AppendEntriesRequested
             {
@@ -92,7 +92,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             // Arrange
             var raftNode = Substitute.For<INode>();
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var @event = new AppendEntriesRequested
             {
@@ -114,7 +114,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             // Arrange
             var raftNode = Substitute.For<INode>();
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var @event = new AppendEntriesRequested
             {
@@ -138,7 +138,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             raftNode.Properties.Returns(new NodeProperties { CommitIndex = 5L });
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var @event = new AppendEntriesRequested
             {
@@ -175,7 +175,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             raftNode.Properties.Returns(new NodeProperties {CommitIndex = 7L});
 
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var @event = new AppendEntriesRequested
             {
@@ -204,7 +204,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             var raftNode = Substitute.For<INode>();
             raftNode.Properties.Returns(new NodeProperties());
 
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             var writeDataBlocks = Substitute.For<IWriteDataBlocks>();
 
             var @event = new AppendEntriesRequested

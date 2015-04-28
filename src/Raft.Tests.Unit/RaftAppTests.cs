@@ -22,7 +22,7 @@ namespace Raft.Tests.Unit
         public void ThrowsWhenExecutingCommandAndNotALeader(NodeState state)
         {
             // Arrange
-            var publishToBuffer = Substitute.For<IPublishToBuffer<CommandScheduled, CommandExecutionResult>>();
+            var publishToBuffer = Substitute.For<IPublishToBuffer<CommandScheduled>>();
             var raftNode = Substitute.For<INode>();
             raftNode.CurrentState.Returns(state);
             var raftApi = new RaftApp(publishToBuffer, raftNode);

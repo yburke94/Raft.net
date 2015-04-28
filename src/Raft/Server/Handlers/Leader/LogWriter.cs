@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Raft.Contracts.Persistance;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 
@@ -14,7 +15,7 @@ namespace Raft.Server.Handlers.Leader
     ///     LogReplicator
     ///     CommandFinalizer
     /// </summary>
-    internal class LogWriter : LeaderEventHandler
+    internal class LogWriter : BufferEventHandler<CommandScheduled>
     {
         private readonly IWriteDataBlocks _writeDataBlocks;
 

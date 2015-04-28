@@ -8,7 +8,6 @@ using Raft.Infrastructure.Disruptor;
 using Raft.Infrastructure.Journaler;
 using Raft.Server;
 using Raft.Server.BufferEvents;
-using Raft.Server.Data;
 using Raft.Server.Handlers.Core;
 using Raft.Server.Handlers.Follower;
 using Raft.Server.Handlers.Leader;
@@ -68,8 +67,8 @@ namespace Raft.LightInject
                 .AddEventHandler(new LoggingHandler<CommandScheduled>(x.GetInstance<CommandFinalizer>()))
                 .Build());
 
-            serviceRegistry.Register<IPublishToBuffer<CommandScheduled, CommandExecutionResult>,
-                PublishToBuffer<CommandScheduled, CommandExecutionResult>>();
+            serviceRegistry.Register<IPublishToBuffer<CommandScheduled>,
+                PublishToBuffer<CommandScheduled>>();
 
             // Create Follower commit ring buffer
             serviceRegistry.Register(x => new RingBufferBuilder<AppendEntriesRequested>()
@@ -86,16 +85,16 @@ namespace Raft.LightInject
                 PublishToBuffer<AppendEntriesRequested>>();
 
             // Create core ring buffer
-            serviceRegistry.Register(x => new RingBufferBuilder<NodeCommandScheduled>()
+            serviceRegistry.Register(x => new RingBufferBuilder<InternalCommandScheduled>()
                 .UseBufferSize(2 << 5) // 64
                 .UseDefaultEventCtor()
                 .UseMultipleProducers(false)
                 .UseSpinAndYieldWaitStrategy()
-                .AddEventHandler(new LoggingHandler<NodeCommandScheduled>(x.GetInstance<NodeCommandExecutor>()))
+                .AddEventHandler(new LoggingHandler<InternalCommandScheduled>(x.GetInstance<NodeCommandExecutor>()))
                 .Build());
 
-            serviceRegistry.Register<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>,
-                PublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            serviceRegistry.Register<IPublishToBuffer<InternalCommandScheduled>,
+                PublishToBuffer<InternalCommandScheduled>>();
         }
     }
 }

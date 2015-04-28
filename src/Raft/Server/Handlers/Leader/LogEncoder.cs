@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ProtoBuf;
 using Raft.Core.StateMachine;
+using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 
@@ -14,7 +15,7 @@ namespace Raft.Server.Handlers.Leader
     ///     LogReplicator
     ///     CommandFinalizer
     /// </summary>
-    internal class LogEncoder : LeaderEventHandler
+    internal class LogEncoder : BufferEventHandler<CommandScheduled>
     {
         private long _lastLogId;
 

@@ -1,12 +1,10 @@
-﻿using System;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Enums;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.Data;
 using Raft.Service.Contracts;
 
 namespace Raft.Service
@@ -15,13 +13,13 @@ namespace Raft.Service
     {
         private readonly IPublishToBuffer<AppendEntriesRequested> _appendEntriesPublisher;
         
-        private readonly IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> _nodePublisher;
+        private readonly IPublishToBuffer<InternalCommandScheduled> _nodePublisher;
         private readonly INodeTimer _timer;
         private readonly INode _node;
 
         public RaftService(
             IPublishToBuffer<AppendEntriesRequested> appendEntriesPublisher,
-            IPublishToBuffer<NodeCommandScheduled, NodeCommandResult> nodePublisher,
+            IPublishToBuffer<InternalCommandScheduled> nodePublisher,
             INodeTimer timer, INode node)
         {
             _appendEntriesPublisher = appendEntriesPublisher;
@@ -42,7 +40,7 @@ namespace Raft.Service
                 };
             }
 
-            _nodePublisher.PublishEvent(new NodeCommandScheduled
+            _nodePublisher.PublishEvent(new InternalCommandScheduled
             {
                 Command = new SetNewTerm
                 {
@@ -63,7 +61,7 @@ namespace Raft.Service
 
             if (_node.Properties.CurrentTerm < entriesRequest.Term)
             {
-                _nodePublisher.PublishEvent(new NodeCommandScheduled
+                _nodePublisher.PublishEvent(new InternalCommandScheduled
                 {
                     Command = new SetNewTerm
                     {
@@ -74,7 +72,7 @@ namespace Raft.Service
 
             if (_node.CurrentState == NodeState.Candidate)
             {
-                _nodePublisher.PublishEvent(new NodeCommandScheduled
+                _nodePublisher.PublishEvent(new InternalCommandScheduled
                 {
                     Command = new CancelElection()
                 }).Wait();
@@ -92,7 +90,7 @@ namespace Raft.Service
             }
 
             _nodePublisher.PublishEvent(
-                new NodeCommandScheduled {
+                new InternalCommandScheduled {
                     Command = new SetLeaderInformation
                     {
                         LeaderId = entriesRequest.LeaderId
@@ -105,7 +103,7 @@ namespace Raft.Service
                 PreviousLogTerm = entriesRequest.PreviousLogTerm,
                 LeaderCommit = entriesRequest.LeaderCommit,
                 Entries = entriesRequest.Entries
-            }); // TODO: Wait!!!!!!
+            }).Wait();
 
             return AppendEntriesResponse(true);
         }

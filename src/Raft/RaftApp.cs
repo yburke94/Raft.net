@@ -10,16 +10,16 @@ namespace Raft
 {
     internal class RaftApp : IRaft
     {
-        private readonly IPublishToBuffer<CommandScheduled, CommandExecutionResult> _commandPublisher;
+        private readonly IPublishToBuffer<CommandScheduled> _commandPublisher;
         private readonly INode _node;
 
-        public RaftApp(IPublishToBuffer<CommandScheduled, CommandExecutionResult> commandPublisher, INode node)
+        public RaftApp(IPublishToBuffer<CommandScheduled> commandPublisher, INode node)
         {
             _commandPublisher = commandPublisher;
             _node = node;
         }
 
-        public Task<CommandExecutionResult> ExecuteCommand<T>(T command) where T : IRaftCommand, new()
+        public Task ExecuteCommand<T>(T command) where T : IRaftCommand, new()
         {
             if (_node.CurrentState != NodeState.Leader)
                 throw new NotClusterLeaderException();

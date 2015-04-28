@@ -34,7 +34,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -55,7 +55,7 @@ namespace Raft.Tests.Unit.Service
             var raftNode = Substitute.For<INode>();
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -91,7 +91,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -119,7 +119,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = Substitute.For<IPublishToBuffer<NodeCommandScheduled, NodeCommandResult>>();
+            var nodePublisher = Substitute.For<IPublishToBuffer<InternalCommandScheduled>>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -153,7 +153,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -190,7 +190,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
             nodePublisher.OnPublish(() => raftNode.CurrentState.Returns(NodeState.Follower));
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
@@ -221,7 +221,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -250,7 +250,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 
@@ -291,7 +291,7 @@ namespace Raft.Tests.Unit.Service
 
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 

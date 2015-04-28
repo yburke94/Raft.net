@@ -6,7 +6,7 @@ using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents
 {
-    internal class CommandScheduled : IFutureEvent<CommandExecutionResult>, IEventTranslator<CommandScheduled>
+    internal class CommandScheduled : BufferEvent, IEventTranslator<CommandScheduled>
     {
         public Guid Id { get; private set; }
 
@@ -14,18 +14,6 @@ namespace Raft.Server.BufferEvents
 
         public LogEntry LogEntry { get; private set; }
         public byte[] EncodedEntry { get; private set; }
-
-        public TaskCompletionSource<CommandExecutionResult> CompletionSource { get; internal set; }
-
-        public bool IsCompletedSuccessfully()
-        {
-            return CompletionSource.Task.IsCompleted && !IsFaulted();
-        }
-
-        public bool IsFaulted()
-        {
-            return CompletionSource.Task.IsFaulted;
-        }
 
         public void SetLogEntry(LogEntry entry, byte[] encodedEntry)
         {
@@ -40,7 +28,7 @@ namespace Raft.Server.BufferEvents
 
             existingEvent.Id = Guid.NewGuid();
             existingEvent.Command = Command;
-            existingEvent.CompletionSource = new TaskCompletionSource<CommandExecutionResult>();
+            existingEvent.CompletionSource = new TaskCompletionSource<object>();
             existingEvent.LogEntry = null;
             existingEvent.EncodedEntry = null;
             return existingEvent;

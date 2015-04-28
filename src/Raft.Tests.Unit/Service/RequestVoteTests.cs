@@ -29,7 +29,7 @@ namespace Raft.Tests.Unit.Service
             var raftNode = Substitute.For<INode>();
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
-            var nodePublisher = new TestBufferPublisher<NodeCommandScheduled, NodeCommandResult>();
+            var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
 
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
 

@@ -1,10 +1,11 @@
 using System;
+using System.Threading.Tasks;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.Data;
 
 namespace Raft.Server.BufferEvents
 {
-    internal class AppendEntriesRequested : IEventTranslator<AppendEntriesRequested>
+    internal class AppendEntriesRequested : BufferEvent, IEventTranslator<AppendEntriesRequested>
     {
         public long? PreviousLogIndex { get; set; }
 
@@ -36,6 +37,7 @@ namespace Raft.Server.BufferEvents
             existingEvent.Entries = Entries;
 
             existingEvent.EntriesDeserialized = null;
+            existingEvent.CompletionSource = new TaskCompletionSource<object>();
 
             return existingEvent;
         }
