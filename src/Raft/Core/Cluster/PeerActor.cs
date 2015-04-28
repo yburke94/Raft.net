@@ -25,23 +25,35 @@ namespace Raft.Core.Cluster
 
         public override void Handle(ReplicateRequest message)
         {
-            try
+            while (true)
             {
-                var client = _proxyFactory.GetProxy();
-                var response = client.AppendEntries(new AppendEntriesRequest
+                try
                 {
-                    LeaderId = _node.Properties.NodeId,
-                    Term = _node.Properties.CurrentTerm,
-                    PreviousLogIndex = _node.Properties.CommitIndex,
-                    PreviousLogTerm = _node.Properties.CurrentTerm,
-                    LeaderCommit = _node.Properties.CommitIndex,
-                    Entries = new[] { message.Entry }
-                });
+                    var previousEntryIndex = NextIndex - 1;
+                    var previousEntryTerm = _node.Log[previousEntryIndex].Value;
 
-                if (response.Success)
-                    NextIndex++;
+                    var client = _proxyFactory.GetProxy();
+                    var response = client.AppendEntries(new AppendEntriesRequest
+                    {
+                        LeaderId = _node.Properties.NodeId,
+                        Term = _node.Properties.CurrentTerm,
+                        PreviousLogIndex = previousEntryIndex,
+                        PreviousLogTerm = previousEntryTerm,
+                        LeaderCommit = _node.Properties.CommitIndex,
+                        Entries = new[] { message.Entry }
+                    });
+
+                    if (response.Success)
+                    {
+                        NextIndex = message.EntryIdx+1;
+                        break;
+                    }
+
+                    if (NextIndex > 1)
+                        NextIndex--;
+                }
+                catch { }
             }
-            catch { }
         }
 
         public void Dispose()

@@ -4,11 +4,13 @@ namespace Raft.Core.Cluster
 {
     internal class ReplicateRequest
     {
+        public long EntryIdx { get; private set; }
         public byte[] Entry { get; private set; }
         public Action SuccessAction { get; private set; }
 
-        public ReplicateRequest(byte[] entry, Action successAction)
+        public ReplicateRequest(long entryIdx, byte[] entry, Action successAction)
         {
+            EntryIdx = entryIdx;
             Entry = entry;
             SuccessAction = successAction;
         }
@@ -16,7 +18,7 @@ namespace Raft.Core.Cluster
         public ReplicateRequest Clone()
         {
             var tempSuccessAction = SuccessAction;
-            return new ReplicateRequest((byte[])Entry.Clone(), tempSuccessAction);
+            return new ReplicateRequest(EntryIdx, (byte[])Entry.Clone(), tempSuccessAction);
         }
     }
 }

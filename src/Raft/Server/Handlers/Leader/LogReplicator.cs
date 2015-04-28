@@ -42,7 +42,7 @@ namespace Raft.Server.Handlers.Leader
 
             var replicatedCounter = new WaitableCounter((int)Math.Ceiling((decimal)peerCount/2));
 
-            var replicationRequest = new ReplicateRequest(
+            var replicationRequest = new ReplicateRequest( @event.LogEntry.Index,
                 @event.EncodedEntry, () => replicatedCounter.Increment());
 
             _entryBroadcastBlock.Post(replicationRequest);
