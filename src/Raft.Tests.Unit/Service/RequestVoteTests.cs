@@ -7,10 +7,10 @@ using Raft.Core.StateMachine.Data;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.Data;
 using Raft.Service;
 using Raft.Service.Contracts;
 using Raft.Tests.Unit.TestHelpers;
+using Serilog;
 
 namespace Raft.Tests.Unit.Service
 {
@@ -30,8 +30,9 @@ namespace Raft.Tests.Unit.Service
             var timer = Substitute.For<INodeTimer>();
             var appendEntriesPublisher = Substitute.For<IPublishToBuffer<AppendEntriesRequested>>();
             var nodePublisher = new TestBufferPublisher<InternalCommandScheduled>();
+            var logger = Substitute.For<ILogger>();
 
-            var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode);
+            var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode, logger);
 
             raftNode.Properties.Returns(new NodeProperties());
 

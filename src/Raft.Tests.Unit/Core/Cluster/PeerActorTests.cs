@@ -4,12 +4,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using NSubstitute;
+using NSubstitute.Core.Arguments;
 using NUnit.Framework;
+using Raft.Contracts.Persistance;
 using Raft.Core.Cluster;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure.Wcf;
 using Raft.Service.Contracts;
+using Serilog;
 
 namespace Raft.Tests.Unit.Core.Cluster
 {
@@ -23,10 +26,12 @@ namespace Raft.Tests.Unit.Core.Cluster
             var node = Substitute.For<INode>();
             node.Properties.Returns(new NodeProperties{CommitIndex = 3L});
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
+            var logger = Substitute.For<ILogger>();
 
             // Act
-            var peerActor = new PeerActor(node, serviceFactory);
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             // Assert
             peerActor.NextIndex.Should().Be(node.Properties.CommitIndex+1);
@@ -40,14 +45,17 @@ namespace Raft.Tests.Unit.Core.Cluster
             node.Properties.Returns(new NodeProperties());
             node.Log.Returns(CreateLog(1L));
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
+
             raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
                 .Returns(new AppendEntriesResponse {Success = true});
 
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             var request = new ReplicateRequest(1L, new byte[6], () => { });
 
@@ -74,14 +82,17 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
+
             raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
                 .Returns(new AppendEntriesResponse { Success = true });
 
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             var request = new ReplicateRequest(1L, new byte[6], () => { });
 
@@ -109,14 +120,17 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
+
             raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
                 .Returns(new AppendEntriesResponse {Success = true});
 
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
             peerActor.NextIndex.Should().Be(node.Properties.CommitIndex + 1);
 
             var request = new ReplicateRequest(23L, new byte[6], () => { });
@@ -142,10 +156,11 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
-            var appendEntriesCalls = 0;
-
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
+
+            var appendEntriesCalls = 0;
             raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
                 .Returns(x =>
                 {
@@ -158,7 +173,8 @@ namespace Raft.Tests.Unit.Core.Cluster
 
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             var request = new ReplicateRequest(node.Properties.CommitIndex + 1, new byte[6], () => { });
 
@@ -181,11 +197,14 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var raftService = Substitute.For<IRaftService>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
+
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             var failCount = 0;
             var nextIndexes = new List<long>();
@@ -223,11 +242,13 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(2L));
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var raftService = Substitute.For<IRaftService>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             var failCount = 0;
             var lastNextIndexValueBeforeSuccess = 0L;
@@ -267,13 +288,14 @@ namespace Raft.Tests.Unit.Core.Cluster
             for (var i = 1; i <= node.Properties.CommitIndex; i++)
                 node.Log.SetLogEntry(i, i<3 ? 1L : 2L);
 
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
 
             serviceFactory.GetProxy().Returns(raftService);
 
-            var peerActor = new PeerActor(node, serviceFactory);
-            peerActor.NextIndex.Should().Be(5L); // Next index will be initialized to 5
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
 
             var nextIdxAndPrevEntryInfoList = new List<Tuple<long, long, long>>();
             raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
@@ -313,7 +335,105 @@ namespace Raft.Tests.Unit.Core.Cluster
             }
         }
 
-        private InMemoryLog CreateLog(long count)
+        [Test]
+        public void SendsAllEntriesFromNextIndexToCurrentRequestEntryIndex()
+        {
+            // Arrange
+            var node = Substitute.For<INode>();
+            node.Properties.Returns(new NodeProperties
+            {
+                CommitIndex = 4L,
+                CurrentTerm = 3L,
+            });
+            node.Log.Returns(CreateLog(4L));
+
+            var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
+
+            var oldBlockData = BitConverter.GetBytes(100);
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            getDataBlocks.GetBlock(Arg.Any<DataRequest>())
+                .Returns(new DataBlock {Data = oldBlockData});
+
+            var raftService = Substitute.For<IRaftService>();
+
+            serviceFactory.GetProxy().Returns(raftService);
+
+            var logger = Substitute.For<ILogger>();
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
+
+            var fails = -1;
+            raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
+                .Returns(x => new AppendEntriesResponse
+                {
+                    // Return success when NextIndex will equal 1
+                    Success = (++fails) == 4
+                });
+
+            var request = new ReplicateRequest(5L, new byte[6], () => { });
+
+            // Act
+            peerActor.Handle(request);
+
+            // Assert
+            getDataBlocks.Received(fails).GetBlock(Arg.Any<DataRequest>());
+
+            Expression<Predicate<AppendEntriesRequest>> match = req =>
+                req.Entries.Count().Equals(fails + 1) &&
+                req.Entries.Last().SequenceEqual(request.Entry) &&
+                req.Entries.First().SequenceEqual(oldBlockData);
+
+            raftService.Received().AppendEntries(Arg.Is(match));
+        }
+
+        [Test]
+        public void LogsErrorIfServiceThrowsAnException()
+        {
+            // Arrange
+            var node = Substitute.For<INode>();
+            node.Properties.Returns(new NodeProperties
+            {
+                CommitIndex = 4L,
+                CurrentTerm = 3L,
+            });
+            node.Log.Returns(CreateLog(4L));
+
+            var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
+
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+
+            var raftService = Substitute.For<IRaftService>();
+            serviceFactory.GetProxy().Returns(raftService);
+
+            var logger = Substitute.For<ILogger>();
+            logger.ForContext(Arg.Any<string>(), Arg.Any<object>()).Returns(logger);
+
+            var peerActor = new PeerActor(Guid.NewGuid(), node, serviceFactory, getDataBlocks, logger);
+
+            var fails = 0;
+            raftService.AppendEntries(Arg.Any<AppendEntriesRequest>())
+                .Returns(x =>
+                {
+                    if (fails++ == 1)
+                    {
+                        return new AppendEntriesResponse
+                        {
+                            Success = true
+                        };
+                    }
+
+                    throw new Exception();
+                });
+
+            var request = new ReplicateRequest(5L, new byte[6], () => { });
+
+            // Act
+            peerActor.Handle(request);
+
+            // Assert
+            logger.Received().Error(Arg.Any<Exception>(), Arg.Any<string>(), Arg.Any<object[]>());
+        }
+
+        private static InMemoryLog CreateLog(long count)
         {
             var log = new InMemoryLog();
             for (var i = 1; i <= count; i++)

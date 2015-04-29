@@ -31,7 +31,7 @@ namespace Raft.Core.StateMachine
 
             // Follower State Rules
             machine.Configure(NodeState.Follower)
-                .Permit(typeof(TimeoutLeaderHeartbeat), NodeState.Candidate) // TODO
+                .Permit(typeof(TimeoutLeaderHeartbeat), NodeState.Candidate) // TODO: Impl
                 .Ignore(typeof(SetNewTerm))
                 .Ignore(typeof(CommitEntry))
                 .Ignore(typeof(ApplyEntry))

@@ -49,12 +49,12 @@ namespace Raft.Core.StateMachine
 
         public void Handle(CreateCluster @event)
         {
-            // TODO
+            // TODO: Impl
         }
 
         public void Handle(JoinCluster @event)
         {
-            // TODO
+            // TODO: Impl
         }
 
         public void Handle(CommitEntry @event)
@@ -74,7 +74,7 @@ namespace Raft.Core.StateMachine
 
         public void Handle(WinCandidateElection @event)
         {
-            // TODO
+            // TODO: Impl
         }
 
         public void Handle(CancelElection @event)

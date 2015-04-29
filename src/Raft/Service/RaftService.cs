@@ -6,6 +6,7 @@ using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Service.Contracts;
+using Serilog;
 
 namespace Raft.Service
 {
@@ -16,17 +17,18 @@ namespace Raft.Service
         private readonly IPublishToBuffer<InternalCommandScheduled> _nodePublisher;
         private readonly INodeTimer _timer;
         private readonly INode _node;
+        private readonly ILogger _logger;
 
-        public RaftService(
-            IPublishToBuffer<AppendEntriesRequested> appendEntriesPublisher,
-            IPublishToBuffer<InternalCommandScheduled> nodePublisher,
-            INodeTimer timer, INode node)
+        public RaftService(IPublishToBuffer<AppendEntriesRequested> appendEntriesPublisher,
+            IPublishToBuffer<InternalCommandScheduled> nodePublisher, INodeTimer timer,
+            INode node, ILogger logger)
         {
             _appendEntriesPublisher = appendEntriesPublisher;
             _nodePublisher = nodePublisher;
 
             _timer = timer;
             _node = node;
+            _logger = logger;
         }
 
         public RequestVoteResponse RequestVote(RequestVoteRequest voteRequest)
@@ -55,7 +57,14 @@ namespace Raft.Service
         {
             // If the node term is greater, return before updating timer. Eventually an election will trigger.
             if (_node.Properties.CurrentTerm > entriesRequest.Term)
+            {
+                _logger.Warning(
+                    "The leaderNode's(id = {leaderId}) term({term}) is less than current term({currentTerm}). " +
+                    "As a result, this AppendEntries call has not reset the current nodes timer.",
+                    entriesRequest.LeaderId, entriesRequest.Term, _node.Properties.CurrentTerm);
+
                 return AppendEntriesResponse(false);
+            }
 
             _timer.ResetTimer();
 
@@ -79,13 +88,19 @@ namespace Raft.Service
             }
 
             if (_node.CurrentState != NodeState.Follower)
-                throw new FaultException<MultipleLeadersForTermFault>(new MultipleLeadersForTermFault
-                {
-                    Id = _node.Properties.NodeId
-                });
+                throw new FaultException<MultipleLeadersForTermFault>(
+                    new MultipleLeadersForTermFault
+                    {
+                        Id = _node.Properties.NodeId
+                    });
 
-            if (_node.Log[entriesRequest.PreviousLogIndex] != entriesRequest.PreviousLogTerm)
+            var previousLogEntriesTerm = _node.Log[entriesRequest.PreviousLogIndex];
+            if (previousLogEntriesTerm != entriesRequest.PreviousLogTerm)
             {
+                _logger.Information("Log matching failed. Expected term for entry at {rpcIndex} to be {rpcTerm}. " +
+                                    "However, this nodes log had the term set as {nodeTerm}.",
+                                    entriesRequest.PreviousLogIndex, entriesRequest.PreviousLogTerm, previousLogEntriesTerm);
+
                 return AppendEntriesResponse(false);
             }
 

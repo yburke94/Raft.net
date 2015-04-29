@@ -7,12 +7,14 @@ using System.Threading.Tasks.Dataflow;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
+using Raft.Contracts.Persistance;
 using Raft.Core.Cluster;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
+using Serilog;
 
 namespace Raft.Tests.Unit.Server.Handlers.Leader
 {
@@ -25,7 +27,10 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             // Arrange
             var node = Substitute.For<INode>();
             node.Properties.Returns(new NodeProperties());
-            var actor = new PeerActor(node, null);
+
+            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var logger = Substitute.For<ILogger>();
+            var actor = new PeerActor(Guid.NewGuid(), node, null, getDataBlocks, logger);
 
             var peerActorFactory = Substitute.For<IPeerActorFactory>();
             peerActorFactory.Create(Arg.Any<PeerInfo>())

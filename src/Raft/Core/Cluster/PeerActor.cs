@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using Raft.Contracts.Persistance;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Wcf;
 using Raft.Service.Contracts;
+using Serilog;
 
 namespace Raft.Core.Cluster
 {
@@ -10,21 +13,32 @@ namespace Raft.Core.Cluster
     {
         private readonly INode _node;
         private readonly IServiceProxyFactory<IRaftService> _proxyFactory;
+        private readonly IGetDataBlocks _getDataBlocks;
+        private readonly ILogger _logger;
 
+        public Guid NodeId { get; private set; }
         public long NextIndex { get; private set; }
 
         private long _matchIndex; // ?
 
-        public PeerActor(INode node, IServiceProxyFactory<IRaftService> proxyFactory)
+        public PeerActor(Guid nodeId, INode node,
+            IServiceProxyFactory<IRaftService> proxyFactory,
+            IGetDataBlocks getDataBlocks, ILogger logger)
         {
             _node = node;
             _proxyFactory = proxyFactory;
+            _getDataBlocks = getDataBlocks;
+            _logger = logger;
 
+            NodeId = nodeId;
             NextIndex = _node.Properties.CommitIndex+1;
         }
 
         public override void Handle(ReplicateRequest message)
         {
+            var entryStack = new Stack<byte[]>();
+            entryStack.Push(message.Entry);
+
             while (true)
             {
                 try
@@ -40,19 +54,31 @@ namespace Raft.Core.Cluster
                         PreviousLogIndex = previousEntryIndex,
                         PreviousLogTerm = previousEntryTerm,
                         LeaderCommit = _node.Properties.CommitIndex,
-                        Entries = new[] { message.Entry }
+                        Entries = entryStack.ToArray()
                     });
 
                     if (response.Success)
                     {
-                        NextIndex = message.EntryIdx+1;
+                        NextIndex = message.EntryIdx + 1;
                         break;
                     }
 
-                    if (NextIndex > 1)
-                        NextIndex--;
+                    if (response.Term > _node.Properties.CurrentTerm)
+                        _logger.Warning(
+                            "Failed to replicate to node:{nodeId} as it's term({term}) is greater " +
+                            "than current leader's term({leaderTerm}). An election will likely be triggered.",
+                            NodeId, response.Term, _node.Properties.CurrentTerm);
+
+                    if (NextIndex == 1) continue;
+
+                    // TODO: DataRequest will be retreived from the NodeLog.
+                    var previousEntry = _getDataBlocks.GetBlock(new DataRequest(--NextIndex));
+                    entryStack.Push(previousEntry.Data);
                 }
-                catch { }
+                catch(Exception exc)
+                {
+                    _logger.Error(exc, "An exception was thrown trying to replicate to node: {nodeId}", NodeId);
+                }
             }
         }
 
