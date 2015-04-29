@@ -1,4 +1,4 @@
-﻿namespace Raft.Infrastructure.Journaler
+﻿namespace Raft.Extensions.Journaler
 {
     public enum IoType
     {

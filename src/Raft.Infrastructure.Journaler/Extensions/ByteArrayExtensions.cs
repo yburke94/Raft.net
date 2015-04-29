@@ -1,4 +1,4 @@
-﻿namespace Raft.Infrastructure.Journaler.Extensions
+﻿namespace Raft.Extensions.Journaler.Extensions
 {
     internal static class ByteArrayExtensions
     {

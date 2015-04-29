@@ -159,10 +159,6 @@
       <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
       <Name>Raft.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj">
-      <Project>{4ad63ebe-afc9-4b7e-a536-8608a83691d3}</Project>
-      <Name>Raft.Infrastructure.Journaler</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

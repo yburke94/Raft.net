@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Raft.Infrastructure.Journaler.Extensions;
+using Raft.Extensions.Journaler.Extensions;
 
-namespace Raft.Infrastructure.Journaler.Readers
+namespace Raft.Extensions.Journaler.Readers
 {
     // TODO: Extract generic interface and move into contracts project.
     public class JournalReader : IDisposable

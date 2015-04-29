@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using Raft.Infrastructure.Journaler.Extensions;
-using Raft.Infrastructure.Journaler.Kernel;
+using Raft.Extensions.Journaler.Extensions;
+using Raft.Extensions.Journaler.Kernel;
 
-namespace Raft.Infrastructure.Journaler.Transformers
+namespace Raft.Extensions.Journaler.Transformers
 {
     /// <summary>
     /// Should only be used when writing to an unbuffered FileStream.

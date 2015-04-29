@@ -10,7 +10,6 @@ using Raft.Core.Commands;
 using Raft.Core.StateMachine;
 using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure.Disruptor;
-using Raft.Infrastructure.Journaler;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
 using Raft.Server.Handlers.Follower;

@@ -1,12 +1,16 @@
-﻿using System.ServiceModel.Channels;
-using Raft.Infrastructure.Journaler;
+﻿using System;
+using System.ServiceModel.Channels;
+using Raft.Contracts.Persistance;
 using Serilog;
 
 namespace Raft.Configuration
 {
     public interface IRaftConfiguration {
-        JournalConfiguration JournalConfiguration { get; set; }
+        // Persistance
+        Func<IWriteDataBlocks> GetBlockWriter { get; set; }
+        Func<IReadDataBlocks> GetBlockReader { get; set; }
+
         Binding RaftServiceBinding { get; set; }
-        ILogger Logger { get; set; }
+        Func<ILogger> GetLogger { get; set; }
     }
 }

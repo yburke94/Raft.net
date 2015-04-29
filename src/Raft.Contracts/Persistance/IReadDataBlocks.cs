@@ -1,7 +1,7 @@
 ﻿namespace Raft.Contracts.Persistance
 {
     // TODO: IMPL
-    public interface IGetDataBlocks
+    public interface IReadDataBlocks
     {
         DataBlock GetBlock(DataRequest request);
     }

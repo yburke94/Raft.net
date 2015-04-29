@@ -7,8 +7,8 @@
     <ProjectGuid>{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Infrastructure.Journaler</RootNamespace>
-    <AssemblyName>Raft.Infrastructure.Journaler</AssemblyName>
+    <RootNamespace>Raft.Extensions.Journaler</RootNamespace>
+    <AssemblyName>Raft.Extensions.Journaler</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

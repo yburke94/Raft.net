@@ -49,7 +49,7 @@
     <Compile Include="IRaft.cs" />
     <Compile Include="IRaftCommand.cs" />
     <Compile Include="Persistance\DataBlock.cs" />
-    <Compile Include="Persistance\IGetDataBlocks.cs" />
+    <Compile Include="Persistance\IReadDataBlocks.cs" />
     <Compile Include="Persistance\IWriteDataBlocks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

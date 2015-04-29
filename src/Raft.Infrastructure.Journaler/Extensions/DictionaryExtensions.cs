@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Raft.Infrastructure.Journaler.Extensions
+namespace Raft.Extensions.Journaler.Extensions
 {
     public static class DictionaryExtensions
     {

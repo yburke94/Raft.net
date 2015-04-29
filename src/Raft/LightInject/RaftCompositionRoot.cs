@@ -4,7 +4,6 @@ using Raft.Core.Events;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Disruptor;
-using Raft.Infrastructure.Journaler;
 using Raft.Server;
 using Raft.Server.BufferEvents;
 using Raft.Server.Handlers.Core;
@@ -32,9 +31,8 @@ namespace Raft.LightInject
             // Infrastructure
             serviceRegistry.Register<IEventDispatcher, LightInjectEventDispatcher>();
 
-            // TODO: make this configurable!!!!!!
-            serviceRegistry.Register(x => new JournalFactory()
-                .CreateJournaler(x.GetInstance<IRaftConfiguration>().JournalConfiguration));
+            serviceRegistry.Register(x => x.GetInstance<IRaftConfiguration>().GetBlockWriter());
+            serviceRegistry.Register(x => x.GetInstance<IRaftConfiguration>().GetBlockReader());
 
             serviceRegistry.Register<CommandRegister>(new PerContainerLifetime());
 
@@ -63,7 +61,7 @@ namespace Raft.LightInject
             // TODO: Create binding for IRaftConfiguration...
 
             serviceRegistry.Register(x => 
-                x.GetInstance<IRaftConfiguration>().Logger
+                x.GetInstance<IRaftConfiguration>().GetLogger()
                 .ForContext("Framework", "Raft.Net", false));
 
             // TODO: Make Buffer size configurable... But difficult to do so.

@@ -1,4 +1,4 @@
-namespace Raft.Infrastructure.Journaler.Readers
+namespace Raft.Extensions.Journaler.Readers
 {
     // TODO: Move into contracts project.
     public class JournalReadResult

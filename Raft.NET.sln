@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tests", "0 - Tests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Tests.Unit", "src\Raft.Tests.Unit\Raft.Tests.Unit.csproj", "{06386123-E4BF-4C81-825A-3B7472214BB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Infrastructure.Journaler", "src\Raft.Infrastructure.Journaler\Raft.Infrastructure.Journaler.csproj", "{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Extensions.Journaler", "src\Raft.Infrastructure.Journaler\Raft.Extensions.Journaler.csproj", "{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Framework", "1 - Framework", "{D4EA295F-01D7-418C-874C-D2E4C4A13FA5}"
 EndProject

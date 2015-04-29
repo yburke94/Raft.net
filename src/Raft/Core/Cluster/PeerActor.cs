@@ -13,7 +13,7 @@ namespace Raft.Core.Cluster
     {
         private readonly INode _node;
         private readonly IServiceProxyFactory<IRaftService> _proxyFactory;
-        private readonly IGetDataBlocks _getDataBlocks;
+        private readonly IReadDataBlocks _readDataBlocks;
         private readonly ILogger _logger;
 
         public Guid NodeId { get; private set; }
@@ -23,11 +23,11 @@ namespace Raft.Core.Cluster
 
         public PeerActor(Guid nodeId, INode node,
             IServiceProxyFactory<IRaftService> proxyFactory,
-            IGetDataBlocks getDataBlocks, ILogger logger)
+            IReadDataBlocks readDataBlocks, ILogger logger)
         {
             _node = node;
             _proxyFactory = proxyFactory;
-            _getDataBlocks = getDataBlocks;
+            _readDataBlocks = readDataBlocks;
             _logger = logger;
 
             NodeId = nodeId;
@@ -72,7 +72,7 @@ namespace Raft.Core.Cluster
                     if (NextIndex == 1) continue;
 
                     // TODO: DataRequest will be retreived from the NodeLog.
-                    var previousEntry = _getDataBlocks.GetBlock(new DataRequest(--NextIndex));
+                    var previousEntry = _readDataBlocks.GetBlock(new DataRequest(--NextIndex));
                     entryStack.Push(previousEntry.Data);
                 }
                 catch(Exception exc)

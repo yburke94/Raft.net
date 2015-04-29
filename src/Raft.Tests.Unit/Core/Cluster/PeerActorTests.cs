@@ -26,7 +26,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             var node = Substitute.For<INode>();
             node.Properties.Returns(new NodeProperties{CommitIndex = 3L});
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var logger = Substitute.For<ILogger>();
 
@@ -45,7 +45,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             node.Properties.Returns(new NodeProperties());
             node.Log.Returns(CreateLog(1L));
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
 
@@ -82,7 +82,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
 
@@ -120,7 +120,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
 
@@ -156,7 +156,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
 
@@ -197,7 +197,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(20L));
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var raftService = Substitute.For<IRaftService>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
 
@@ -242,7 +242,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             });
             node.Log.Returns(CreateLog(2L));
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var raftService = Substitute.For<IRaftService>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             serviceFactory.GetProxy().Returns(raftService);
@@ -288,7 +288,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             for (var i = 1; i <= node.Properties.CommitIndex; i++)
                 node.Log.SetLogEntry(i, i<3 ? 1L : 2L);
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
             var raftService = Substitute.For<IRaftService>();
 
@@ -350,7 +350,7 @@ namespace Raft.Tests.Unit.Core.Cluster
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
 
             var oldBlockData = BitConverter.GetBytes(100);
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             getDataBlocks.GetBlock(Arg.Any<DataRequest>())
                 .Returns(new DataBlock {Data = oldBlockData});
 
@@ -399,7 +399,7 @@ namespace Raft.Tests.Unit.Core.Cluster
 
             var serviceFactory = Substitute.For<IServiceProxyFactory<IRaftService>>();
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
 
             var raftService = Substitute.For<IRaftService>();
             serviceFactory.GetProxy().Returns(raftService);

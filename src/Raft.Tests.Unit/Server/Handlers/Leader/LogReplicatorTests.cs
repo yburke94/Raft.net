@@ -28,7 +28,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             var node = Substitute.For<INode>();
             node.Properties.Returns(new NodeProperties());
 
-            var getDataBlocks = Substitute.For<IGetDataBlocks>();
+            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var logger = Substitute.For<ILogger>();
             var actor = new PeerActor(Guid.NewGuid(), node, null, getDataBlocks, logger);
 
