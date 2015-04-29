@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using Raft.Contracts.Persistance;
+using Raft.Extensions.Journaler.Readers;
 using Raft.Extensions.Journaler.Transformers;
 using Raft.Extensions.Journaler.Writers;
 
 namespace Raft.Extensions.Journaler
 {
-    public class JournalFactory
+    public class JournalerFactory
     {
-        public IWriteDataBlocks CreateJournaler(JournalConfiguration configuration)
+        public IWriteDataBlocks CreateJournalWriter(JournalConfiguration configuration)
         {
             var fileWriter = configuration.IoType == IoType.Buffered
                 ? (IJournalFileWriter)new BufferedJournalFileWriter(configuration)
@@ -24,6 +25,11 @@ namespace Raft.Extensions.Journaler
                 transformers.Add(new PadToAlignToSector(configuration));
 
             return new Journal(configuration, fileWriter, offsetManager, transformers);
+        }
+
+        public IReadDataBlocks CreateJournalReader(JournalConfiguration configuration)
+        {
+            return new JournalReader(configuration);
         }
     }
 }

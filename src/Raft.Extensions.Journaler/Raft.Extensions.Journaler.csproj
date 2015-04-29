@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationBuilderExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Readers\JournalReadResult.cs" />
     <Compile Include="Writers\BufferedJournalFileWriter.cs" />
@@ -52,7 +53,7 @@
     <Compile Include="JournalConfiguration.cs" />
     <Compile Include="Journal.cs" />
     <Compile Include="Transformers\AddJournalMetadata.cs" />
-    <Compile Include="JournalFactory.cs" />
+    <Compile Include="JournalerFactory.cs" />
     <Compile Include="JournalOffsetManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Readers\JournalReader.cs" />
@@ -66,6 +67,10 @@
     <ProjectReference Include="..\Raft.Contracts\Raft.Contracts.csproj">
       <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
       <Name>Raft.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Raft\Raft.csproj">
+      <Project>{abc6e34d-645e-42ab-a319-ee76a1dbe12c}</Project>
+      <Name>Raft</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

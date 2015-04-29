@@ -7,10 +7,10 @@ namespace Raft.Configuration
 {
     public interface IRaftConfiguration {
         // Persistance
-        Func<IWriteDataBlocks> GetBlockWriter { get; set; }
-        Func<IReadDataBlocks> GetBlockReader { get; set; }
+        Func<IWriteDataBlocks> GetBlockWriter { get; }
+        Func<IReadDataBlocks> GetBlockReader { get; }
 
-        Binding RaftServiceBinding { get; set; }
-        Func<ILogger> GetLogger { get; set; }
+        Binding RaftServiceBinding { get; }
+        Func<ILogger> GetLogger { get; }
     }
 }

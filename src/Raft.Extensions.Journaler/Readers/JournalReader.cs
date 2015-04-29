@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Raft.Contracts.Persistance;
 using Raft.Extensions.Journaler.Extensions;
 
 namespace Raft.Extensions.Journaler.Readers
 {
     // TODO: Extract generic interface and move into contracts project.
-    public class JournalReader : IDisposable
+    public class JournalReader : IReadDataBlocks, IDisposable
     {
         private readonly IDictionary<int, string> _journalIndexPathMap;
 
@@ -16,9 +17,15 @@ namespace Raft.Extensions.Journaler.Readers
         private int _currentJournalIndex;
         private long _currentJournalEntryIndex;
 
-        public JournalReader(JournalConfiguration configuration, bool validateJournalSequence)
+        public JournalReader(JournalConfiguration configuration)
         {
-            _journalIndexPathMap = GetJournalFileIndexMap(configuration, validateJournalSequence);
+            _journalIndexPathMap = GetJournalFileIndexMap(configuration);
+        }
+
+        public DataBlock GetBlock(DataRequest request)
+        {
+            // TODO: Implement
+            return null;
         }
 
         /// <summary>
@@ -78,7 +85,7 @@ namespace Raft.Extensions.Journaler.Readers
             }
         }
 
-        private static Dictionary<int, string> GetJournalFileIndexMap(JournalConfiguration configuration, bool validateJournalSequence)
+        private static Dictionary<int, string> GetJournalFileIndexMap(JournalConfiguration configuration)
         {
             var journalIndexPathMap = new Dictionary<int, string>();
 
@@ -106,7 +113,7 @@ namespace Raft.Extensions.Journaler.Readers
                 .OrderBy(x => x.Key)
                 .ToDictionary(k => k.Key, v => v.Value);
 
-            if (validateJournalSequence)
+            if (configuration.ValidateJournalSequenceOnRead)
             {
                 var keys = orderedJournalIndexPathMap.Keys.ToArray();
                 if (Enumerable.Range(0, keys.Length).Any(i => keys[i] != keys[0] + i))
