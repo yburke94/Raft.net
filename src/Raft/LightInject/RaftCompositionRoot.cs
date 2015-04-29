@@ -1,5 +1,4 @@
 ﻿using Raft.Configuration;
-using Raft.Contracts;
 using Raft.Core.Cluster;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
@@ -14,6 +13,18 @@ using Raft.Server.Handlers.Leader;
 
 namespace Raft.LightInject
 {
+    internal class RaftIoc
+    {
+        internal static ServiceContainer Container = new ServiceContainer();
+
+        public RaftIoc()
+        {
+            // Disable automatic propery injection.
+            Container.EnableAnnotatedPropertyInjection();
+            Container.RegisterFrom<RaftCompositionRoot>();
+        }
+    }
+
     internal class RaftCompositionRoot : ICompositionRoot
     {
         public void Compose(IServiceRegistry serviceRegistry)
@@ -50,8 +61,12 @@ namespace Raft.LightInject
             serviceRegistry.Register<NodeCommandExecutor>();
 
             // TODO: Create binding for IRaftConfiguration...
-            // TODO: Configure Serilog
-            // TODO: Make Buffer size configurable...
+
+            serviceRegistry.Register(x => 
+                x.GetInstance<IRaftConfiguration>().Logger
+                .ForContext("Framework", "Raft.Net", false));
+
+            // TODO: Make Buffer size configurable... But difficult to do so.
 
             // TODO: Bind IServiceLocator to the locator passed in by config!
 

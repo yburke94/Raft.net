@@ -55,15 +55,15 @@
     </Reference>
     <Reference Include="Serilog, Version=1.5.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Serilog.1.5.1\lib\net45\Serilog.dll</HintPath>
+      <HintPath>..\..\packages\Serilog.1.5.5\lib\net45\Serilog.dll</HintPath>
     </Reference>
     <Reference Include="Serilog.FullNetFx, Version=1.5.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Serilog.1.5.1\lib\net45\Serilog.FullNetFx.dll</HintPath>
+      <HintPath>..\..\packages\Serilog.1.5.5\lib\net45\Serilog.FullNetFx.dll</HintPath>
     </Reference>
-    <Reference Include="Stateless, Version=2.4.0.1, Culture=neutral, PublicKeyToken=93038f0927583c9a, processorArchitecture=MSIL">
+    <Reference Include="Stateless, Version=2.5.15.0, Culture=neutral, PublicKeyToken=93038f0927583c9a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Stateless.2.4.0\lib\Stateless.dll</HintPath>
+      <HintPath>..\..\packages\Stateless.2.5.15.0\lib\portable-net40+sl50+win+wp80\Stateless.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -123,6 +123,7 @@
     <Compile Include="Infrastructure\Wcf\IServiceProxyFactory.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceProxyFactory.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceClientProxy.cs" />
+    <Compile Include="LightInject\LightInject.Annotation.cs" />
     <Compile Include="LightInject\LightInject.cs" />
     <Compile Include="LightInject\LightInjectEventDispatcher.cs" />
     <Compile Include="LightInject\RaftCompositionRoot.cs" />

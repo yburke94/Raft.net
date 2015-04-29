@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 ******************************************************************************
-    LightInject version 3.0.2.5
+    LightInject version 3.0.2.6
     http://www.lightinject.net/
     http://twitter.com/bernhardrichter
 ******************************************************************************/
@@ -445,6 +445,13 @@ namespace Raft.LightInject
         void Override(
             Func<ServiceRegistration, bool> serviceSelector,
             Func<IServiceFactory, ServiceRegistration, ServiceRegistration> serviceRegistrationFactory);
+
+        /// <summary>
+        /// Allows post-processing of a service instance. 
+        /// </summary>
+        /// <param name="predicate">A function delegate that determines if the given service can be post-processed.</param>
+        /// <param name="processor">An action delegate that exposes the created service instance.</param>
+        void Initialize(Func<ServiceRegistration, bool> predicate, Action<IServiceFactory, object> processor);
     }
     
     /// <summary>
@@ -1038,6 +1045,28 @@ namespace Raft.LightInject
             {
                 nodes.Add(node);
                 return base.Visit(node);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Contains a set of helper method related to validating 
+    /// user input.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+    internal static class Ensure
+    {
+        /// <summary>
+        /// Ensures that the given <paramref name="value"/> is not null.
+        /// </summary>
+        /// <typeparam name="T">The type of value to be validated.</typeparam>
+        /// <param name="value">The value to be validated.</param>
+        /// <param name="paramName">The name of the parameter from which the <paramref name="value"/> comes from.</param>
+        public static void IsNotNull<T>(T value, string paramName)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException(paramName);
             }
         }
     }
@@ -1766,7 +1795,8 @@ namespace Raft.LightInject
         private readonly Storage<DecoratorRegistration> decorators = new Storage<DecoratorRegistration>();
         private readonly Storage<ServiceOverride> overrides = new Storage<ServiceOverride>();
         private readonly Storage<FactoryRule> factoryRules = new Storage<FactoryRule>();
-        
+        private readonly Storage<Initializer> initializers = new Storage<Initializer>();
+
         private readonly Stack<Action<IEmitter>> dependencyStack = new Stack<Action<IEmitter>>();
                         
         private readonly Lazy<IConstructionInfoProvider> constructionInfoProvider;
@@ -2129,6 +2159,16 @@ namespace Raft.LightInject
         }
 
         /// <summary>
+        /// Allows post-processing of a service instance. 
+        /// </summary>
+        /// <param name="predicate">A function delegate that determines if the given service can be post-processed.</param>
+        /// <param name="processor">An action delegate that exposes the created service instance.</param>
+        public void Initialize(Func<ServiceRegistration, bool> predicate, Action<IServiceFactory, object> processor)
+        {
+            initializers.Add(new Initializer { Predicate = predicate, Initialize = processor });
+        }
+
+        /// <summary>
         /// Registers the <paramref name="serviceType"/> with the <paramref name="implementingType"/>.
         /// </summary>
         /// <param name="serviceType">The service type to register.</param>
@@ -2296,6 +2336,9 @@ namespace Raft.LightInject
         /// <param name="serviceName">The name of the service.</param>
         public void RegisterInstance(Type serviceType, object instance, string serviceName)
         {
+            Ensure.IsNotNull(instance, "instance");
+            Ensure.IsNotNull(serviceType, "serviceType");
+            Ensure.IsNotNull(serviceName, "serviceName");
             RegisterValue(serviceType, instance, serviceName);
         }
 
@@ -2439,7 +2482,7 @@ namespace Raft.LightInject
         /// <param name="serviceType">The service type to register.</param>
         /// <param name="implementingType">The implementing type.</param>
         public void Register(Type serviceType, Type implementingType)
-        {
+        {            
             RegisterService(serviceType, implementingType, null, string.Empty);
         }
 
@@ -3197,7 +3240,29 @@ namespace Raft.LightInject
                 {
                     EmitNewInstanceUsingImplementingType(emitter, constructionInfo, null);
                 }    
-            }                        
+            }
+
+            var processors = initializers.Items.Where(i => i.Predicate(serviceRegistration)).ToArray();
+            if (processors.Length == 0)
+            {
+                return;
+            }
+
+            LocalBuilder instanceVariable = emitter.DeclareLocal(serviceRegistration.ServiceType);
+            emitter.Store(instanceVariable);
+            foreach (var postProcessor in processors)
+            {
+                Type delegateType = postProcessor.Initialize.GetType();               
+                var delegateIndex = constants.Add(postProcessor.Initialize);
+                emitter.PushConstant(delegateIndex, delegateType);
+                var serviceFactoryIndex = constants.Add(this);
+                emitter.PushConstant(serviceFactoryIndex, typeof(IServiceFactory));
+                emitter.Push(instanceVariable);                
+                MethodInfo invokeMethod = delegateType.GetMethod("Invoke");
+                emitter.Call(invokeMethod);                
+            }
+
+            emitter.Push(instanceVariable);
         }
 
         private void EmitDecorators(ServiceRegistration serviceRegistration, IEnumerable<DecoratorRegistration> serviceDecorators, IEmitter emitter, Action<IEmitter> decoratorTargetEmitMethod)
@@ -3673,6 +3738,9 @@ namespace Raft.LightInject
 
         private void RegisterService(Type serviceType, Type implementingType, ILifetime lifetime, string serviceName)
         {
+            Ensure.IsNotNull(serviceType, "serviceType");
+            Ensure.IsNotNull(implementingType, "implementingType");
+            Ensure.IsNotNull(serviceName, "serviceName");
             var serviceRegistration = new ServiceRegistration { ServiceType = serviceType, ImplementingType = implementingType, ServiceName = serviceName, Lifetime = lifetime };
             Register(serviceRegistration);         
         }
@@ -3889,6 +3957,13 @@ namespace Raft.LightInject
             public Func<ServiceRequest, object> Factory { get; set; }
 
             public ILifetime LifeTime { get; set; }
+        }
+
+        private class Initializer
+        {
+            public Func<ServiceRegistration, bool> Predicate { get; set; }
+
+            public Action<IServiceFactory, object> Initialize { get; set; }
         }
 
         private class ServiceOverride
