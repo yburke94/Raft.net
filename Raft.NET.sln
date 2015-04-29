@@ -9,13 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0 - Tests", "0 - Tests", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Tests.Unit", "src\Raft.Tests.Unit\Raft.Tests.Unit.csproj", "{06386123-E4BF-4C81-825A-3B7472214BB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Extensions.Journaler", "src\Raft.Infrastructure.Journaler\Raft.Extensions.Journaler.csproj", "{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Framework", "1 - Framework", "{D4EA295F-01D7-418C-874C-D2E4C4A13FA5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft", "src\Raft\Raft.csproj", "{ABC6E34D-645E-42AB-A319-EE76A1DBE12C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Contracts", "src\Raft.Contracts\Raft.Contracts.csproj", "{AC7784F7-377D-4E31-800F-A19DAB12DF26}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Extensions.Journaler", "src\Raft.Extensions.Journaler\Raft.Extensions.Journaler.csproj", "{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,6 @@ Global
 		{06386123-E4BF-4C81-825A-3B7472214BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06386123-E4BF-4C81-825A-3B7472214BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06386123-E4BF-4C81-825A-3B7472214BB7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ABC6E34D-645E-42AB-A319-EE76A1DBE12C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ABC6E34D-645E-42AB-A319-EE76A1DBE12C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABC6E34D-645E-42AB-A319-EE76A1DBE12C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,14 +35,18 @@ Global
 		{AC7784F7-377D-4E31-800F-A19DAB12DF26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC7784F7-377D-4E31-800F-A19DAB12DF26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC7784F7-377D-4E31-800F-A19DAB12DF26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{06386123-E4BF-4C81-825A-3B7472214BB7} = {1E8A51EB-FF1E-46A1-BEC1-EF2274979158}
-		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3} = {80B8664E-EB58-45DF-99EC-9055C84AF482}
 		{ABC6E34D-645E-42AB-A319-EE76A1DBE12C} = {D4EA295F-01D7-418C-874C-D2E4C4A13FA5}
 		{AC7784F7-377D-4E31-800F-A19DAB12DF26} = {D4EA295F-01D7-418C-874C-D2E4C4A13FA5}
+		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3} = {80B8664E-EB58-45DF-99EC-9055C84AF482}
 	EndGlobalSection
 EndGlobal

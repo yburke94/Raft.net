@@ -129,10 +129,6 @@
       <Project>{ac7784f7-377d-4e31-800f-a19dab12df26}</Project>
       <Name>Raft.Contracts</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Raft.Infrastructure.Journaler\Raft.Extensions.Journaler.csproj">
-      <Project>{4ad63ebe-afc9-4b7e-a536-8608a83691d3}</Project>
-      <Name>Raft.Extensions.Journaler</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Raft\Raft.csproj">
       <Project>{abc6e34d-645e-42ab-a319-ee76a1dbe12c}</Project>
       <Name>Raft</Name>
