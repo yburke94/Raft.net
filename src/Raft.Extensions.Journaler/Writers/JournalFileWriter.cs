@@ -15,6 +15,8 @@ namespace Raft.Extensions.Journaler.Writers
 
         protected abstract void SetFileStream(string path, bool newFile, long fileSizeInBytes, long startingPosition);
 
+        protected abstract void Write(byte[] bytes);
+
         public void SetJournal(int journalIdx, long startingPosition)
         {
             CloseCurrentStream();
@@ -30,7 +32,7 @@ namespace Raft.Extensions.Journaler.Writers
         public void WriteJournalEntry(byte[] bytes)
         {
             AssertStreamIsSet();
-            CurrentStream.Write(bytes, 0, bytes.Length);
+            Write(bytes);
         }
 
         public void Flush()

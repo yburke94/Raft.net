@@ -8,7 +8,6 @@ using ProtoBuf;
 using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;

@@ -96,7 +96,7 @@
     <Compile Include="Infrastructure\WaitableCounterTests.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceProxyFactoryTests.cs" />
     <Compile Include="RaftAppTests.cs" />
-    <Compile Include="Core\StateMachine\InMemoryLogTests.cs" />
+    <Compile Include="Core\Data\InMemoryLogTests.cs" />
     <Compile Include="Core\StateMachine\NodeTests.cs" />
     <Compile Include="Server\CommandRegisterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

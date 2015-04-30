@@ -5,7 +5,6 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Data;
 using Raft.Server.Data;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;

@@ -1,7 +1,5 @@
 ﻿using System;
 using Raft.Core.Commands;
-using Raft.Core.StateMachine.Data;
-using Raft.Core.StateMachine.Enums;
 using Stateless;
 
 namespace Raft.Core.StateMachine

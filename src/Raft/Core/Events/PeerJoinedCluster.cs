@@ -1,4 +1,6 @@
-namespace Raft.Core.Cluster
+using Raft.Core.Cluster;
+
+namespace Raft.Core.Events
 {
     internal class PeerJoinedCluster
     {

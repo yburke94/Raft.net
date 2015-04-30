@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Linq;
+using FluentAssertions;
 using Microsoft.Practices.ServiceLocation;
 using NSubstitute;
 using NUnit.Framework;
@@ -21,7 +23,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             const long commitIdx = 3L;
             const long term = 5L;
 
-            var @event = TestEventFactory.GetCommandEvent(commitIdx, new byte[8]);
+            var @event = TestEventFactory.GetCommandEvent(commitIdx, BitConverter.GetBytes(199));
             @event.LogEntry.Term = term;
 
             var serviceLocator = Substitute.For<IServiceLocator>();
@@ -37,6 +39,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             nodePublisher.Events[0].Command.Should().BeOfType<CommitEntry>();
             ((CommitEntry) nodePublisher.Events[0].Command).EntryIdx.Should().Be(commitIdx);
             ((CommitEntry)nodePublisher.Events[0].Command).EntryTerm.Should().Be(term);
+            ((CommitEntry) nodePublisher.Events[0].Command).Entry.SequenceEqual(@event.EncodedEntry).Should().BeTrue();
         }
 
         [Test]

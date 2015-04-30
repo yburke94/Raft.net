@@ -1,4 +1,4 @@
-﻿namespace Raft.Core.StateMachine.Enums
+﻿namespace Raft.Core.StateMachine
 {
     public enum NodeState
     {

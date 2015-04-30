@@ -9,8 +9,8 @@ using NSubstitute;
 using NUnit.Framework;
 using Raft.Contracts.Persistance;
 using Raft.Core.Cluster;
+using Raft.Core.Events;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure;
 using Raft.Server.Handlers.Leader;
 using Raft.Tests.Unit.TestData.Commands;
@@ -28,9 +28,8 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             var node = Substitute.For<INode>();
             node.Properties.Returns(new NodeProperties());
 
-            var getDataBlocks = Substitute.For<IReadDataBlocks>();
             var logger = Substitute.For<ILogger>();
-            var actor = new PeerActor(Guid.NewGuid(), node, null, getDataBlocks, logger);
+            var actor = new PeerActor(Guid.NewGuid(), node, null, logger);
 
             var peerActorFactory = Substitute.For<IPeerActorFactory>();
             peerActorFactory.Create(Arg.Any<PeerInfo>())

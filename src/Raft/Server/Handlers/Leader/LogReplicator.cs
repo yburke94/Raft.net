@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks.Dataflow;
 using Raft.Core.Cluster;
+using Raft.Core.Events;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;

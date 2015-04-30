@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.Commands;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Enums;
 using Raft.Infrastructure;
+using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Core.StateMachine
 {
@@ -41,7 +42,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(new CommitEntry
             {
                 EntryIdx = logIdx,
-                EntryTerm = 0L
+                EntryTerm = 0L,
+                Entry = new byte[8]
             });
 
             // Assert
@@ -61,7 +63,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(new CommitEntry
             {
                 EntryIdx = commitIdx,
-                EntryTerm = 0L
+                EntryTerm = 0L,
+                Entry = new byte[8]
             });
 
             raftNode.Properties.CommitIndex.Should().Be(commitIdx);
@@ -70,7 +73,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(new CommitEntry
             {
                 EntryIdx = logIdx,
-                EntryTerm = 0L
+                EntryTerm = 0L,
+                Entry = new byte[8]
             });
 
             // Assert
@@ -96,12 +100,44 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(new CommitEntry
             {
                 EntryIdx = logIdx,
-                EntryTerm = term-1
+                EntryTerm = term-1,
+                Entry = new byte[8]
             });
 
             // Assert
-            raftNode.Log[raftNode.Properties.CommitIndex]
+            raftNode.Log.GetTermForEntry(raftNode.Properties.CommitIndex)
                 .ShouldBeEquivalentTo(term -1);
+        }
+
+        [Test]
+        public void EntryIsAddedToLogAtCommitIndexWhenHandlingCommitEntryCmd()
+        {
+            // Arrange
+            const long logIdx = 1L;
+            const long term = 3L;
+
+            var eventDispatcher = Substitute.For<IEventDispatcher>();
+            var raftNode = new Node(eventDispatcher);
+            TransitionNodeFromInitialState(raftNode, NodeState.Follower);
+            raftNode.Handle(new SetNewTerm
+            {
+                Term = term
+            });
+
+            var cmd = new CommitEntry
+            {
+                EntryIdx = logIdx,
+                EntryTerm = term - 1,
+                Entry = BitConverter.GetBytes(10)
+            };
+
+            // Act
+            raftNode.Handle(cmd);
+
+            // Assert
+            raftNode.Log.GetLogEntry(raftNode.Properties.CommitIndex)
+                .SequenceEqual(cmd.Entry)
+                .Should().BeTrue();
         }
 
         [Test]
@@ -122,7 +158,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
                 new CommitEntry
                 {
                     EntryIdx = logIdx,
-                    EntryTerm = term 
+                    EntryTerm = term,
+                    Entry = new byte[8]
                 })).ShouldThrow<InvalidOperationException>();
         }
 
@@ -511,10 +548,10 @@ namespace Raft.Tests.Unit.Core.StateMachine
             };
 
             for (var i = 0; i < initialIdx; i++)
-                raftNode.Log.SetLogEntry(i+1, logTerm);
+                raftNode.Log.SetLogEntry(i+1, logTerm, new byte[8]);
 
-            raftNode.Log[truncateFromIdx].Should().Be(logTerm);
-            raftNode.Log[truncateFromIdx+1].Should().Be(logTerm);
+            raftNode.Log.GetTermForEntry(truncateFromIdx).Should().Be(logTerm);
+            raftNode.Log.GetTermForEntry(truncateFromIdx+1).Should().Be(logTerm);
 
             var cmd = new TruncateLog { TruncateFromIndex = truncateFromIdx };
 
@@ -525,8 +562,8 @@ namespace Raft.Tests.Unit.Core.StateMachine
             raftNode.Handle(cmd);
 
             // Assert
-            raftNode.Log[truncateFromIdx].Should().Be(logTerm);
-            raftNode.Log[truncateFromIdx + 1].Should().NotHaveValue();
+            raftNode.Log.GetTermForEntry(truncateFromIdx).Should().Be(logTerm);
+            raftNode.Log.GetTermForEntry(truncateFromIdx + 1).Should().NotHaveValue();
         }
 
         private static void TransitionNodeFromInitialState(Node node, NodeState state)

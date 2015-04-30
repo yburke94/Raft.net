@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Raft.Contracts.Persistance;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Wcf;
@@ -13,7 +12,6 @@ namespace Raft.Core.Cluster
     {
         private readonly INode _node;
         private readonly IServiceProxyFactory<IRaftService> _proxyFactory;
-        private readonly IReadDataBlocks _readDataBlocks;
         private readonly ILogger _logger;
 
         public Guid NodeId { get; private set; }
@@ -22,12 +20,10 @@ namespace Raft.Core.Cluster
         private long _matchIndex; // ?
 
         public PeerActor(Guid nodeId, INode node,
-            IServiceProxyFactory<IRaftService> proxyFactory,
-            IReadDataBlocks readDataBlocks, ILogger logger)
+            IServiceProxyFactory<IRaftService> proxyFactory, ILogger logger)
         {
             _node = node;
             _proxyFactory = proxyFactory;
-            _readDataBlocks = readDataBlocks;
             _logger = logger;
 
             NodeId = nodeId;
@@ -44,7 +40,7 @@ namespace Raft.Core.Cluster
                 try
                 {
                     var previousEntryIndex = NextIndex - 1;
-                    var previousEntryTerm = _node.Log[previousEntryIndex].Value;
+                    var previousEntryTerm = _node.Log.GetTermForEntry(previousEntryIndex).Value;
 
                     var client = _proxyFactory.GetProxy();
                     var response = client.AppendEntries(new AppendEntriesRequest
@@ -71,9 +67,8 @@ namespace Raft.Core.Cluster
 
                     if (NextIndex == 1) continue;
 
-                    // TODO: DataRequest will be retreived from the NodeLog.
-                    var previousEntry = _readDataBlocks.GetBlock(new DataRequest(--NextIndex));
-                    entryStack.Push(previousEntry.Data);
+                    var previousEntry = _node.Log.GetLogEntry(--NextIndex);
+                    entryStack.Push(previousEntry);
                 }
                 catch(Exception exc)
                 {

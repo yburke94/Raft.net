@@ -1,7 +1,7 @@
 ﻿using System;
 using Raft.Contracts.Persistance;
 
-namespace Raft.Core.StateMachine.Data
+namespace Raft.Core.Data
 {
     /// <summary>
     /// In memory representation of the committed log.
@@ -16,22 +16,40 @@ namespace Raft.Core.StateMachine.Data
 
         private RaftLogEntry[] _log = new RaftLogEntry[LogIncrementSize];
 
-        public long? this[long commitIndex]
+        public bool HasEntry(long commitIndex)
         {
-            get
-            {
-                if (commitIndex == 0)
-                    return 0;
+            if (commitIndex == 0)
+                return false;
 
-                var logEntry = _log[commitIndex - 1];
-                return logEntry.Set ? (long?)logEntry.Term : null;
-            }
+            var logEntry = _log[commitIndex - 1];
+            return logEntry != null;
         }
 
-        public void SetLogEntry(long commitIndex, long term)
+        public long? GetTermForEntry(long commitIndex)
+        {
+            if (commitIndex == 0)
+                return 0;
+
+            var logEntry = _log[commitIndex - 1];
+            return logEntry != null ? (long?)logEntry.Term : null;
+        }
+
+        public byte[] GetLogEntry(long commitIndex)
+        {
+            if (commitIndex == 0)
+                return null;
+
+            var logEntry = _log[commitIndex - 1];
+            return logEntry != null ? logEntry.Entry : null;
+        }
+
+        public void SetLogEntry(long commitIndex, long term, byte[] entry)
         {
             if (commitIndex < 1)
                 throw new IndexOutOfRangeException("Commit index for log must start from 1.");
+
+            if (entry == null)
+                throw new ArgumentException("Entry must not be null.", "entry");
 
             if (commitIndex > _log.Length)
             {
@@ -40,7 +58,7 @@ namespace Raft.Core.StateMachine.Data
                 _log = newLog;
             }
 
-            _log[commitIndex - 1] = new RaftLogEntry(term);
+            _log[commitIndex - 1] = new RaftLogEntry(term, entry);
         }
 
         public void TruncateLog(long truncateFromIndex)
@@ -49,17 +67,17 @@ namespace Raft.Core.StateMachine.Data
                 _log[i] = default(RaftLogEntry);
         }
 
-        private struct RaftLogEntry
+        private class RaftLogEntry
         {
-            public RaftLogEntry(long term)
+            public RaftLogEntry(long term, byte[] entry)
             {
                 Term = term;
-                Set = true;
+                Entry = entry;
             }
 
             public readonly long Term;
 
-            public readonly bool Set;
+            public readonly byte[] Entry;
         }
     }
 }

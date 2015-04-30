@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Raft.Core.StateMachine.Data
+namespace Raft.Core.StateMachine
 {
     /// <summary>
     /// Contains both persisted and volatile properties of the node.

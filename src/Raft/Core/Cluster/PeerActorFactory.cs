@@ -17,15 +17,12 @@ namespace Raft.Core.Cluster
         private readonly ILogger _logger;
         private readonly INode _node;
         private readonly IRaftConfiguration _configuration;
-        private readonly IReadDataBlocks _readDataBlocks;
 
-        public PeerActorFactory(ILogger logger, INode node,
-            IRaftConfiguration configuration, IReadDataBlocks readDataBlocks)
+        public PeerActorFactory(ILogger logger, INode node, IRaftConfiguration configuration)
         {
             _logger = logger;
             _node = node;
             _configuration = configuration;
-            _readDataBlocks = readDataBlocks;
         }
 
         public PeerActor Create(PeerInfo peerInfo)
@@ -33,7 +30,7 @@ namespace Raft.Core.Cluster
             var proxyFactory = new ServiceProxyFactory<IRaftService>(
                 peerInfo.Address, _configuration.RaftServiceBinding, _logger);
 
-            return new PeerActor(peerInfo.NodeId, _node, proxyFactory, _readDataBlocks, _logger);
+            return new PeerActor(peerInfo.NodeId, _node, proxyFactory, _logger);
         }
     }
 }

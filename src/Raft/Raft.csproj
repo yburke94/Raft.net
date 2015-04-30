@@ -98,9 +98,9 @@
     <Compile Include="Core\Commands\TruncateLog.cs" />
     <Compile Include="Core\Commands\WinCandidateElection.cs" />
     <Compile Include="Core\Events\TermChanged.cs" />
-    <Compile Include="Core\StateMachine\Data\NodeProperties.cs" />
-    <Compile Include="Core\StateMachine\Data\InMemoryLog.cs" />
-    <Compile Include="Core\StateMachine\Enums\NodeState.cs" />
+    <Compile Include="Core\StateMachine\NodeProperties.cs" />
+    <Compile Include="Core\Data\InMemoryLog.cs" />
+    <Compile Include="Core\StateMachine\NodeState.cs" />
     <Compile Include="Core\StateMachine\INode.cs" />
     <Compile Include="Core\StateMachine\Node.cs" />
     <Compile Include="Core\StateMachine\NodeRules.cs" />

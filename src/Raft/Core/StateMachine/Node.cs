@@ -1,8 +1,7 @@
 ﻿using System;
 using Raft.Core.Commands;
+using Raft.Core.Data;
 using Raft.Core.Events;
-using Raft.Core.StateMachine.Data;
-using Raft.Core.StateMachine.Enums;
 using Raft.Infrastructure;
 using Stateless;
 
@@ -64,7 +63,7 @@ namespace Raft.Core.StateMachine
 
             Properties.CommitIndex = Math.Max(Properties.CommitIndex, @event.EntryIdx);
 
-            Log.SetLogEntry(@event.EntryIdx, @event.EntryTerm);
+            Log.SetLogEntry(@event.EntryIdx, @event.EntryTerm, @event.Entry);
         }
 
         public void Handle(ApplyEntry @event)

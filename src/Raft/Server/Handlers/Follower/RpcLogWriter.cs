@@ -38,27 +38,27 @@ namespace Raft.Server.Handlers.Follower
                         var logEntry = Serializer.DeserializeWithLengthPrefix<LogEntry>(ms, PrefixStyle.Base128);
                         return new
                         {
-                            Entry = entry,
-                            DeserializedEntry = logEntry
+                            Encoded = entry,
+                            Decoded = logEntry
                         };
                     }
                 })
-                .OrderBy(x => x.DeserializedEntry.Index)
+                .OrderBy(x => x.Decoded.Index)
                 .ToList();
 
-            var lowestIdx = entries.First().DeserializedEntry.Index;
+            var lowestIdx = entries.First().Decoded.Index;
             if (lowestIdx != _node.Properties.CommitIndex + 1)
                 throw new InvalidOperationException(string.Format(
                     "The request sent was invalid. The current commit index for the node is '{0}'. " +
                     "The lowest log entry index was expected to be '{1}' but was '{2}'.",
                     _node.Properties.CommitIndex, _node.Properties.CommitIndex + 1, lowestIdx));
 
-            @event.EntriesDeserialized = entries.Select(x => x.DeserializedEntry).ToArray();
+            @event.EntriesDeserialized = entries.Select(x => x.Decoded).ToArray();
 
             var dataBlocks = entries
                 .Select(x => new DataBlock
                 {
-                    Data = x.Entry,
+                    Data = x.Encoded,
                     Metadata = new Dictionary<string, string>
                     {
                         {"BodyType", typeof (LogEntry).AssemblyQualifiedName}
@@ -72,8 +72,9 @@ namespace Raft.Server.Handlers.Follower
                 {
                     Command = new CommitEntry
                     {
-                        EntryIdx = entry.DeserializedEntry.Index,
-                        EntryTerm = entry.DeserializedEntry.Term
+                        EntryIdx = entry.Decoded.Index,
+                        EntryTerm = entry.Decoded.Term,
+                        Entry = entry.Encoded
                     }
                 }).Wait());
         }

@@ -1,5 +1,4 @@
-﻿using Raft.Core.StateMachine.Data;
-using Raft.Core.StateMachine.Enums;
+﻿using Raft.Core.Data;
 
 namespace Raft.Core.StateMachine
 {

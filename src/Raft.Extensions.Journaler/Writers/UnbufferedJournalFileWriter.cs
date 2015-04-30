@@ -23,5 +23,10 @@ namespace Raft.Extensions.Journaler.Writers
             CurrentStream.SetLength(fileSizeInBytes);
             Flush();
         }
+
+        protected override void Write(byte[] bytes)
+        {
+            CurrentStream.Write(bytes, 0, bytes.Length);
+        }
     }
 }

@@ -9,7 +9,6 @@ using ProtoBuf;
 using Raft.Contracts.Persistance;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Data;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
 using Raft.Server.Data;
@@ -227,9 +226,16 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             nodePublisher.Events.Count.Should().Be(3);
 
             var startIdx = 0;
-            nodePublisher.Events.ToList().ForEach(ev => {
+            nodePublisher.Events.ToList().ForEach(ev =>
+            {
                 ev.Command.Should().BeOfType<CommitEntry>();
-                ((CommitEntry)ev.Command).EntryIdx.Should().Be(++startIdx);
+
+                var cmd = ((CommitEntry)ev.Command);
+                cmd.Entry
+                    .SequenceEqual(@event.Entries[startIdx])
+                    .Should().BeTrue();
+
+                cmd.EntryIdx.Should().Be(++startIdx);
             });
         }
 

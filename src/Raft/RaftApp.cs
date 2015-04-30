@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Raft.Contracts;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Enums;
 using Raft.Exceptions;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;

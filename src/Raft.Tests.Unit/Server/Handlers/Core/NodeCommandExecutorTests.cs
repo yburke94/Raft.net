@@ -3,7 +3,6 @@ using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Enums;
 using Raft.Infrastructure;
 using Raft.Server.BufferEvents;
 using Raft.Server.Handlers.Core;

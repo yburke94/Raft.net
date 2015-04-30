@@ -1,7 +1,6 @@
 ﻿using System.ServiceModel;
 using Raft.Core.Commands;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Enums;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
@@ -94,7 +93,7 @@ namespace Raft.Service
                         Id = _node.Properties.NodeId
                     });
 
-            var previousLogEntriesTerm = _node.Log[entriesRequest.PreviousLogIndex];
+            var previousLogEntriesTerm = _node.Log.GetTermForEntry(entriesRequest.PreviousLogIndex);
             if (previousLogEntriesTerm != entriesRequest.PreviousLogTerm)
             {
                 _logger.Information("Log matching failed. Expected term for entry at {rpcIndex} to be {rpcTerm}. " +

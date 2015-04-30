@@ -33,7 +33,8 @@ namespace Raft.Server.Handlers.Leader
                 Command = new CommitEntry
                 {
                     EntryIdx = @event.LogEntry.Index,
-                    EntryTerm = @event.LogEntry.Term
+                    EntryTerm = @event.LogEntry.Term,
+                    Entry = @event.EncodedEntry
                 }
             }).Wait();
 

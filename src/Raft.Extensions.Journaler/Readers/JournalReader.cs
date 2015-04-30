@@ -8,7 +8,6 @@ using Raft.Extensions.Journaler.Extensions;
 
 namespace Raft.Extensions.Journaler.Readers
 {
-    // TODO: Extract generic interface and move into contracts project.
     public class JournalReader : IReadDataBlocks, IDisposable
     {
         private readonly IDictionary<int, string> _journalIndexPathMap;
@@ -22,10 +21,9 @@ namespace Raft.Extensions.Journaler.Readers
             _journalIndexPathMap = GetJournalFileIndexMap(configuration);
         }
 
-        public DataBlock GetBlock(DataRequest request)
+        public DataBlock[] GetAllBlocks()
         {
-            // TODO: Implement
-            return null;
+            throw new NotImplementedException();
         }
 
         /// <summary>

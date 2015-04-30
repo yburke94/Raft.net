@@ -4,9 +4,8 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using Raft.Core.Commands;
+using Raft.Core.Data;
 using Raft.Core.StateMachine;
-using Raft.Core.StateMachine.Data;
-using Raft.Core.StateMachine.Enums;
 using Raft.Core.Timer;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
@@ -127,7 +126,7 @@ namespace Raft.Tests.Unit.Service
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode, logger);
 
             var raftLog = new InMemoryLog();
-            raftLog.SetLogEntry(1, 2L);
+            raftLog.SetLogEntry(1, 2L, new byte[0]);
 
             raftNode.Properties.Returns(new NodeProperties());
             raftNode.Log.Returns(new InMemoryLog());
@@ -165,7 +164,7 @@ namespace Raft.Tests.Unit.Service
             var nodeData = new NodeProperties();
             var nodeLog = new InMemoryLog();
 
-            nodeLog.SetLogEntry(1, 0);
+            nodeLog.SetLogEntry(1, 0, new byte[0]);
             raftNode.Properties.Returns(nodeData);
             raftNode.Log.Returns(nodeLog);
 
@@ -292,7 +291,7 @@ namespace Raft.Tests.Unit.Service
             var nodeData = new NodeProperties();
             var nodeLog = new InMemoryLog();
 
-            nodeLog.SetLogEntry(message.PreviousLogIndex, message.PreviousLogTerm);
+            nodeLog.SetLogEntry(message.PreviousLogIndex, message.PreviousLogTerm, new byte[0]);
 
             raftNode.Properties.Returns(nodeData);
             raftNode.Log.Returns(nodeLog);
@@ -370,7 +369,7 @@ namespace Raft.Tests.Unit.Service
             var service = new RaftService(appendEntriesPublisher, nodePublisher, timer, raftNode, logger);
 
             var raftLog = new InMemoryLog();
-            raftLog.SetLogEntry(1, 2L);
+            raftLog.SetLogEntry(1, 2L, new byte[0]);
 
             raftNode.Properties.Returns(new NodeProperties());
             raftNode.Log.Returns(new InMemoryLog());
