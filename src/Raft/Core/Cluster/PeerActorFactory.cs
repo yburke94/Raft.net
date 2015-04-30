@@ -1,5 +1,4 @@
 ﻿using Raft.Configuration;
-using Raft.Contracts.Persistance;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure.Wcf;
 using Raft.Service.Contracts;

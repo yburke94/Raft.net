@@ -4,15 +4,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using NSubstitute;
-using NSubstitute.Core.Arguments;
 using NUnit.Framework;
-using Raft.Contracts.Persistance;
 using Raft.Core.Cluster;
 using Raft.Core.Data;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure.Wcf;
 using Raft.Service.Contracts;
-using Raft.Tests.Unit.TestData.Commands;
 using Serilog;
 
 namespace Raft.Tests.Unit.Core.Cluster

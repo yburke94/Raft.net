@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Raft.Infrastructure.Wcf
+﻿namespace Raft.Infrastructure.Wcf
 {
     internal interface IServiceProxyFactory<out TService>
     {

@@ -7,7 +7,6 @@ using Raft.Core.Commands;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
-using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit.Core.StateMachine
 {

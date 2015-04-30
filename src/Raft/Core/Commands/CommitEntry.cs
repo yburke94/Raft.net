@@ -1,5 +1,3 @@
-using Raft.Contracts;
-
 namespace Raft.Core.Commands
 {
     internal class CommitEntry : INodeCommand

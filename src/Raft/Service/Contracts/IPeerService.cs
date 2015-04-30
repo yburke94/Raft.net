@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ServiceModel;
+﻿using System.ServiceModel;
 using ProtoBuf;
-using Raft.Core.Cluster;
 
 namespace Raft.Service.Contracts
 {

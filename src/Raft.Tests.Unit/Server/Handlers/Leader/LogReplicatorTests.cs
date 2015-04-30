@@ -7,7 +7,6 @@ using System.Threading.Tasks.Dataflow;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using Raft.Contracts.Persistance;
 using Raft.Core.Cluster;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;

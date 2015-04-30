@@ -2,12 +2,10 @@
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
-using Raft.Contracts;
 using Raft.Core.StateMachine;
 using Raft.Exceptions;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server.BufferEvents;
-using Raft.Server.Data;
 using Raft.Tests.Unit.TestData.Commands;
 
 namespace Raft.Tests.Unit
