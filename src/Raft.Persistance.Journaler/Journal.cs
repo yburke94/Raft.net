@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Raft.Contracts.Persistance;
-using Raft.Extensions.Journaler.Transformers;
-using Raft.Extensions.Journaler.Writers;
+using Raft.Persistance.Journaler.Transformers;
+using Raft.Persistance.Journaler.Writers;
 
-namespace Raft.Extensions.Journaler
+namespace Raft.Persistance.Journaler
 {
     internal class Journal : IWriteDataBlocks, IDisposable
     {

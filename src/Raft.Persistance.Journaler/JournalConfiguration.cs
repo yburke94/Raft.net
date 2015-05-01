@@ -1,4 +1,4 @@
-﻿namespace Raft.Extensions.Journaler
+﻿namespace Raft.Persistance.Journaler
 {
     public sealed class JournalConfiguration
     {

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Raft.Extensions.Journaler.Kernel
+namespace Raft.Persistance.Journaler.Kernel
 {
     internal class SectorSize
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Raft.Extensions.Journaler
+namespace Raft.Persistance.Journaler
 {
     internal class JournalOffsetManager
     {

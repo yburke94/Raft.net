@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Raft.Extensions.Journaler.Extensions;
+using Raft.Persistance.Journaler.Extensions;
 
-namespace Raft.Extensions.Journaler.Transformers
+namespace Raft.Persistance.Journaler.Transformers
 {
     internal class AddJournalMetadata : ITransformJournalEntry
     {

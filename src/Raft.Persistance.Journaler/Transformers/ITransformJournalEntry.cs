@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Raft.Extensions.Journaler.Transformers
+namespace Raft.Persistance.Journaler.Transformers
 {
     internal interface ITransformJournalEntry
     {

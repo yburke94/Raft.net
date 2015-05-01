@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using Raft.Extensions.Journaler.Kernel;
+using Raft.Persistance.Journaler.Kernel;
 
-namespace Raft.Extensions.Journaler.Writers
+namespace Raft.Persistance.Journaler.Writers
 {
     internal sealed class UnbufferedJournalFileWriter : JournalFileWriter
     {

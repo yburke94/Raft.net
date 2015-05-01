@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using Raft.Contracts.Persistance;
-using Raft.Extensions.Journaler.Readers;
-using Raft.Extensions.Journaler.Transformers;
-using Raft.Extensions.Journaler.Writers;
+using Raft.Persistance.Journaler.Readers;
+using Raft.Persistance.Journaler.Transformers;
+using Raft.Persistance.Journaler.Writers;
 
-namespace Raft.Extensions.Journaler
+namespace Raft.Persistance.Journaler
 {
     public class JournalerFactory
     {

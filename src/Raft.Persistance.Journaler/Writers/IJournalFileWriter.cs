@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Raft.Extensions.Journaler.Writers
+namespace Raft.Persistance.Journaler.Writers
 {
     internal interface IJournalFileWriter : IDisposable
     {

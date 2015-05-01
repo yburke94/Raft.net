@@ -2,7 +2,7 @@
 using Raft.Configuration;
 using Raft.Contracts.Persistance;
 
-namespace Raft.Extensions.Journaler
+namespace Raft.Persistance.Journaler
 {
     public static class ConfigurationBuilderExtensions
     {

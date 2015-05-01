@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Raft.Contracts.Persistance;
-using Raft.Extensions.Journaler.Extensions;
+using Raft.Persistance.Journaler.Extensions;
 
-namespace Raft.Extensions.Journaler.Readers
+namespace Raft.Persistance.Journaler.Readers
 {
     public class JournalReader : IReadDataBlocks, IDisposable
     {
