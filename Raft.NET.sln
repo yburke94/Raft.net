@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Extensions", "3 - Exten
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Persistance.Journaler.Tests.Unit", "src\Raft.Persistance.Journaler.Tests.Unit\Raft.Persistance.Journaler.Tests.Unit.csproj", "{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipList", "src\ZipList\ZipList.csproj", "{3000154A-37BB-4C32-B804-26D3228481A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3000154A-37BB-4C32-B804-26D3228481A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3000154A-37BB-4C32-B804-26D3228481A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3000154A-37BB-4C32-B804-26D3228481A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3000154A-37BB-4C32-B804-26D3228481A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,5 +63,6 @@ Global
 		{AC7784F7-377D-4E31-800F-A19DAB12DF26} = {D4EA295F-01D7-418C-874C-D2E4C4A13FA5}
 		{4AD63EBE-AFC9-4B7E-A536-8608A83691D3} = {80B8664E-EB58-45DF-99EC-9055C84AF482}
 		{DDA27AB0-0A12-4E12-8852-5B65ACA0330A} = {1E8A51EB-FF1E-46A1-BEC1-EF2274979158}
+		{3000154A-37BB-4C32-B804-26D3228481A9} = {CAB5ED2A-1F46-4FB8-AAB9-1581C4FD3105}
 	EndGlobalSection
 EndGlobal
