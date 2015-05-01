@@ -6,7 +6,7 @@
         {
             var newBytes = new byte[bytes.Length + bytesToPrepend.Length];
             bytesToPrepend.CopyTo(newBytes, 0);
-            bytes.CopyTo(newBytes, bytesToPrepend.Length-1);
+            bytes.CopyTo(newBytes, bytesToPrepend.Length);
 
             return newBytes;
         }
@@ -15,7 +15,7 @@
         {
             var newBytes = new byte[bytes.Length + bytesToAppend.Length];
             bytes.CopyTo(newBytes, 0);
-            bytesToAppend.CopyTo(newBytes, bytes.Length-1);
+            bytesToAppend.CopyTo(newBytes, bytes.Length);
 
             return newBytes;
         }

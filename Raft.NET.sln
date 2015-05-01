@@ -17,9 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Contracts", "src\Raft.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Persistance.Journaler", "src\Raft.Persistance.Journaler\Raft.Persistance.Journaler.csproj", "{4AD63EBE-AFC9-4B7E-A536-8608A83691D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Persistance.Journaler.Tests", "src\Raft.Persistance.Journaler.Tests\Raft.Persistance.Journaler.Tests.csproj", "{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Extensions", "3 - Extensions", "{CAB5ED2A-1F46-4FB8-AAB9-1581C4FD3105}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raft.Persistance.Journaler.Tests.Unit", "src\Raft.Persistance.Journaler.Tests.Unit\Raft.Persistance.Journaler.Tests.Unit.csproj", "{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

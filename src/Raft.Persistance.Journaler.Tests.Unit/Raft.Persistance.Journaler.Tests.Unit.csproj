@@ -52,9 +52,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transformers\EntryDataTests.cs" />
+    <Compile Include="Transformers\EntryMetadataTests.cs" />
+    <Compile Include="Transformers\EntryPaddingTests.cs" />
+    <Compile Include="Transformers\TransformerFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Raft.Persistance.Journaler\Raft.Persistance.Journaler.csproj">
+      <Project>{4ad63ebe-afc9-4b7e-a536-8608a83691d3}</Project>
+      <Name>Raft.Persistance.Journaler</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

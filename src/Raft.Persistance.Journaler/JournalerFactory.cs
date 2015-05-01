@@ -18,11 +18,11 @@ namespace Raft.Persistance.Journaler
 
             var transformers = new List<ITransformJournalEntry>
             {
-                new AddJournalMetadata()
+                new EntryMetadata()
             };
 
             if (configuration.IoType == IoType.Unbuffered)
-                transformers.Add(new PadToAlignToSector(configuration));
+                transformers.Add(new EntryPadding(configuration));
 
             return new Journal(configuration, fileWriter, offsetManager, transformers);
         }

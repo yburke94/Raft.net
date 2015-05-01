@@ -27,7 +27,7 @@ namespace Raft.Persistance.Journaler.Kernel
             // ignored outputs
             uint ignore;
 
-            GetDiskFreeSpace(Path.GetPathRoot(uncPath), out ignore, out size, out ignore, out ignore);
+            GetDiskFreeSpace(drive, out ignore, out size, out ignore, out ignore);
             DriveSectorSizeMap.AddOrUpdate(drive, size, (d, s) => size);
 
             return size;
