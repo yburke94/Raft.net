@@ -10,7 +10,7 @@ namespace Raft.Server
     /// <summary>
     /// Maintains commands for a given term so they can be lazily applied by followers.
     /// They will be held in memory until they are applied or until the term has ended.
-    /// This eliminates the overhead of reading from disk and decoding the command data.
+    /// This eliminates the overhead of decoding the command data in the InMemoryLog.
     /// </summary>
     /// <remarks>
     /// When a follower has received an entry from the leader in order to LogMatch,

@@ -7,8 +7,8 @@
     <ProjectGuid>{DDA27AB0-0A12-4E12-8852-5B65ACA0330A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Raft.Persistance.Journaler.Tests</RootNamespace>
-    <AssemblyName>Raft.Persistance.Journaler.Tests</AssemblyName>
+    <RootNamespace>Raft.Persistance.Journaler.Tests.Unit</RootNamespace>
+    <AssemblyName>Raft.Persistance.Journaler.Tests.Unit</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
