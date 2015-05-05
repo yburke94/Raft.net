@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 
 namespace ZipList
@@ -69,16 +69,20 @@ namespace ZipList
         private long _tail;
         private long _length;
 
-        private const int SizeOfHeaderVariables = sizeof(long);
+        private const int SizeOfHeaderVariable = sizeof(long);
+
+        private const int SizeOfZipListHeader = (SizeOfHeaderVariable * 3);
+        private const int SizeOfEntryHeader = (SizeOfHeaderVariable*2);
 
         private const byte Eol = 0xFF; // End of list
         private const int SizeOfEol = sizeof(byte);
 
-        private const ushort MaxIncrement = ushort.MaxValue; // Why... I Dont know why...
+        // TODO: Make increments smart based on length, throughput e.t.c
+        private const ushort MaxIncrement = ushort.MaxValue;
 
         const int BytesOffset = 0;
-        const int TailOffset = sizeof(long);
-        const int LengthOffset = sizeof(long) *2;
+        const int TailOffset = SizeOfHeaderVariable;
+        const int LengthOffset = SizeOfHeaderVariable *2;
 
         private byte[] _blob;
 
@@ -106,8 +110,6 @@ namespace ZipList
             get { return _blob.LongLength; }
         }
 
-
-
         public ZipList()
         {
             _blob = new byte[MaxIncrement];
@@ -121,14 +123,14 @@ namespace ZipList
 
         private void Init()
         {
-            _bytes += (SizeOfHeaderVariables*3) + SizeOfEol;
+            _bytes += SizeOfZipListHeader + SizeOfEol;
             ExtendBlockIfRequired(ref _blob, _bytes, 0L);
 
             WriteHeaderVariable(_blob, BytesOffset, _bytes);
             WriteHeaderVariable(_blob, TailOffset, _tail);
             WriteHeaderVariable(_blob, LengthOffset, _length);
 
-            WriteEol(_blob, LengthOffset+SizeOfHeaderVariables);
+            WriteEol(_blob, SizeOfZipListHeader);
         }
 
         public byte[] GetBytes()
@@ -139,7 +141,7 @@ namespace ZipList
         }
 
         public static ZipList FromBytes(byte[] bytes)
-        {
+        { // TODO
         }
 
         public bool HasEntries
@@ -147,9 +149,39 @@ namespace ZipList
             get { return _length > 0; }
         }
 
-        public byte[] Get(long idx)
+        // TODO: This is not sequential memory access. Make it sequential!
+        public ZipListEntry GetPrev(ZipListEntry entry)
         {
+            if (_length == 0)
+                throw new InvalidOperationException("No items have been added to thie ZipList.");
 
+            if (_bytes <= entry.PreviousOffset || SizeOfZipListHeader > entry.PreviousOffset)
+                throw new IndexOutOfRangeException("Previous entry offset did not fall within range for entries.");
+
+            var prevEntryOffset = ReadHeaderVariable(_blob, entry.PreviousOffset);
+            var entryLength = ReadHeaderVariable(_blob, entry.PreviousOffset + SizeOfHeaderVariable);
+            var entryBytes = Read(_blob, entry.PreviousOffset + SizeOfEntryHeader, entryLength);
+
+            var nextEntryPrevOffset = ReadHeaderVariable(_blob, entry.PreviousOffset + SizeOfEntryHeader + entryLength);
+            if (nextEntryPrevOffset != entry.PreviousOffset)
+                throw new InvalidOperationException("The entry passed was invalid. The previous offset pointed to invalid data.");
+
+            return new ZipListEntry(prevEntryOffset, entryBytes);
+        }
+
+        // TODO: This is not sequential memory access. Make it sequential!
+        public ZipListEntry GetNext(ZipListEntry entry)
+        {
+            if (_length == 0)
+                throw new InvalidOperationException("No items have been added to thie ZipList.");
+
+            if (_bytes <= entry.PreviousOffset || SizeOfZipListHeader > entry.PreviousOffset)
+                throw new IndexOutOfRangeException("Previous entry offset did not fall within range for entries.");
+
+            var prev = GetPrev(entry);
+            var currentEntryOffset = entry.PreviousOffset + SizeOfEntryHeader + prev.Length;
+            var nextEntryOffset = currentEntryOffset + SizeOfEntryHeader + entry.Length;
+            return GetPrev(new ZipListEntry(nextEntryOffset, new byte[0]));
         }
 
         public void Push(byte[] bytes)
@@ -159,7 +191,7 @@ namespace ZipList
 
         public void PushAll(byte[][] byteBlocks)
         {
-            var totalBytes = (byteBlocks.Length*(SizeOfHeaderVariables*2)) + byteBlocks.Sum(x => x.LongLength);
+            var totalBytes = (byteBlocks.Length*SizeOfEntryHeader) + byteBlocks.Sum(x => x.LongLength);
             ExtendBlockIfRequired(ref _blob, totalBytes, _bytes);
 
             foreach (var bytes in byteBlocks)
@@ -168,7 +200,7 @@ namespace ZipList
                 var oldTail = _tail;
                 _tail = _bytes - SizeOfEol;
 
-                var sizeOfEntry = (SizeOfHeaderVariables * 2) + bytes.Length;
+                var sizeOfEntry = SizeOfEntryHeader + bytes.Length;
                 _bytes += sizeOfEntry;
 
                 WriteHeaderVariable(_blob, BytesOffset, _bytes);
@@ -179,11 +211,8 @@ namespace ZipList
                 WriteHeaderVariable(_blob, LengthOffset, _length);
 
                 // Write Entry
-                WriteHeaderVariable(_blob, _tail, oldTail); // PrevLength
-                WriteHeaderVariable(_blob, _tail + SizeOfHeaderVariables, bytes.LongLength); // DataLength
-
-                var entryStart = _tail + (SizeOfHeaderVariables * 2);
-                Write(_blob, entryStart, bytes); // Entry
+                var entry = new ZipListEntry(oldTail, bytes);
+                Write(_blob, _tail, entry.GetBytes());
             }
 
             // Write Eol
@@ -192,15 +221,27 @@ namespace ZipList
 
         public void Merge(ZipList zipList)
         {
+            var entries = zipList.Reader().Select(x => x.Entry).ToArray();
+            PushAll(entries);
         }
 
-        public byte[][] Truncate(long entriesFromLast)
+        /// <summary>
+        /// When entries from last = 0, a pop operation will be performed.
+        /// </summary>
+        /// <returns>The entries removed from the ZipList.</returns>
+        public ZipListEntry[] Truncate(long entriesFromLast = 0)
         {
+            // if (_tail == 0) throw!
         }
 
-        public IEnumerable<byte[]> Iterate()
+        public IEnumerable<ZipListEntry> Reader()
         {
-            
+            return new ZipListEnumerator(this);
+        }
+
+        public IEnumerable<ZipListEntry> BackToFrontReader()
+        {
+            return new ZipListEnumerator(this, true);
         }
 
         private static void WriteHeaderVariable(byte[] block, long offset, long value)
@@ -219,14 +260,19 @@ namespace ZipList
             Array.Copy(value, 0, block, offset, value.Length);
         }
 
-        private static long ReadHeaderVariable(byte[] block, long offset)
+        private static byte[] Read(byte[] block, long offset, long length)
         {
-            var ret = new byte[SizeOfHeaderVariables];
+            var ret = new byte[length];
 
-            for (var i = 0; i < SizeOfHeaderVariables; i++)
+            for (var i = 0; i < length; i++)
                 ret[i] = block[offset + i];
 
-            return BitConverter.ToInt64(ret, 0);
+            return ret;
+        }
+
+        private static long ReadHeaderVariable(byte[] block, long offset)
+        {
+            return BitConverter.ToInt64(Read(block, offset, SizeOfHeaderVariable), 0);
         }
 
         private static void ExtendBlockIfRequired(ref byte[] block, long lengthAdded, long offset)
@@ -239,22 +285,77 @@ namespace ZipList
 
             block = newBlock;
         }
-    }
 
-    private struct ZipListEntry
-    {
-        private long previousLength;
-        private long length;
-
-        private byte[] _entry;
-
-        public byte[] GetBytes()
+        private class ZipListEnumerator : IEnumerator<ZipListEntry>, IEnumerable<ZipListEntry>
         {
+            private readonly ZipList _list;
+            private readonly bool _backToFront;
+
+            private long _idx = 0L;
+
+            public ZipListEnumerator(ZipList list, bool backToFront = false)
+            {
+                _list = list;
+                _backToFront = backToFront;
+            }
+
+            public bool MoveNext()
+            {
+                return false;
+            }
+
+            public void Reset()
+            {
+                _idx = 0L;
+            }
+
+            public ZipListEntry Current
+            {
+                get { return null; }
+            }
+
+            object IEnumerator.Current
+            {
+                get { return Current; }
+            }
+
+            public IEnumerator<ZipListEntry> GetEnumerator()
+            {
+                return this;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            public void Dispose() { }
         }
 
-        public static ZipListEntry FromBytes(byte[] bytes)
+        public class ZipListEntry
         {
+            public long PreviousOffset { get; private set; }
+            public long Length { get; private set; }
+            public byte[] Entry { get; private set; }
+
+            public ZipListEntry(long prevOffset, byte[] entry)
+            {
+                PreviousOffset = prevOffset;
+                Length = entry.Length;
+                Entry = entry;
+            }
+
+            public byte[] GetBytes()
+            {
+                var entrySize = SizeOfEntryHeader + Length;
+                var asBytes = new byte[entrySize];
+
+                WriteHeaderVariable(asBytes, 0, PreviousOffset);
+                WriteHeaderVariable(asBytes, SizeOfHeaderVariable, Length);
+                Write(asBytes, SizeOfEntryHeader, Entry);
+
+                return asBytes;
+            }
         }
     }
-
 }
