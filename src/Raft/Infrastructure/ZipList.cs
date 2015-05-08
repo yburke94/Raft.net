@@ -175,7 +175,14 @@ namespace Raft.Infrastructure
         /// </summary>
         public void Merge(ZipList zipList)
         {
-            var entries = zipList.Reader().Select(x => x.Data).ToArray();
+            var idx = 0;
+            var entries = new byte[zipList.Length][];
+            foreach (var entry in zipList.Reader())
+            {
+                entries[idx] = entry.Data;
+                idx++;
+            }
+            
             PushAll(entries);
         }
 
