@@ -5,70 +5,17 @@ using System.Linq;
 
 namespace ZipList
 {
-    public class Class1
-    {
-        /*
-         <bytes><tail><len><entry><entry><end>
-         * 
-         * <bytes> is an unsigned integer to hold the number of bytes that the
- * ziplist occupies. This value needs to be stored to be able to resize the
- * entire structure without the need to traverse it first.
- *
- * <tail> is the offset to the last entry in the list. This allows a pop
- * operation on the far side of the list without the need for full traversal.
- *
- * <len> is the number of entries.When this value is larger than 2**16-2,
- * we need to traverse the entire list to know how many items it holds.
- *
- * <end> is a single byte special value, equal to 255, which indicates the
- * end of the list.
-         * 
-         * 
-         * <startOfPRevious><{strEncode/int**}><entryLength><entry>
-         * Every entry in the ziplist is prefixed by a header that contains two pieces
- * of information. First, the length of the previous entry is stored to be
- * able to traverse the list from back to front. Second, the encoding with an
- * optional string length of the entry itself is stored.
-         
-         *Length (Entries)
-         *Size (Blob Length)
-         * 
-         * *Pop
-         * 
-         * Push
-         * PushAll
-         * Truncate
-         * Iterate
-         */
-
-        /*
-         Orig:
-         * 
-         * HEAD | Tail
-         * 
-         * New
-         * Merge
-         * Push
-         * Index??
-         * Next/PRev {Iterator}
-         * Get(len)
-         * Insert(len)
-         * Delete
-         * DeleteRange
-         * Compare
-         * Find
-         */
-    }
-
     /// <summary>
-    /// Impl of Ziplist inspired by Redis.
+    /// A simple implementation of the Ziplist design used in Redis(because Redis' implementation is hard to understand).
+    /// It is an encoded dually linked list designed to be memory efficient.
+    ///
+    /// Whilst Redis' implementation is smarter about memory consumption when dealing with length,
+    /// this implementation just encodes all length/offset metadata as 64bit itegers.
+    /// Also, entry headers in this impl only contain the previous entry offset and the length of the entry.
+    /// The rest of the layout is more or less the same.
     /// </summary>
     public class ZipList
     {
-        private long _bytes;
-        private long _tail;
-        private long _length;
-
         private const int SizeOfHeaderVariable = sizeof(long);
 
         private const int SizeOfZipListHeader = (SizeOfHeaderVariable * 3);
@@ -77,12 +24,15 @@ namespace ZipList
         private const byte Eol = 0xFF; // End of list
         private const int SizeOfEol = sizeof(byte);
 
-        // TODO: Make increments smart based on length, throughput e.t.c
         private const ushort MaxIncrement = ushort.MaxValue;
 
-        const int BytesOffset = 0;
-        const int TailOffset = SizeOfHeaderVariable;
-        const int LengthOffset = SizeOfHeaderVariable *2;
+        private const int BytesOffset = 0;
+        private const int TailOffset = SizeOfHeaderVariable;
+        private const int LengthOffset = SizeOfHeaderVariable *2;
+
+        private long _bytes;
+        private long _tail;
+        private long _length;
 
         private byte[] _blob;
 
@@ -110,29 +60,49 @@ namespace ZipList
             get { return _blob.LongLength; }
         }
 
+        /// <summary>
+        /// Intiializes an empty Ziplist object.
+        /// </summary>
         public ZipList()
         {
-            _blob = new byte[MaxIncrement];
-
             _bytes = 0L;
             _tail = 0L;
             _length = 0L;
 
+            _blob = new byte[MaxIncrement];
+
             Init();
         }
 
+        private ZipList(long bytes, long tail, long length, byte[] blob)
+        {
+            _bytes = bytes;
+            _tail = tail;
+            _length = length;
+
+            _blob = blob;
+        }
+
         /// <summary>
-        /// Constructs a ZipList structure given valid array of bytes.
+        /// Constructs a ZipList structure given a valid array of bytes.
         /// </summary>
-        public static ZipList FromBytes(byte[] bytes)
-        { // TODO
-            return null;
+        public static ZipList FromBytes(byte[] zipListBlob)
+        {
+            var bytes = ReadHeaderVariable(zipListBlob, BytesOffset);
+            var tail = ReadHeaderVariable(zipListBlob, TailOffset);
+            var length = ReadHeaderVariable(zipListBlob, LengthOffset);
+
+            var eol = Read(zipListBlob, bytes - 1, SizeOfEol);
+            if (!eol[0].Equals(Eol))
+                throw new ArgumentException(
+                    "The passed ziplist bytes are invalid. " +
+                    "Ensure the bytes passed have not been corrupted.", "zipListBlob");
+
+            return new ZipList(bytes, tail, length, zipListBlob);
         }
 
         /// <summary>
         /// Resizes the underlying blob to occupy the same space as the Ziplist itself.
-        /// Generally estra space is allocated to reduce the amount of times the Ziplist
-        /// will be resized when performing a push operation.
         /// </summary>
         public void Resize()
         {
@@ -204,17 +174,59 @@ namespace ZipList
         /// </summary>
         public void Merge(ZipList zipList)
         {
-            var entries = zipList.Reader().Select(x => x.Entry).ToArray();
+            var entries = zipList.Reader().Select(x => x.Data).ToArray();
             PushAll(entries);
         }
 
         /// <summary>
-        /// When entries from last = 0, a pop operation will be performed.
+        /// Removes entries from the tail of the list.
         /// </summary>
+        /// <param name="entriesToRemove">
+        /// When equal to 1(default value), a pop operation will be performed at the tail.
+        /// When greater than 1, the amount specified will be removed from the list.
+        /// </param>
         /// <returns>The entries removed from the ZipList.</returns>
-        public ZipListEntry[] Truncate(long entriesFromLast = 0)
+        public ZipListEntry[] Truncate(long entriesToRemove = 1)
         {
-            // if (_tail == 0) throw! // TODO: implement this!!!
+            if (entriesToRemove < 1)
+                throw new ArgumentException("Entries to remove must not be less than 1.");
+
+            if (entriesToRemove > _length)
+                throw new ArgumentException("Entries to remove cannot be greater than length.");
+
+            var nextEntryStart = _tail;
+            var offsetsToCalculate = entriesToRemove;
+            
+            while (offsetsToCalculate != 0 || nextEntryStart != 0)
+            {
+                nextEntryStart = ReadHeaderVariable(_blob, nextEntryStart);
+                offsetsToCalculate--;
+            }
+
+            var nextEntryLength = nextEntryStart == 0
+                ? 0
+                : ReadHeaderVariable(_blob, nextEntryStart + SizeOfHeaderVariable);
+
+            var eolOffset = nextEntryStart == 0
+                ? SizeOfZipListHeader
+                : nextEntryStart + SizeOfEntryHeader + nextEntryLength;
+
+            var oldBytes = _bytes;
+
+            _length = _length-entriesToRemove;
+            _bytes = eolOffset + 1;
+            _tail = nextEntryStart;
+
+            WriteHeaderVariable(_blob, BytesOffset, _bytes);
+            WriteHeaderVariable(_blob, TailOffset, _tail);
+            WriteHeaderVariable(_blob, LengthOffset, _length);
+
+            WriteEol(_blob, eolOffset);
+
+            var delta = oldBytes - _bytes;
+            var nullBytes = new byte[delta];
+            Write(_blob, _bytes, nullBytes);
+
             return null;
         }
 
@@ -234,23 +246,33 @@ namespace ZipList
             return new ZipListEnumerator(this, true);
         }
 
+        /// <summary>
+        /// Gets the Head(first entry) of the list.
+        /// </summary>
         public ZipListEntry Head()
         {
-            return _length == 0
-                ? null
-                : Get(SizeOfEntryHeader);
+            return HasEntries
+                ? Get(SizeOfEntryHeader)
+                : null;
         }
 
+        /// <summary>
+        /// Gets the Tail(last entry) of the list.
+        /// </summary>
         public ZipListEntry Tail()
         {
-            return _tail == 0
-                ? null
-                : Get(_tail);
+            return HasEntries
+                ? Get(_tail)
+                : null;
         }
 
+        /// <summary>
+        /// Gets the entry immediately preceeding the supplied entry.
+        /// If there is no preceeding entry, null will be returned.
+        /// </summary>
         public ZipListEntry Prev(ZipListEntry entry)
         {
-            if (_length == 0)
+            if (!HasEntries)
                 throw new InvalidOperationException("No items have been added to the ZipList.");
 
             if (entry.PreviousOffset == 0) return null; // Entry passed was the first entry.
@@ -265,9 +287,13 @@ namespace ZipList
             return prev;
         }
 
+        /// <summary>
+        /// Gets the entry immediately following the supplied entry.
+        /// If there is no following entry, null will be returned.
+        /// </summary>
         public ZipListEntry Next(ZipListEntry entry)
         {
-            if (_length == 0)
+            if (!HasEntries)
                 throw new InvalidOperationException("No items have been added to this ZipList.");
 
             if (_bytes-1 <= entry.Offset || SizeOfZipListHeader > entry.Offset)
@@ -339,12 +365,16 @@ namespace ZipList
             return BitConverter.ToInt64(Read(block, offset, SizeOfHeaderVariable), 0);
         }
 
-        private static void ExtendBlockIfRequired(ref byte[] block, long lengthAdded, long offset)
+        private static void ExtendBlockIfRequired(ref byte[] block, long lengthAdded, long addingFrom)
         {
-            var maxChangeLength = offset + lengthAdded;
-            if (maxChangeLength < block.LongLength) return;
+            var maxChangeLength = addingFrom + lengthAdded;
+            var delta = maxChangeLength - block.LongLength;
+            if (delta < 0) return;
 
-            var newBlock = new byte[block.Length + MaxIncrement];
+            var desiredIncrement = Math.Min(block.Length*2, MaxIncrement);
+            var increment = desiredIncrement < delta ? delta : desiredIncrement;
+
+            var newBlock = new byte[increment];
             Array.Copy(block, newBlock, block.Length);
 
             block = newBlock;
@@ -424,21 +454,39 @@ namespace ZipList
             }
         }
 
+        /// <summary>
+        /// Represents an entry endoded in a Ziplist.
+        /// </summary>
         public class ZipListEntry
         {
-            // Encoded data
+            /// <summary>
+            /// The offset for the entry immediately preceeding the current entry.
+            /// </summary>
             public long PreviousOffset { get; private set; }
-            public long Length { get; private set; }
-            public byte[] Entry { get; private set; }
 
-            // In-Memory only
+            /// <summary>
+            /// The length of the data for this entry
+            /// </summary>
+            public long Length { get; private set; }
+
+            /// <summary>
+            /// The data for this entry.
+            /// </summary>
+            public byte[] Data { get; private set; }
+
+            /// <summary>
+            /// The offset for this entry
+            /// </summary>
+            /// <remarks>
+            /// This information is held in memory only and is not encoded in the ZipList.
+            /// </remarks>
             public long Offset { get; private set; }
 
-            public ZipListEntry(long prevOffset, long offset, byte[] entry)
+            public ZipListEntry(long prevOffset, long offset, byte[] data)
             {
                 PreviousOffset = prevOffset;
-                Length = entry.Length;
-                Entry = entry;
+                Length = data.Length;
+                Data = data;
 
                 Offset = offset;
             }
@@ -450,7 +498,7 @@ namespace ZipList
 
                 WriteHeaderVariable(asBytes, 0, PreviousOffset);
                 WriteHeaderVariable(asBytes, SizeOfHeaderVariable, Length);
-                Write(asBytes, SizeOfEntryHeader, Entry);
+                Write(asBytes, SizeOfEntryHeader, Data);
 
                 return asBytes;
             }
