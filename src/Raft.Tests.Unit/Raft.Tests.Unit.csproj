@@ -95,6 +95,7 @@
     <Compile Include="Infrastructure\ActorTests.cs" />
     <Compile Include="Infrastructure\WaitableCounterTests.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceProxyFactoryTests.cs" />
+    <Compile Include="Infrastructure\ZiplistTests.cs" />
     <Compile Include="RaftAppTests.cs" />
     <Compile Include="Core\Data\InMemoryLogTests.cs" />
     <Compile Include="Core\StateMachine\NodeTests.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="TestHelpers\TestTaskScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="TestData\EncodedData\EncodedLogEntry.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
