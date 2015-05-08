@@ -124,6 +124,7 @@
     <Compile Include="Infrastructure\Wcf\IServiceProxyFactory.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceProxyFactory.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceClientProxy.cs" />
+    <Compile Include="Infrastructure\ZipList.cs" />
     <Compile Include="LightInject\LightInject.Annotation.cs" />
     <Compile Include="LightInject\LightInject.cs" />
     <Compile Include="LightInject\LightInjectEventDispatcher.cs" />

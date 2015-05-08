@@ -55,7 +55,6 @@
     <Compile Include="Transformers\EntryDataTests.cs" />
     <Compile Include="Transformers\EntryMetadataTests.cs" />
     <Compile Include="Transformers\EntryPaddingTests.cs" />
-    <Compile Include="Transformers\TransformerFactoryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

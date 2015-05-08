@@ -7,11 +7,9 @@ namespace ZipList
 {
     /// <summary>
     /// A simple implementation of the Ziplist design used in Redis(because Redis' implementation is hard to understand).
-    /// It is an encoded dually linked list designed to be memory efficient.
-    ///
     /// Whilst Redis' implementation is smarter about memory consumption when dealing with length,
     /// this implementation just encodes all length/offset metadata as 64bit itegers.
-    /// Also, entry headers in this impl only contain the previous entry offset and the length of the entry.
+    /// Also, entry headers in this impl only contain the previous entry offset and the length of the entry(no encoding info).
     /// The rest of the layout is more or less the same.
     /// </summary>
     public class ZipList
@@ -93,7 +91,7 @@ namespace ZipList
             var length = ReadHeaderVariable(zipListBlob, LengthOffset);
 
             var eol = Read(zipListBlob, bytes - 1, SizeOfEol);
-            if (!eol[0].Equals(Eol))
+            if (eol[0] != Eol)
                 throw new ArgumentException(
                     "The passed ziplist bytes are invalid. " +
                     "Ensure the bytes passed have not been corrupted.", "zipListBlob");
