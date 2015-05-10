@@ -5,7 +5,7 @@
 A .Net implementation of the RAFT consensus algorithm. This is still WORK IN PROGRESS.
 
 ### High Level Design
-This framework makes heavy use of ring buffers to facilitate message passing between threads. When a command is executed against the cluster leader, it is placed in the leader ring buffer. Ths buffer has 4 consumer threads that perform the following for each entry in the ring buffer (in order):
+This framework makes heavy use of ring buffers to facilitate message passing between threads. When a command is executed against the cluster leader, it is placed in the leader ring buffer. This buffer has 4 consumer threads that perform the following for each entry in the ring buffer (in order):
  - Encode the log entry (done using ProtBuf).
  - Writing the log entry to disk (using the journaler).
  - Replicating the log entry to peer nodes.
@@ -13,6 +13,11 @@ This framework makes heavy use of ring buffers to facilitate message passing bet
  
 #### Replication
 For each node in the cluster, there is an Actor that is responsible for replicating new entries as well as ensuring the log for that node remains consistent with the leader. The Replication buffer handler(for the leader ring buffer) is responsible for: cloning the entry for each node, posting the new entry to the corresponding Actors, and waiting until at least half of the actors have successfully replicated the log entry.
+
+Followers that receive the AppendEntries request ensure the entry is valid (based on rules outlined in the whitepaper) and publish the new entry (along with other information received in the request) to the follower ring buffer. This buffer has 3 consumer threads that perform the following for each entry in the buffer (in order):
+ - Truncate log if log matching (followers log is inconsistent).
+ - Write entries to disk (using the journaler).
+ - Apply entries that have been successfully commited by the leader.
 
 #### Persistance
 All encoded entries are written to journal files. The journal files are append-only and their size is pre-allocated to ensure reading and writing to the file can be done sequentially. The journaller by default uses Unbuffered IO and ensures the blocks written to the journal files are padded to align to hard drive sector boundaries. Additionally, the journaller will allow you to pass metadata for the block which will be encoded and written next to the journal entry.
