@@ -13,10 +13,10 @@ namespace Raft.Infrastructure.Disruptor
 
         public void OnNext(TEvent data, long sequence, bool endOfBatch)
         {
-            if (data.IsFaulted())
+            if (data.HasFaulted())
                 return;
 
-            if (data.IsCompletedSuccessfully())
+            if (data.HasCompletedSuccessfully())
                 return;
 
             try

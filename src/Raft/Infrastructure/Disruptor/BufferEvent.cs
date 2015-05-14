@@ -11,12 +11,12 @@ namespace Raft.Infrastructure.Disruptor
 
         public TaskCompletionSource<object> CompletionSource { get; protected set; }
 
-        public bool IsCompletedSuccessfully()
+        public bool HasCompletedSuccessfully()
         {
-            return CompletionSource.Task.IsCompleted && !IsFaulted();
+            return CompletionSource.Task.IsCompleted && !HasFaulted();
         }
 
-        public bool IsFaulted()
+        public bool HasFaulted()
         {
             return CompletionSource.Task.IsFaulted;
         }

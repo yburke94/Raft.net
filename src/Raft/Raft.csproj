@@ -37,6 +37,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Atomic.dll</HintPath>
     </Reference>
+    <Reference Include="Crc32C.NET">
+      <HintPath>..\..\packages\Crc32C.NET.1.0.5.0\lib\net20\Crc32C.NET.dll</HintPath>
+    </Reference>
     <Reference Include="Disruptor, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Disruptor.1.1.0\lib\net40\Disruptor.dll</HintPath>
@@ -60,6 +63,9 @@
     <Reference Include="Serilog.FullNetFx, Version=1.5.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Serilog.1.5.5\lib\net45\Serilog.FullNetFx.dll</HintPath>
+    </Reference>
+    <Reference Include="Snappy.NET">
+      <HintPath>..\..\packages\Snappy.NET.1.1.1.8\lib\net45\Snappy.NET.dll</HintPath>
     </Reference>
     <Reference Include="Stateless, Version=2.5.15.0, Culture=neutral, PublicKeyToken=93038f0927583c9a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -85,6 +91,8 @@
     <Compile Include="Core\Cluster\PeerActorFactory.cs" />
     <Compile Include="Core\Cluster\PeerInfo.cs" />
     <Compile Include="Core\Cluster\ReplicateRequest.cs" />
+    <Compile Include="Infrastructure\Compression\ICompressBlock.cs" />
+    <Compile Include="Infrastructure\Compression\IDecompressBlock.cs" />
     <Compile Include="Core\Events\PeerJoinedCluster.cs" />
     <Compile Include="Core\Commands\ApplyEntry.cs" />
     <Compile Include="Core\Commands\CancelElection.cs" />
@@ -110,6 +118,7 @@
     <Compile Include="Configuration\IRaftConfiguration.cs" />
     <Compile Include="Configuration\RaftConfigurationBuilder.cs" />
     <Compile Include="Infrastructure\Actor.cs" />
+    <Compile Include="Infrastructure\Compression\SnappyCompression.cs" />
     <Compile Include="Infrastructure\Disruptor\BufferEvent.cs" />
     <Compile Include="Infrastructure\Disruptor\IPublishToBuffer.cs" />
     <Compile Include="Infrastructure\Disruptor\IEventTranslator.cs" />

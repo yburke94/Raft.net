@@ -93,6 +93,7 @@
   <ItemGroup>
     <Compile Include="Core\Cluster\PeerActorTests.cs" />
     <Compile Include="Infrastructure\ActorTests.cs" />
+    <Compile Include="Infrastructure\Compression\SnappyCompressionTests.cs" />
     <Compile Include="Infrastructure\WaitableCounterTests.cs" />
     <Compile Include="Infrastructure\Wcf\ServiceProxyFactoryTests.cs" />
     <Compile Include="Infrastructure\ZiplistTests.cs" />

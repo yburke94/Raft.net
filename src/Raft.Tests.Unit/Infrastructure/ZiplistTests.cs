@@ -334,7 +334,7 @@ namespace Raft.Tests.Unit.Infrastructure
 
             // The entry will be 16 bytes. The ziplist will try to double the size of the array (current size = 13)
             // but that will not be large enough to accomodate the new bytes. As a result it will increase the array
-            // byt the size of the new bytes.
+            // by the size of the new bytes.
             ziplist.Push(BitConverter.GetBytes(45634L));
             ziplist.SizeInMemory.Should().Be(29);
 

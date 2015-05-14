@@ -57,7 +57,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Leader
             handler.Handle(@event);
 
             // Assert
-            @event.IsCompletedSuccessfully().Should().BeTrue();
+            @event.HasCompletedSuccessfully().Should().BeTrue();
         }
 
         [Test]

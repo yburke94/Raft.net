@@ -355,7 +355,7 @@ namespace Raft.Tests.Unit.Server.Handlers.Follower
             handler.OnNext(request, 0L, true);
 
             // Assert
-            request.IsCompletedSuccessfully().Should().BeTrue();
+            request.HasCompletedSuccessfully().Should().BeTrue();
         }
 
         [Test]

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.CodeDom;
 using Raft.Contracts.Persistance;
+using Raft.Infrastructure;
+using Raft.Infrastructure.Compression;
 
 namespace Raft.Core.Data
 {
@@ -12,9 +15,46 @@ namespace Raft.Core.Data
     /// </remarks>
     internal class InMemoryLog
     {
-        private const int LogIncrementSize = 64;
+        private readonly ICompressBlock _compressor;
+        private readonly IDecompressBlock _decompressor;
 
+        public InMemoryLog()
+        {
+            
+        }
+
+        public InMemoryLog(ICompressBlock compressor, IDecompressBlock decompressor)
+        {
+            _compressor = compressor;
+            _decompressor = decompressor;
+        }
+
+        // To delete
+        private const int LogIncrementSize = 64;
         private RaftLogEntry[] _log = new RaftLogEntry[LogIncrementSize];
+
+
+        /// <summary>
+        /// The index of the array maps to the log entry index.
+        /// The value stored at a given index is the term for the log entry at the index.
+        /// </summary>
+        private long[] _logIdxTermMap;
+
+        /// <summary>
+        /// The index of the array maps to the term number.
+        /// The value stored at a given index is the offset for the term Ziplist entry in the compressedTemrs ziplist.
+        /// </summary>
+        private long[] _termZiplistOffsetMap;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private ZipList _compressedTerms;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private ZipList _currentTermEntries;
 
         public bool HasEntry(long commitIndex)
         {
@@ -73,6 +113,18 @@ namespace Raft.Core.Data
             {
                 Term = term;
                 Entry = entry;
+            }
+
+            public readonly long Term;
+
+            public readonly byte[] Entry;
+        }
+
+        private class LogEntry
+        {
+            public LogEntry(long term)
+            {
+                Term = term;
             }
 
             public readonly long Term;
