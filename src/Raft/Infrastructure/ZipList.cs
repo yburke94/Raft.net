@@ -327,6 +327,18 @@ namespace Raft.Infrastructure
                 : Get(nextEntryOffset);
         }
 
+        private ZipListEntry Get(int offset)
+        {
+            if (_bytes - 1 <= offset || SizeOfZipListHeader > offset)
+                throw new IndexOutOfRangeException("Supplied offset does not fall within range for entries.");
+
+            var prevEntryOffset = ReadHeaderVariable(_blob, offset);
+            var entryLength = ReadHeaderVariable(_blob, offset + SizeOfHeaderVariable);
+            var entryBytes = Read(_blob, offset + SizeOfEntryHeader, entryLength);
+
+            return new ZipListEntry(prevEntryOffset, offset, entryBytes);
+        }
+
         private void Init()
         {
             _bytes += SizeOfZipListHeader + SizeOfEol;
@@ -337,18 +349,6 @@ namespace Raft.Infrastructure
             WriteHeaderVariable(_blob, LengthOffset, _length);
 
             WriteEol(_blob, SizeOfZipListHeader);
-        }
-
-        private ZipListEntry Get(int offset)
-        {
-            if (_bytes-1 <= offset || SizeOfZipListHeader > offset)
-                throw new IndexOutOfRangeException("Supplied offset does not fall within range for entries.");
-
-            var prevEntryOffset = ReadHeaderVariable(_blob, offset);
-            var entryLength = ReadHeaderVariable(_blob, offset + SizeOfHeaderVariable);
-            var entryBytes = Read(_blob, offset + SizeOfEntryHeader, entryLength);
-
-            return new ZipListEntry(prevEntryOffset, offset, entryBytes);
         }
 
         private static void WriteHeaderVariable(byte[] block, int offset, int value)

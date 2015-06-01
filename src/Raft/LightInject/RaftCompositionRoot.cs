@@ -3,6 +3,7 @@ using Raft.Core.Cluster;
 using Raft.Core.Events;
 using Raft.Core.StateMachine;
 using Raft.Infrastructure;
+using Raft.Infrastructure.Compression;
 using Raft.Infrastructure.Disruptor;
 using Raft.Server;
 using Raft.Server.BufferEvents;
@@ -37,6 +38,8 @@ namespace Raft.LightInject
             serviceRegistry.Register<CommandRegister>(new PerContainerLifetime());
 
             serviceRegistry.Register<IPeerActorFactory, PeerActorFactory>(new PerRequestLifeTime());
+
+            serviceRegistry.Register<SnappyCompression>();
 
             // State machine
             serviceRegistry.Register<Node>(new PerContainerLifetime());

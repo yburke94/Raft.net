@@ -11,7 +11,7 @@ namespace Raft.Infrastructure
 
         protected Actor()
         {
-             _sourceLinks = new List<IDisposable>();
+            _sourceLinks = new List<IDisposable>();
             MessagePipeline = new ActionBlock<TMessage>(new Action<TMessage>(Handle));
         }
 
