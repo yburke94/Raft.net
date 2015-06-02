@@ -34,12 +34,12 @@ namespace Raft.Core.Data
         /// <summary>
         /// 
         /// </summary>
-        private ZipList _compressedTerms;
+        private Ziplist _compressedTerms;
 
         /// <summary>
         /// 
         /// </summary>
-        private ZipList _currentTermEntries;
+        private Ziplist _currentTermEntries;
 
         public bool HasEntry(long commitIndex)
         {

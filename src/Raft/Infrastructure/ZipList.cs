@@ -15,7 +15,7 @@ namespace Raft.Infrastructure
     /// <remarks>
     /// This object is NOT THREAD SAFE! Operation on this list should be performed sequentially!
     /// </remarks>
-    public class ZipList
+    public class Ziplist
     {
         private const int SizeOfHeaderVariable = sizeof(int);
 
@@ -54,7 +54,7 @@ namespace Raft.Infrastructure
         }
 
         /// <summary>
-        /// Size of blob in bytes.
+        /// Size of the underlying Ziplist byte array.
         /// </summary>
         public int SizeInMemory
         {
@@ -64,18 +64,12 @@ namespace Raft.Infrastructure
         /// <summary>
         /// Intiializes an empty Ziplist object.
         /// </summary>
-        public ZipList()
+        public Ziplist() : this(0, 0, 0, new byte[0])
         {
-            _bytes = 0;
-            _tail = 0;
-            _length = 0;
-
-            _blob = new byte[0];
-
             Init();
         }
 
-        private ZipList(int bytes, int tail, int length, byte[] blob)
+        private Ziplist(int bytes, int tail, int length, byte[] blob)
         {
             _bytes = bytes;
             _tail = tail;
@@ -85,9 +79,11 @@ namespace Raft.Infrastructure
         }
 
         /// <summary>
-        /// Constructs a ZipList structure given a valid array of bytes.
+        /// Constructs a Ziplist structure given a valid array of bytes.
+        /// The given byte array will become the underlying blob for the Ziplist.
+        /// No copying of the Array will occur.
         /// </summary>
-        public static ZipList FromBytes(byte[] zipListBlob)
+        public static Ziplist FromBytes(byte[] zipListBlob)
         {
             var bytes = ReadHeaderVariable(zipListBlob, BytesOffset);
             var tail = ReadHeaderVariable(zipListBlob, TailOffset);
@@ -99,7 +95,19 @@ namespace Raft.Infrastructure
                     "The passed ziplist bytes are invalid. " +
                     "Ensure the bytes passed have not been corrupted.", "zipListBlob");
 
-            return new ZipList(bytes, tail, length, zipListBlob);
+            return new Ziplist(bytes, tail, length, zipListBlob);
+        }
+
+        /// <summary>
+        /// Constructs a Ziplist structure given a valid array of bytes.
+        /// The given byte array will be copied prior to being used for the Ziplist.
+        /// </summary>
+        public static Ziplist CloneFromBytes(byte[] zipListBlob)
+        {
+            var copiedBlob = new byte[zipListBlob.Length];
+            Array.Copy(zipListBlob, copiedBlob, zipListBlob.Length);
+
+            return FromBytes(copiedBlob);
         }
 
         /// <summary>
@@ -107,21 +115,21 @@ namespace Raft.Infrastructure
         /// </summary>
         public void Resize()
         {
-            _blob = GetBytes();
+            var newBlob = new byte[_bytes];
+            Array.Copy(_blob, newBlob, _bytes);
+            _blob = newBlob;
         }
 
         /// <summary>
-        /// Returns a copy of the ZipList represented as an array of bytes.
+        /// Returns the underlying byte array for the ziplist.
         /// </summary>
         public byte[] GetBytes()
         {
-            var ret = new byte[_bytes];
-            Array.Copy(_blob, ret, _bytes);
-            return ret;
+            return _blob;
         }
 
         /// <summary>
-        /// Returns whether the ZipList structure has any entries.
+        /// Returns whether the Ziplist structure has any entries.
         /// </summary>
         public bool HasEntries
         {
@@ -129,7 +137,7 @@ namespace Raft.Infrastructure
         }
 
         /// <summary>
-        /// Pushes an entry to the end of the ZipList.
+        /// Pushes an entry to the end of the Ziplist.
         /// </summary>
         public void Push(byte[] bytes)
         {
@@ -137,7 +145,7 @@ namespace Raft.Infrastructure
         }
 
         /// <summary>
-        /// Pushes multiple entries to the end of the ZipList.
+        /// Pushes multiple entries to the end of the Ziplist.
         /// </summary>
         public void PushAll(byte[][] byteBlocks)
         {
@@ -170,14 +178,14 @@ namespace Raft.Infrastructure
         }
 
         /// <summary>
-        /// Merges the current ZipList with the Ziplist provided.
-        /// All entries in the provided ZipList will be appended to the current with the order preserved.
+        /// Merges the current Ziplist with the Ziplist provided.
+        /// All entries in the provided Ziplist will be appended to the current with the order preserved.
         /// </summary>
-        public void Merge(ZipList zipList)
+        public void Merge(Ziplist ziplist)
         {
             var idx = 0;
-            var entries = new byte[zipList.Length][];
-            foreach (var entry in zipList.Reader())
+            var entries = new byte[ziplist.Length][];
+            foreach (var entry in ziplist.Reader())
             {
                 entries[idx] = entry.Data;
                 idx++;
@@ -187,13 +195,24 @@ namespace Raft.Infrastructure
         }
 
         /// <summary>
+        /// Clears all entries in the Ziplist.
+        /// </summary>
+        /// <remarks>
+        /// Will not resize the Ziplist to avoid fragmentation in the LOH for large ZipLists.
+        /// </remarks>
+        public void Clear()
+        {
+            Truncate(_length);
+        }
+
+        /// <summary>
         /// Removes entries from the tail of the list.
         /// </summary>
         /// <param name="entriesToRemove">
         /// When equal to 1(default value), a pop operation will be performed at the tail.
         /// When greater than 1, the amount specified will be removed from the list.
         /// </param>
-        /// <returns>The entries removed from the ZipList in the order it existed in the list.</returns>
+        /// <returns>The entries removed from the Ziplist in the order it existed in the list.</returns>
         public ZipListEntry[] Truncate(int entriesToRemove = 1)
         {
             if (entriesToRemove < 1)
@@ -230,7 +249,7 @@ namespace Raft.Infrastructure
             _bytes = eolOffset + 1;
             _tail = nextEntryStart;
 
-            // Write new ZipList Header
+            // Write new Ziplist Header
             WriteHeaderVariable(_blob, BytesOffset, _bytes);
             WriteHeaderVariable(_blob, TailOffset, _tail);
             WriteHeaderVariable(_blob, LengthOffset, _length);
@@ -290,7 +309,7 @@ namespace Raft.Infrastructure
         public ZipListEntry Prev(ZipListEntry entry)
         {
             if (!HasEntries)
-                throw new InvalidOperationException("No items have been added to the ZipList.");
+                throw new InvalidOperationException("No items have been added to the Ziplist.");
 
             if (entry.PreviousOffset == 0) return null; // Entry passed was the first entry.
 
@@ -311,7 +330,7 @@ namespace Raft.Infrastructure
         public ZipListEntry Next(ZipListEntry entry)
         {
             if (!HasEntries)
-                throw new InvalidOperationException("No items have been added to this ZipList.");
+                throw new InvalidOperationException("No items have been added to this Ziplist.");
 
             if (_bytes-1 <= entry.Offset || SizeOfZipListHeader > entry.Offset)
                 throw new IndexOutOfRangeException("Entry offset did not fall within range for entries.");
@@ -406,10 +425,10 @@ namespace Raft.Infrastructure
             private readonly bool _backToFront;
 
             private int _idx;
-            private ZipList _list;
+            private Ziplist _list;
             private ZipListEntry _current;
 
-            public ZipListEnumerator(ZipList list, bool backToFront = false)
+            public ZipListEnumerator(Ziplist list, bool backToFront = false)
             {
                 _list = list;
                 _backToFront = backToFront;
@@ -499,7 +518,7 @@ namespace Raft.Infrastructure
             /// The offset for this entry
             /// </summary>
             /// <remarks>
-            /// This information is held in memory only and is not encoded in the ZipList.
+            /// This information is held in memory only and is not encoded in the Ziplist.
             /// </remarks>
             public int Offset { get; private set; }
 

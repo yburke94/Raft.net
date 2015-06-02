@@ -17,7 +17,7 @@ namespace Raft.Tests.Unit.Infrastructure
         public void CanCreateZiplistAndInitializeCorrectValues()
         {
             // Act
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
 
             // Assert
             ziplist.SizeOfList.Should().Be(ZiplistHeaderSize + ZiplistEolSize);
@@ -29,7 +29,7 @@ namespace Raft.Tests.Unit.Infrastructure
         {
             // Arrange
             var entry = BitConverter.GetBytes(102L);
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
 
             // Act
             ziplist.Push(entry);
@@ -52,7 +52,7 @@ namespace Raft.Tests.Unit.Infrastructure
             for (var i = 0; i < noOfEntries; i++)
                 entries[i] = entry;
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
 
             var combinedEntryHeaderLength = ZiplistEntryHeaderSize*noOfEntries;
             var combinedEntryLength = entry.Length * noOfEntries;
@@ -76,10 +76,10 @@ namespace Raft.Tests.Unit.Infrastructure
             // Arrange
             var entry = BitConverter.GetBytes(10L);
 
-            var ziplist1 = new ZipList();
+            var ziplist1 = new Ziplist();
             ziplist1.Push(entry);
 
-            var ziplist2 = new ZipList();
+            var ziplist2 = new Ziplist();
             ziplist2.Push(entry);
             ziplist2.Push(entry);
 
@@ -105,7 +105,7 @@ namespace Raft.Tests.Unit.Infrastructure
             // Arrange
             var entry = BitConverter.GetBytes(10L);
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(entry);
             ziplist.Push(entry);
             ziplist.Push(entry);
@@ -134,7 +134,7 @@ namespace Raft.Tests.Unit.Infrastructure
                 BitConverter.GetBytes(3969302)
             };
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(BitConverter.GetBytes(10L));
             ziplist.Push(BitConverter.GetBytes(10L));
             ziplist.Push(entriesToTruncate[0]);
@@ -161,7 +161,7 @@ namespace Raft.Tests.Unit.Infrastructure
             // Arrange
             var head = BitConverter.GetBytes(8723648372L);
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(head);
             ziplist.Push(BitConverter.GetBytes(11L));
 
@@ -179,7 +179,7 @@ namespace Raft.Tests.Unit.Infrastructure
             // Arrange
             var tail = BitConverter.GetBytes(5423165451L);
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(BitConverter.GetBytes(11L));
             ziplist.Push(tail);
 
@@ -197,7 +197,7 @@ namespace Raft.Tests.Unit.Infrastructure
             // Arrange
             var middle = BitConverter.GetBytes(5423165451L);
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(BitConverter.GetBytes(11L));
             ziplist.Push(middle);
             ziplist.Push(BitConverter.GetBytes(124L));
@@ -218,7 +218,7 @@ namespace Raft.Tests.Unit.Infrastructure
             // Arrange
             var middle = BitConverter.GetBytes(5423165451L);
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(BitConverter.GetBytes(11L));
             ziplist.Push(middle);
             ziplist.Push(BitConverter.GetBytes(124L));
@@ -245,7 +245,7 @@ namespace Raft.Tests.Unit.Infrastructure
             for (var i = 0; i < numberOfItems; i++)
                 data[i] = (BitConverter.GetBytes(random.Next()));
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.PushAll(data);
 
             // Act
@@ -272,7 +272,7 @@ namespace Raft.Tests.Unit.Infrastructure
             for (var i = 0; i < numberOfItems; i++)
                 data[i] = (BitConverter.GetBytes(random.Next()));
 
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.PushAll(data);
 
             Array.Reverse(data);
@@ -293,7 +293,7 @@ namespace Raft.Tests.Unit.Infrastructure
         public void GetBytesReturnsValidByteArray()
         {
             // Arrange
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(BitConverter.GetBytes(100L));
 
             // Act
@@ -310,15 +310,15 @@ namespace Raft.Tests.Unit.Infrastructure
         }
 
         [Test]
-        public void FromBytesReturnsZipListGivenValidByteArray()
+        public void FromBytesReturnsZiplistGivenValidByteArray()
         {
             // Arrange
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.Push(BitConverter.GetBytes(100L));
             var bytes = ziplist.GetBytes();
 
             // Act
-            var ziplist2 = ZipList.FromBytes(bytes);
+            var ziplist2 = Ziplist.CloneFromBytes(bytes);
 
             // Assert
             ziplist2.Length.Should().Be(ziplist.Length);
@@ -329,7 +329,7 @@ namespace Raft.Tests.Unit.Infrastructure
         public void CanResizeAutoExpandingList()
         {
             // Arrange
-            var ziplist = new ZipList();
+            var ziplist = new Ziplist();
             ziplist.SizeInMemory.Should().Be(13); // Size of header + eol;
 
             // The entry will be 16 bytes. The ziplist will try to double the size of the array (current size = 13)
@@ -351,6 +351,29 @@ namespace Raft.Tests.Unit.Infrastructure
 
             // Assert
             ziplist.SizeInMemory.Should().Be(ziplist.SizeOfList);
+        }
+
+        [Test]
+        public void CanPushEntriesToZiplist()
+        {
+            // Arrange
+            const int initEntriesLen = 1000;
+            var entry = BitConverter.GetBytes(10L);
+            var entries = new byte[initEntriesLen][];
+            for (var i = 0; i < initEntriesLen; i++)
+                entries[i] = entry;
+
+            var ziplist = new Ziplist();
+            ziplist.PushAll(entries);
+            ziplist.Length.Should().Be(initEntriesLen);
+
+            // Act
+            ziplist.Clear();
+
+            // Assert
+            ziplist.Length.Should().Be(0);
+            ziplist.Head().Should().BeNull();
+            ziplist.Tail().Should().BeNull();
         }
     }
 }

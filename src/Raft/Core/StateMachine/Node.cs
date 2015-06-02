@@ -49,11 +49,13 @@ namespace Raft.Core.StateMachine
         public void Handle(CreateCluster @event)
         {
             // TODO: Impl
+            Handle(new SetNewTerm {Term = Properties.CurrentTerm + 1});
         }
 
         public void Handle(JoinCluster @event)
         {
             // TODO: Impl
+            Handle(new SetNewTerm { Term = @event.ClusterTerm });
         }
 
         public void Handle(CommitEntry @event)
