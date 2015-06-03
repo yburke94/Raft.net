@@ -43,7 +43,16 @@ namespace Raft.Core.Data
             _termsLog.AddEntry(entry, term);
         }
 
-        public void Truncate(long idx) { } // TODO
+        public void Truncate(long idx)
+        {
+            /*
+              Figure out Term for entry.
+             * Retrieve that entry from TermsLog
+             * Delete All terms including that term from termslog
+             * Based on idx, figure out how many entries to truncate from that terms Ziplist
+             * Truncate Ziplist and store in termsLog
+             */
+        }
 
         public void Handle(TermChanged @event)
         {

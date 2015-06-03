@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Compression;
+using Raft.Infrastructure.Extensions;
 using Serilog;
 
 namespace Raft.Core.Data
@@ -89,15 +90,12 @@ namespace Raft.Core.Data
                     "Term for entry is greater than current term set in Log." +
                     "Please ensure StartNewTerm() was called on the log prior to adding a new term.");
 
-            if (_lastTermAdded < term)
+            while (term > _lastTermAdded)
             {
-                while (_lastTermAdded != term)
-                {
-                    if (_compressionTasks.ContainsKey(_lastTermAdded))
-                        _compressionTasks[_lastTermAdded].Start();
+                if (_compressionTasks.ContainsKey(_lastTermAdded))
+                    _compressionTasks[_lastTermAdded].Start();
 
-                    _lastTermAdded++;
-                }
+                _lastTermAdded++;
             }
 
             if (term < _currentTerm && !_compressionTasks.ContainsKey(term))
@@ -106,6 +104,40 @@ namespace Raft.Core.Data
 
             var termLog = Ziplist.FromBytes(_termsLog[term]);
             termLog.Push(entry);
+        }
+
+        /// <summary>
+        /// Truncates the log to the specified term. Sets the specified term as the current term.
+        /// Returns the Ziplist for the current term for truncating of entries.
+        /// </summary>
+        public Ziplist Truncate(long newCurrentTerm)
+        {
+            if (!_termsLog.ContainsKey(newCurrentTerm))
+                throw new InvalidOperationException("The TermsLog must contain an entry for the term you wish to truncate to.");
+
+            var termIsCompressed = newCurrentTerm != _currentTerm && !_compressionTasks.ContainsKey(newCurrentTerm);
+
+            var termsToDelete = EnumerableUtilities.Range(newCurrentTerm+1, (int)(_currentTerm - newCurrentTerm));
+            foreach (var term in termsToDelete)
+            {
+                // TODO: Send current term Ziplist back to pool
+
+                if (_termsLog.ContainsKey(term))
+                    _termsLog.Remove(term);
+
+                if (_compressionTasks.ContainsKey(term))
+                    _compressionTasks.Remove(term);
+            }
+
+            _currentTerm = newCurrentTerm;
+            var termLog = termIsCompressed
+                ? Ziplist.FromBytes(_decompressBlock.Decompress(_termsLog[newCurrentTerm]))
+                : Ziplist.FromBytes(_termsLog[newCurrentTerm]);
+
+            if (termIsCompressed)
+                _termsLog[newCurrentTerm] = termLog.GetBytes();
+
+            return termLog;
         }
 
         private void Compress(long term)
