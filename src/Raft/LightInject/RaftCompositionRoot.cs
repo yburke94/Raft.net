@@ -39,7 +39,8 @@ namespace Raft.LightInject
 
             serviceRegistry.Register<IPeerActorFactory, PeerActorFactory>(new PerRequestLifeTime());
 
-            serviceRegistry.Register<SnappyCompression>();
+            serviceRegistry.Register<ICompressBlock, SnappyCompression>();
+            serviceRegistry.Register<IDecompressBlock, SnappyCompression>();
 
             // State machine
             serviceRegistry.Register<Node>(new PerContainerLifetime());

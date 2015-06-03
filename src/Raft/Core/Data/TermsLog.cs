@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Raft.Infrastructure;
+using Raft.Infrastructure.Compression;
 using Serilog;
 
 namespace Raft.Core.Data
 {
     internal class TermsLog
     {
-        private readonly ITermCompressionStrategy _termCompressionStrategy;
         private readonly ZiplistPool _ziplistPool;
+        private readonly ICompressBlock _compressBlock;
+        private readonly IDecompressBlock _decompressBlock;
         private readonly ILogger _logger;
 
         // TODO: Pretty sure some of these should be ConcurrentDictionary...
@@ -18,14 +20,16 @@ namespace Raft.Core.Data
 
         private readonly object _compressionTasksLock = new object();
 
-        private long _currentTerm = 0L;
-        private long _lastTermAdded = 0L;
+        private long _currentTerm;
+        private long _lastTermAdded;
 
-        public TermsLog(ITermCompressionStrategy termCompressionStrategy, ILogger logger, ZiplistPool ziplistPool)
+        public TermsLog(ILogger logger, ZiplistPool ziplistPool,
+            ICompressBlock compressBlock, IDecompressBlock decompressBlock)
         {
-            _termCompressionStrategy = termCompressionStrategy;
-            _ziplistPool = ziplistPool;
             _logger = logger.ForContext<TermsLog>();
+            _ziplistPool = ziplistPool;
+            _compressBlock = compressBlock;
+            _decompressBlock = decompressBlock;
 
             _termsLog = new Dictionary<long, byte[]>();
             _compressionTasks = new Dictionary<long, Task>();
@@ -45,7 +49,7 @@ namespace Raft.Core.Data
                         return Ziplist.CloneFromBytes(_termsLog[term]);
 
             var termLogCompressed = _termsLog[term];
-            return _termCompressionStrategy.Decompress(termLogCompressed);
+            return Ziplist.FromBytes(_decompressBlock.Decompress(termLogCompressed));
         }
 
         public void StartNewTerm(long newTerm)
@@ -110,7 +114,7 @@ namespace Raft.Core.Data
             {
                 var termLog = Ziplist.FromBytes(_termsLog[term]);
 
-                var compressed = _termCompressionStrategy.Compress(termLog);
+                var compressed = _compressBlock.Compress(termLog.GetBytes());
                 _termsLog[term] = compressed;
 
                 _ziplistPool.Add(termLog);

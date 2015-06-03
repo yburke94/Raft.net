@@ -91,10 +91,10 @@
     <Compile Include="Core\Cluster\PeerActorFactory.cs" />
     <Compile Include="Core\Cluster\PeerInfo.cs" />
     <Compile Include="Core\Cluster\ReplicateRequest.cs" />
-    <Compile Include="Core\Data\ITermCompressionStrategy.cs" />
     <Compile Include="Core\Data\LogManager.cs" />
-    <Compile Include="Core\Data\SnappyTermCompressionStrategy.cs" />
     <Compile Include="Core\Data\TermsLog.cs" />
+    <Compile Include="Infrastructure\Compression\ICompressBlock.cs" />
+    <Compile Include="Infrastructure\Compression\IDecompressBlock.cs" />
     <Compile Include="Infrastructure\ZiplistPool.cs" />
     <Compile Include="Core\Events\PeerJoinedCluster.cs" />
     <Compile Include="Core\Commands\ApplyEntry.cs" />

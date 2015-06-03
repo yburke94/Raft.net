@@ -6,7 +6,7 @@ namespace Raft.Infrastructure.Compression
     /// Uses Snappy.NET for Compression and Decompression.
     /// The Snappy.NET library internally uses P/Invokes to call into the Snappy C libraries.
     /// </summary>
-    internal class SnappyCompression
+    internal class SnappyCompression : ICompressBlock, IDecompressBlock
     {
         public byte[] Compress(byte[] block)
         {
