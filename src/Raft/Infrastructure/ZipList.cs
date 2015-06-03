@@ -169,7 +169,7 @@ namespace Raft.Infrastructure
                 WriteHeaderVariable(_blob, LengthOffset, _length);
 
                 // Write Entry
-                var entry = new ZipListEntry(oldTail, _tail, bytes);
+                var entry = new ZiplistEntry(oldTail, _tail, bytes);
                 Write(_blob, _tail, entry.GetBytes());
             }
 
@@ -213,7 +213,7 @@ namespace Raft.Infrastructure
         /// When greater than 1, the amount specified will be removed from the list.
         /// </param>
         /// <returns>The entries removed from the Ziplist in the order it existed in the list.</returns>
-        public ZipListEntry[] Truncate(int entriesToRemove = 1)
+        public ZiplistEntry[] Truncate(int entriesToRemove = 1)
         {
             if (entriesToRemove < 1)
                 throw new ArgumentException("Entries to remove must not be less than 1.");
@@ -221,7 +221,7 @@ namespace Raft.Infrastructure
             if (entriesToRemove > _length)
                 throw new ArgumentException("Entries to remove cannot be greater than length.");
 
-            var entriesToReturn = new ZipListEntry[entriesToRemove];
+            var entriesToReturn = new ZiplistEntry[entriesToRemove];
 
             var nextEntryStart = _tail;
             var offsetsCalculated = 0;
@@ -269,7 +269,7 @@ namespace Raft.Infrastructure
         /// <summary>
         /// Returns an <see cref="IEnumerable"/> that will allow you to traverse the list from front to back.
         /// </summary>
-        public IEnumerable<ZipListEntry> Reader()
+        public IEnumerable<ZiplistEntry> Reader()
         {
             return new ZipListEnumerator(this);
         }
@@ -277,7 +277,7 @@ namespace Raft.Infrastructure
         /// <summary>
         /// Returns an <see cref="IEnumerable"/> that will allow you to traverse the list from back to front.
         /// </summary>
-        public IEnumerable<ZipListEntry> ReverseReader()
+        public IEnumerable<ZiplistEntry> ReverseReader()
         {
             return new ZipListEnumerator(this, true);
         }
@@ -285,7 +285,7 @@ namespace Raft.Infrastructure
         /// <summary>
         /// Gets the Head(first entry) of the list.
         /// </summary>
-        public ZipListEntry Head()
+        public ZiplistEntry Head()
         {
             return HasEntries
                 ? Get(SizeOfZipListHeader)
@@ -295,7 +295,7 @@ namespace Raft.Infrastructure
         /// <summary>
         /// Gets the Tail(last entry) of the list.
         /// </summary>
-        public ZipListEntry Tail()
+        public ZiplistEntry Tail()
         {
             return HasEntries
                 ? Get(_tail)
@@ -306,7 +306,7 @@ namespace Raft.Infrastructure
         /// Gets the entry immediately preceeding the supplied entry.
         /// If there is no preceeding entry, null will be returned.
         /// </summary>
-        public ZipListEntry Prev(ZipListEntry entry)
+        public ZiplistEntry Prev(ZiplistEntry entry)
         {
             if (!HasEntries)
                 throw new InvalidOperationException("No items have been added to the Ziplist.");
@@ -327,7 +327,7 @@ namespace Raft.Infrastructure
         /// Gets the entry immediately following the supplied entry.
         /// If there is no following entry, null will be returned.
         /// </summary>
-        public ZipListEntry Next(ZipListEntry entry)
+        public ZiplistEntry Next(ZiplistEntry entry)
         {
             if (!HasEntries)
                 throw new InvalidOperationException("No items have been added to this Ziplist.");
@@ -346,7 +346,7 @@ namespace Raft.Infrastructure
                 : Get(nextEntryOffset);
         }
 
-        private ZipListEntry Get(int offset)
+        private ZiplistEntry Get(int offset)
         {
             if (_bytes - 1 <= offset || SizeOfZipListHeader > offset)
                 throw new IndexOutOfRangeException("Supplied offset does not fall within range for entries.");
@@ -355,7 +355,7 @@ namespace Raft.Infrastructure
             var entryLength = ReadHeaderVariable(_blob, offset + SizeOfHeaderVariable);
             var entryBytes = Read(_blob, offset + SizeOfEntryHeader, entryLength);
 
-            return new ZipListEntry(prevEntryOffset, offset, entryBytes);
+            return new ZiplistEntry(prevEntryOffset, offset, entryBytes);
         }
 
         private void Init()
@@ -401,6 +401,8 @@ namespace Raft.Infrastructure
             return BitConverter.ToInt32(Read(block, offset, SizeOfHeaderVariable), 0);
         }
 
+        // TODO: This has to be smarter. ushort.MaxValue is too big an increment to allow.
+        // TODO: Would be better if size increased where based on previous required increment sizes.
         private static void ExtendBlockIfRequired(ref byte[] block, int lengthAdded, int addingFrom)
         {
             var maxChangeLength = addingFrom + lengthAdded;
@@ -420,13 +422,13 @@ namespace Raft.Infrastructure
             block = newBlock;
         }
 
-        private class ZipListEnumerator : IEnumerator<ZipListEntry>, IEnumerable<ZipListEntry>
+        private class ZipListEnumerator : IEnumerator<ZiplistEntry>, IEnumerable<ZiplistEntry>
         {
             private readonly bool _backToFront;
 
             private int _idx;
             private Ziplist _list;
-            private ZipListEntry _current;
+            private ZiplistEntry _current;
 
             public ZipListEnumerator(Ziplist list, bool backToFront = false)
             {
@@ -467,7 +469,7 @@ namespace Raft.Infrastructure
                 _current = null;
             }
 
-            public ZipListEntry Current
+            public ZiplistEntry Current
             {
                 get { return _current; }
             }
@@ -477,7 +479,7 @@ namespace Raft.Infrastructure
                 get { return Current; }
             }
 
-            public IEnumerator<ZipListEntry> GetEnumerator()
+            public IEnumerator<ZiplistEntry> GetEnumerator()
             {
                 return this;
             }
@@ -497,7 +499,7 @@ namespace Raft.Infrastructure
         /// <summary>
         /// Represents an entry endoded in a Ziplist.
         /// </summary>
-        public class ZipListEntry
+        public class ZiplistEntry
         {
             /// <summary>
             /// The offset for the entry immediately preceeding the current entry.
@@ -522,7 +524,7 @@ namespace Raft.Infrastructure
             /// </remarks>
             public int Offset { get; private set; }
 
-            public ZipListEntry(int prevOffset, int offset, byte[] data)
+            public ZiplistEntry(int prevOffset, int offset, byte[] data)
             {
                 PreviousOffset = prevOffset;
                 Length = data.Length;
