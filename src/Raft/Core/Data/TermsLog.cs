@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Raft.Infrastructure;
 using Raft.Infrastructure.Compression;
@@ -17,7 +18,7 @@ namespace Raft.Core.Data
 
         // TODO: Pretty sure some of these should be ConcurrentDictionary...
         private readonly IDictionary<long, byte[]> _termsLog;
-        private readonly IDictionary<long, Task> _compressionTasks;
+        private readonly IDictionary<long, CompressionTask> _compressionTasks;
 
         private readonly object _compressionTasksLock = new object();
 
@@ -33,7 +34,7 @@ namespace Raft.Core.Data
             _decompressBlock = decompressBlock;
 
             _termsLog = new Dictionary<long, byte[]>();
-            _compressionTasks = new Dictionary<long, Task>();
+            _compressionTasks = new Dictionary<long, CompressionTask>();
         }
 
         public Ziplist GetTermLog(long term)
@@ -44,9 +45,9 @@ namespace Raft.Core.Data
             if (!_termsLog.ContainsKey(term))
                 throw new ArgumentException("No log contained for term.");
 
-            if (_compressionTasks.ContainsKey(term))
+            if (IsCompressed(term))
                 lock (_compressionTasksLock)
-                    if (_compressionTasks.ContainsKey(term))
+                    if (IsCompressed(term))
                         return Ziplist.CloneFromBytes(_termsLog[term]);
 
             var termLogCompressed = _termsLog[term];
@@ -69,16 +70,22 @@ namespace Raft.Core.Data
 
             if (_termsLog.ContainsKey(currTerm))
                 _logger.Warning("{Term} already existed in compressed log. " +
-                                "The entry for the term will be overwritten.",
-                    currTerm);
+                                "The entry for the term will be overwritten.", currTerm);
 
-            var compressionTask = new Task(() => Compress(currTerm));
+            var cancellation = new CancellationTokenSource();
+            var compressionTask = new Task<bool>(
+                () => Compress(currTerm, cancellation.Token),
+                cancellation.Token);
+
             compressionTask.ContinueWith(
                 _ =>  _compressionTasks.Remove(currTerm),
                 TaskContinuationOptions.ExecuteSynchronously |
                 TaskContinuationOptions.OnlyOnRanToCompletion);
 
-            _compressionTasks.Add(currTerm, compressionTask);
+            _compressionTasks.Add(currTerm, new CompressionTask {
+                Task = compressionTask,
+                Cancellation = cancellation
+            });
 
             _termsLog.Add(newTerm, _ziplistPool.Create().GetBytes());
         }
@@ -93,7 +100,7 @@ namespace Raft.Core.Data
             while (term > _lastTermAdded)
             {
                 if (_compressionTasks.ContainsKey(_lastTermAdded))
-                    _compressionTasks[_lastTermAdded].Start();
+                    _compressionTasks[_lastTermAdded].Task.Start();
 
                 _lastTermAdded++;
             }
@@ -115,42 +122,93 @@ namespace Raft.Core.Data
             if (!_termsLog.ContainsKey(newCurrentTerm))
                 throw new InvalidOperationException("The TermsLog must contain an entry for the term you wish to truncate to.");
 
-            var termIsCompressed = newCurrentTerm != _currentTerm && !_compressionTasks.ContainsKey(newCurrentTerm);
-
             var termsToDelete = EnumerableUtilities.Range(newCurrentTerm+1, (int)(_currentTerm - newCurrentTerm));
             foreach (var term in termsToDelete)
             {
-                // TODO: Send current term Ziplist back to pool
+                if (CancelCompression(term))
+                {
+                    var ziplist = Ziplist.FromBytes(_termsLog[term]);
+                    _ziplistPool.Add(ziplist);
+                }
 
-                if (_termsLog.ContainsKey(term))
-                    _termsLog.Remove(term);
+                _termsLog.Remove(term);
+            }
 
-                if (_compressionTasks.ContainsKey(term))
-                    _compressionTasks.Remove(term);
+            Ziplist newTermLog;
+
+            if (!CancelCompression(newCurrentTerm))
+            {
+                newTermLog = Ziplist.FromBytes(
+                    _decompressBlock.Decompress(_termsLog[newCurrentTerm]));
+
+                _termsLog[newCurrentTerm] = newTermLog.GetBytes();
+            }
+            else
+            {
+                newTermLog = Ziplist.FromBytes(_termsLog[newCurrentTerm]);
             }
 
             _currentTerm = newCurrentTerm;
-            var termLog = termIsCompressed
-                ? Ziplist.FromBytes(_decompressBlock.Decompress(_termsLog[newCurrentTerm]))
-                : Ziplist.FromBytes(_termsLog[newCurrentTerm]);
 
-            if (termIsCompressed)
-                _termsLog[newCurrentTerm] = termLog.GetBytes();
-
-            return termLog;
+            return newTermLog;
         }
 
-        private void Compress(long term)
+        private bool IsCompressed(long term)
         {
+            return term != _currentTerm && !_compressionTasks.ContainsKey(term);
+        }
+
+        private bool Compress(long term, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
             lock (_compressionTasksLock)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var termLog = Ziplist.FromBytes(_termsLog[term]);
 
                 var compressed = _compressBlock.Compress(termLog.GetBytes());
                 _termsLog[term] = compressed;
 
                 _ziplistPool.Add(termLog);
+                return true;
             }
         }
+
+        private bool CancelCompression(long term)
+        {
+            if (!_compressionTasks.ContainsKey(term))
+                return true;
+
+            if (IsCompressed(term))
+                return false;
+
+            lock (_compressionTasksLock)
+            {
+                if (IsCompressed(term))
+                    return false;
+
+                var compressionTask = _compressionTasks[term];
+                compressionTask.Cancellation.Cancel();
+
+                try
+                {
+                    compressionTask.Task.Wait();
+                    return false;
+                }
+                catch (AggregateException)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    internal class CompressionTask
+    {
+        public Task<bool> Task { get; set; }
+
+        public CancellationTokenSource Cancellation { get; set; }
     }
 }
