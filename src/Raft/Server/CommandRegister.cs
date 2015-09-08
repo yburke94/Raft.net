@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Raft.Contracts;
+using Raft.Core.Data;
 using Raft.Core.Events;
 using Raft.Infrastructure;
 
@@ -10,7 +11,7 @@ namespace Raft.Server
     /// <summary>
     /// Maintains commands for a given term so they can be lazily applied by followers.
     /// They will be held in memory until they are applied or until the term has ended.
-    /// This eliminates the overhead of decoding the command data in the InMemoryLog.
+    /// This eliminates the overhead of decoding the command data in the <see cref="InMemoryLog" />.
     /// </summary>
     /// <remarks>
     /// When a follower has received an entry from the leader in order to LogMatch,

@@ -1,6 +1,5 @@
 ﻿using System;
 using Disruptor;
-using Serilog;
 
 namespace Raft.Infrastructure.Disruptor
 {
@@ -18,13 +17,13 @@ namespace Raft.Infrastructure.Disruptor
             try
             {
                 _handler.OnNext(data, sequence, endOfBatch);
-                Log.ForContext("BufferHandler", _handler.GetType().AssemblyQualifiedName)
+                Serilog.Log.ForContext("BufferHandler", _handler.GetType().AssemblyQualifiedName)
                     .Debug("Handler successfully handled event '{eventType}'",
                     data.GetType().AssemblyQualifiedName);
             }
             catch (Exception exc)
             {
-                Log.ForContext("BufferHandler", _handler.GetType().AssemblyQualifiedName)
+                Serilog.Log.ForContext("BufferHandler", _handler.GetType().AssemblyQualifiedName)
                     .Error(exc, "An error occurred handling event '{eventType}'.",
                     data.GetType().AssemblyQualifiedName);
             }

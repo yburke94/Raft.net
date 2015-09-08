@@ -97,7 +97,7 @@ namespace Raft.Core.Data
                     "Term for entry is greater than current term set in Log." +
                     "Please ensure StartNewTerm() was called on the log prior to adding a new term.");
 
-            while (term > _lastTermAdded)
+            while (_lastTermAdded < term)
             {
                 if (_compressionTasks.ContainsKey(_lastTermAdded))
                     _compressionTasks[_lastTermAdded].Task.Start();

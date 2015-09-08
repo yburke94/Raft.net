@@ -141,6 +141,7 @@
     <Compile Include="LightInject\LightInject.cs" />
     <Compile Include="LightInject\LightInjectEventDispatcher.cs" />
     <Compile Include="LightInject\RaftCompositionRoot.cs" />
+    <Compile Include="Log\ILogCursor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RaftApp.cs" />
     <Compile Include="Server\BufferEvents\CommandScheduled.cs" />

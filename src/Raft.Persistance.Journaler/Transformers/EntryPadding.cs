@@ -41,7 +41,7 @@ namespace Raft.Persistance.Journaler.Transformers
             var paddedBytesLength = BitConverter.GetBytes(amountToPad);
 
             return amountToPad == sectorSize
-                ? entryBytes.AppendBytes(BitConverter.GetBytes(0))
+                ? entryBytes.AppendBytes(BitConverter.GetBytes(0)) // Padding Length.
                 : entryBytes
                     .AppendBytes(paddedBytesLength)
                     .AppendBytes(new byte[amountToPad]);

@@ -26,6 +26,7 @@ namespace Raft.Core.Data
 
 
         /// <summary>
+        /// 
         /// The index of the array maps to the term number.
         /// The value stored at a given index is the offset for the term Ziplist entry in the compressedTemrs ziplist.
         /// </summary>
